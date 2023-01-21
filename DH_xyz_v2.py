@@ -72,7 +72,7 @@ def interpolate_points(traces, point_df, id_col, depth_col):
     return points
 
 def interpolate_intervals(traces, interval_df, id_col, from_col, to_col):
-        intervals = {}
+    intervals = {}
     for id, group in interval_df.groupby(id_col):
         if id in traces:
             f = interpolate.interp1d(traces[id][:, 3], traces[id][:, :3], axis=0, fill_value="extrapolate")
