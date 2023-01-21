@@ -9,7 +9,6 @@ def handle_file_upload(file):
     if file is not None:
         data = pd.read_csv(file)
         st.write(data)
-        return data
 
 def handle_files(file_uploaders):
     files = {}
@@ -22,12 +21,12 @@ def handle_files(file_uploaders):
     return files, dataframes
 
 
-def main():
-    file_uploaders = {'collar': st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"]),
-                      'survey': st.file_uploader("Upload survey data (csv or excel)", type=["csv", "xlsx"]),
-                      'point': st.file_uploader("Upload point data (csv or excel)", type=["csv", "xlsx"]),
-                      'interval': st.file_uploader("Upload interval data (csv or excel)", type=["csv", "xlsx"])}
-    files, dataframes = handle_files(file_uploaders)
+ef main():
+    file_uploaders = {'collar': st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"], on_change=lambda file: handle_file_upload(file)),
+                      'survey': st.file_uploader("Upload survey data (csv or excel)", type=["csv", "xlsx"], on_change=lambda file: handle_file_upload(file)),
+                      'point': st.file_uploader("Upload point data (csv or excel)", type=["csv", "xlsx"], on_change=lambda file: handle_file_upload(file)),
+                      'interval': st.file_uploader("Upload interval data (csv or excel)", type=["csv", "xlsx"], on_change=lambda file: handle_file_upload(file))}
+
 
 
 if __name__ == '__main__':
