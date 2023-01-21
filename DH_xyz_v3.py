@@ -15,11 +15,12 @@ def handle_files(file_uploaders):
     files = {}
     dataframes = {}
     for label, file_uploader in file_uploaders.items():
-        file = file_uploader()
+        file = file_uploader
         if file:
             files[label] = file
             dataframes[label] = pd.read_csv(file)
     return files, dataframes
+
 
 def main():
     file_uploaders = {'collar': st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"]),
