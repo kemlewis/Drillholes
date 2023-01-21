@@ -4,31 +4,20 @@ import pandas as pd
 class FileReader:
     def __init__(self):
         self.ENCODINGS = ["utf-8", "latin1", "iso-8859-1", "ascii"]
-        self.df_collar = None
-        self.df_survey = None
+        self.df_file = None
 
     def main(self):
         st.title("File Reader")
-        self.load_collar_file()
-        self.load_survey_file()
+        self.load_file()
 
-    def load_collar_file(self):
-        file = st.file_uploader("Select a collar file (csv or excel)", type=["csv", "xlsx"], key="collar")
+    def load_file(self):
+        file = st.file_uploader("Select a file (csv or excel)", type=["csv", "xlsx"], key="file")
         if file is not None:
-            df_collar = self.read_file(file, key="collar")
-            if df_collar is not None:
+            df_file = self.read_file(file, key="file")
+            if df_file is not None:
                 st.success(f"{file.name} loaded successfully!")
-                st.write(df_collar)
-                self.df_collar = df_collar
-
-    def load_survey_file(self):
-        file = st.file_uploader("Select a survey file (csv or excel)", type=["csv", "xlsx"], key="survey")
-        if file is not None:
-            df_survey = self.read_file(file, key="survey")
-            if df_survey is not None:
-                st.success(f"{file.name} loaded successfully!")
-                st.write(df_survey)
-                self.df_survey = df_survey
+                st.write(df_file)
+                self.df_file = df_file
 
     def read_file(self, file, key):
         for encoding in self.ENCODINGS:
