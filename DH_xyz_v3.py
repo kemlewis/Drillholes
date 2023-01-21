@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 
 def main():
-    st.set_page_config(page_title="Upload Data", page_icon=":guardsman:", layout="wide")
     st.title("Upload Data")
+    st.markdown("<h1 style='text-align:center;'>Upload Data <i class='fa fa-guardsman' aria-hidden='true'></i></h1>", unsafe_allow_html=True)
+    st.markdown("<style>body{width:95%;}</style>", unsafe_allow_html=True)
 
     collar_file = st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"])
     if collar_file is not None:
