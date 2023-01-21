@@ -36,7 +36,7 @@ def calculate_drillhole_traces(collar_df, id_col, x_col, y_col, z_col, survey_df
     for id, collar in collar_df[[id_col, x_col, y_col, z_col]].groupby(id_col):
         survey = survey_df[survey_df[id_col] == id]
         survey["dx"] = np.cos(np.radians(survey[dip_col])) * np.cos(np.radians(survey[azimuth_col]))
-                survey["dy"] = np.cos(np.radians(survey[dip_col])) * np.sin(np.radians(survey[azimuth_col]))
+        survey["dy"] = np.cos(np.radians(survey[dip_col])) * np.sin(np.radians(survey[azimuth_col]))
         survey["dz"] = -np.sin(np.radians(survey[dip_col]))
         survey["x"] = collar[x_col] + survey["dx"].cumsum()
         survey["y"] = collar[y_col] + survey["dy"].cumsum()
