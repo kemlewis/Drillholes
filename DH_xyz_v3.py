@@ -5,24 +5,23 @@ ENCODINGS = ["utf-8", "latin1", "iso-8859-1", "ascii"]
 
 def main():
     st.title("File Reader")
+    df_collar = load_file("Select a collar file (csv or excel)", type=["csv", "xlsx"])
+    df_survey = load_file("Select a survey file (csv or excel)", type=["csv", "xlsx"])
+    if df_collar is not None:
+        st.dataframe(df_collar)
+    if df_survey is not None:
+        st.dataframe(df_survey)
 
-    collar_file = st.file_uploader("Select a collar file (csv or excel)", type=["csv", "xlsx"])
-    if collar_file is not None:
-        df_collar = read_file(collar_file)
-        if df_collar is not None:
-            st.success("Collar file loaded successfully!")
-            st.dataframe(df_collar)
+def load_file(label, type):
+    file = st.file_uploader(label, type=type)
+    if file is not None:
+        data = read_file(file)
+        if data is not None:
+            st.success(f"{file.name} loaded successfully!")
+            return data
         else:
-            st.warning("An error occurred while loading the collar file.")
-
-    survey_file = st.file_uploader("Select a survey file (csv or excel)", type=["csv", "xlsx"])
-    if survey_file is not None:
-        df_survey = read_file(survey_file)
-        if df_survey is not None:
-            st.success("Survey file loaded successfully!")
-            st.dataframe(df_survey)
-        else:
-            st.warning("An error occurred while loading the survey file.")
+            st.warning(f"An error occurred while loading the {file.name} file.")
+            return None
 
 def read_file(file):
     for encoding in ENCODINGS:
