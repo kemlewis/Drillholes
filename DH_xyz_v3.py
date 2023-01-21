@@ -10,10 +10,14 @@ def read_csv(file_type):
     file = st.file_uploader(f"Upload the {file_type} file (CSV, UTF-8 encoding)", type=["csv"])
 
     if file is None:
+        st.error("No file was uploaded.")
         return None, None
-
-    if os.path.getsize(file.name) == 0:
-        st.error("The file is empty.")
+    try:
+        if os.path.getsize(file.name) == 0:
+            st.error("The file is empty.")
+            return None, None
+    except FileNotFoundError:
+        st.error("The file could not be found.")
         return None, None
     if not file.name.endswith('.csv'):
         st.error("The file is not a valid csv file.")
@@ -28,7 +32,6 @@ def read_csv(file_type):
         return None, None
     else:
         return df, None
-
 
 def select_columns(df, file_type):
     """
