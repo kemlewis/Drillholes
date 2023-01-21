@@ -44,8 +44,8 @@ class FileReader:
             except Exception as e:
                 if encoding == self.ENCODINGS[-1]:
                     st.warning("An error occurred while reading the file. Please make sure the file is in the correct format or check the encoding.")
-                    encoding = st.selectbox("Select the file's encoding", self.ENCODINGS, key=f"{key}_encoding_key")
-                    if st.button("Confirm"):
+                    encoding = st.selectbox("Select the file's encoding", self.ENCODINGS, key="unique_encoding_key_"+key)
+                    if st.button("Confirm", key="confirm_"+key):
                         try:
                             if file.name.endswith(".csv"):
                                 data = pd.read_csv(file, encoding=encoding)
@@ -57,11 +57,7 @@ class FileReader:
                             return data
                         except Exception as e:
                             st.error("An error occurred while reading the file. Please make sure the file is in the correct format or check the encoding.")
-                            return None
-                    else:
-                        continue
-                else:
-                    continue
+
 
 if __name__ == "__main__":
     file_reader = FileReader()
