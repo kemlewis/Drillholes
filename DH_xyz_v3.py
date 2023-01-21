@@ -19,20 +19,17 @@ def load_data(file_type):
         st.error("File must be of type .csv or .xlsx")
         return None
 
-    encodings = ['utf-8', 'latin-1', 'iso-8859-1', 'utf-8']
-    for enc in encodings:
-        try:
-            with open(file, 'r', encoding=enc) as f:
-                if file.name.endswith(".csv"):
-                    df = pd.read_csv(f)
-                else:
-                    df = pd.read_excel(f)
-            st.dataframe(df.head())
-            return df
-        except:
-            pass
-    st.error("An error occurred while trying to read the file. Please check the file format and try again.")
-    return None
+    try:
+        if file.name.endswith(".csv"):
+            df = pd.read_csv(file)
+        else:
+            df = pd.read_excel(file)
+        st.dataframe(df.head())
+        return df
+    except:
+        st.error("An error occurred while trying to read the file. Please check the file format and try again.")
+        return None
+
 
 def load_collar_file():
     collar_df = load_data("collar")
