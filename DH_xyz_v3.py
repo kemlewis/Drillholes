@@ -5,6 +5,7 @@ st.title("Upload Data")
 
 def handle_file_upload(file, key):
     if file is None:
+        st.write("NONE")
         return
     data = pd.read_csv(file)
     st.dataframe(data)
