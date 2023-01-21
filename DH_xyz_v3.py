@@ -9,8 +9,8 @@ class FileReader:
 
     def main(self):
         st.title("File Reader")
-        self.load_collar_file()
-        self.load_survey_file()
+        self.df_collar = self.load_collar_file()
+        self.df_survey = self.load_survey_file()
 
     def load_collar_file(self):
         file = st.file_uploader("Select a collar file (csv or excel)", type=["csv", "xlsx"], key="collar")
