@@ -9,11 +9,11 @@ def uploader_callback():
 
 def main():
    
-    if collar_file is not None:
+    if collar_file is None:
         collar_df = pd.read_csv(collar_file)
         diplay_collar_df = st.dataframe(collar_df)
     
-    if survey_file is not None:
+    if survey_file is None:
         survey_df = pd.read_csv(survey_file)
         diplay_survey_df = st.dataframe(survey_df)
     
