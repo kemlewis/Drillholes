@@ -9,11 +9,11 @@ def main():
     collar_file = st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"], key=1)
     if collar_file is not None:
         collar_df = pd.read_csv(collar_file)
-        diplay_collar_df = st.dataframe(collar_df, key=2)
-    survey_file = st.file_uploader("Upload survey data (csv or excel)", type=["csv", "xlsx"], key=3)
+        diplay_collar_df = st.dataframe(collar_df)
+    survey_file = st.file_uploader("Upload survey data (csv or excel)", type=["csv", "xlsx"], key=2)
     if survey_file is not None:
         survey_df = pd.read_csv(survey_file)
-        diplay_survey_df = st.dataframe(survey_df, key=4)
+        diplay_survey_df = st.dataframe(survey_df)
     point_file = st.file_uploader("Upload point data (csv or excel)", type=["csv", "xlsx"])
     if point_file is not None:
         point_df = pd.read_csv(point_file)
