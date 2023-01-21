@@ -35,10 +35,9 @@ def load_collar_file():
     collar_df = load_data("collar")
     if collar_df is not None:
         id_col = st.selectbox("Select the column containing the drillhole ID", collar_df.columns)
-        x_col = st.selectbox("Select the column containing the X coordinate", collar_df.columns)
-        y_col = st.selectbox("Select the column containing the Y coordinate", collar_df.columns)
-        z_col = st.selectbox("Select the column containing the Z coordinate", collar_df.columns)
-        extra_cols = st.multiselect("Select any additional columns to display", collar_df.columns)
+        x_col = collar_df[st.selectbox("Select the column containing the X coordinate", collar_df.columns)]
+        y_col = collar_df[st.selectbox("Select the column containing the Y coordinate", collar_df.columns)]
+        z_col = collar_df[st.selectbox("Select the column containing the Z coordinate", collar_df.columns)]
         return collar_df, id_col, x_col, y_col, z_col, extra_cols
     else:
         return None, None, None, None, None, None
