@@ -8,8 +8,10 @@ class FileReader:
 
     def main(self):
         st.title("File Reader")
+        i = 0
         while True:
-            file = st.file_uploader("Select a file (csv or excel)", type=["csv", "xlsx"])
+            file = st.file_uploader("Select a file (csv or excel)", type=["csv", "xlsx"], key=f"file_{i}")
+            i += 1
             if file is not None:
                 df_file = self.read_file(file)
                 if df_file is not None:
@@ -18,6 +20,7 @@ class FileReader:
                     self.df_files.append(df_file)
             if not st.button("Add another file"):
                 break
+
 
     def read_file(self, file):
         for encoding in self.ENCODINGS:
