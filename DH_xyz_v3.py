@@ -61,9 +61,9 @@ def calculate_drillhole_traces(collar_df, id_col_collar, x_col, y_col, z_col, su
         survey["dx"] = np.cos(np.radians(survey[dip_col])) * np.cos(np.radians(survey[azimuth_col]))
         survey["dy"] = np.cos(np.radians(survey[dip_col])) * np.sin(np.radians(survey[azimuth_col]))
         survey["dz"] = -np.sin(np.radians(survey[dip_col]))
-        survey["x"] = collar[x_col] + survey["dx"].cumsum()
-        survey["y"] = collar[y_col] + survey["dy"].cumsum()
-        survey["z"] = collar[z_col] + survey["dz"].cumsum()
+        survey["x"] = collar[collar_df.columns.get_loc(x_col)] + survey["dx"].cumsum()
+        survey["y"] = collar[collar_df.columns.get_loc(y_col)] + survey["dy"].cumsum()
+        survey["z"] = collar[collar_df.columns.get_loc(z_col)] + survey["dz"].cumsum()
         traces[id] = survey[["x", "y", "z", depth_col]].values
     return traces
 
@@ -126,8 +126,6 @@ def plot_drillholes(traces, intervals, interval_df, data_cols, show_annotation):
                     text = ', '.join([f"{col}: {interval_data.iloc[i][col]}" for col in data_cols])
                     fig.add_trace(go.Scatter3d(x=[point[0]], y=[point[1]], z=[point[2]], text=text, mode='markers', name=id+'_interval'))
     st.plotly_chart(fig)
-    
-
 
 def load_interval_data():
     interval_df = load_data("interval")
