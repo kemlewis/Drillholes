@@ -7,7 +7,6 @@ class FileReader:
         self.df_collar = None
         self.df_survey = None
 
-
     def main(self):
         st.title("File Reader")
         self.df_collar = self.load_file("Select a collar file (csv or excel)", type=["csv", "xlsx"], key="collar")
@@ -21,14 +20,13 @@ class FileReader:
                 st.success(f"{file.name} loaded successfully!")
                 if key == "collar":
                     self.df_collar = data
-                elif key == "survey":
-                    self.df_survey = data
-                st.write(data, key=key)
+            elif key == "survey":
+                self.df_survey = data
+                st.write(data)
                 return data
             else:
                 st.warning(f"An error occurred while loading the {file.name} file.")
                 return None
-
 
     def read_file(self, file, key):
         for encoding in self.ENCODINGS:
