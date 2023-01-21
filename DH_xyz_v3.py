@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
+import io
 
 def get_dataframe_from_csv(file):
-    return pd.read_csv(file)
+    return pd.read_csv(io.BytesIO(file.read()))
 
 def main():
     st.title("Upload multiple CSV files")
