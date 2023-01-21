@@ -30,7 +30,6 @@ def load_data(file_type):
         st.error("An error occurred while trying to read the file. Please check the file format and try again.")
         return None
 
-
 def load_collar_file():
     collar_df = load_data("collar")
     if collar_df is not None:
