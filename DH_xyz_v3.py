@@ -14,9 +14,9 @@ def main():
 
     for encoding in ENCODINGS:
         try:
-            if file.endswith(".csv"):
+            if file.name.endswith(".csv"):
                 data = pd.read_csv(file, encoding=encoding)
-            elif file.endswith(".xlsx"):
+            elif file.name.endswith(".xlsx"):
                 data = pd.read_excel(file, encoding=encoding)
             else:
                 st.warning("File type not supported. Please upload a csv or excel file.")
@@ -30,9 +30,9 @@ def main():
                 encoding = st.selectbox("Select the file's encoding", ENCODINGS)
                 if st.button("Confirm"):
                     try:
-                        if file.endswith(".csv"):
+                        if file.name.endswith(".csv"):
                             data = pd.read_csv(file, encoding=encoding)
-                        elif file.endswith(".xlsx"):
+                        elif file.name.endswith(".xlsx"):
                             data = pd.read_excel(file, encoding=encoding)
                         else:
                             st.warning("File type not supported. Please upload a csv or excel file.")
