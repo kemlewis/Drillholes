@@ -108,21 +108,28 @@ def plot_drillholes(traces, intervals, interval_df, data_cols, show_annotation):
     
 def load_data(file_type):
     file = st.file_uploader(f"Upload {file_type} file (.csv or .xlsx)")
-    if file is not None:
-        try:
-            encodings = ['utf-8', 'latin-1', 'iso-8859-1']
-            for enc in encodings:
-                with open(file, 'r', encoding=enc) as f:
-                    df = pd.read_csv(f)
-                    st.dataframe(df.head())
-                    return df
-        except Exception as e:
-            st.error(e)
-            st.error("An error occurred while trying to read the file. Please check the file format and try again.")
-            return None
-    else:
+    if file is None:
         st.error("Please upload a file")
         return None
+
+    if not file.name.endswith(".csv") and not file.name.endswith(".xlsx"):
+        st.error("File must be of type .csv or .xlsx")
+        return None
+
+    encodings = ['utf-8', 'latin-1', 'iso-8859-1', 'utf-8']
+    for enc in encodings:
+        try:
+            with open(file, 'r', encoding=enc) as f:
+                if file.name.endswith(".csv"):
+                    df = pd.read_csv(f)
+                else:
+                    df = pd.read_excel(f)
+            st.dataframe(df.head())
+            return df
+        except:
+            pass
+    st.error("An error occurred while trying to read the file. Please check the file format and try again.")
+    return None
 
 def load_interval_data():
     interval_df = load_data("interval")
