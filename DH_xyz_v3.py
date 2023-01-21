@@ -14,18 +14,18 @@ class FileReader:
         self.df_survey = self.load_file("Select a survey file (csv or excel)", type=["csv", "xlsx"], key="survey")
 
 
-def load_file(self, label, type, key):
-    file = st.file_uploader(label, type=type)
-    if file is not None:
-        data = self.read_file(file, key)
-        if data is not None:
-            st.success(f"{file.name} loaded successfully!")
-            st.write(data)
-            if key == "collar":
-                self.df_collar = data
-            elif key == "survey":
-                self.df_survey = data
-            return data
+    def load_file(self, label, type, key):
+        file = st.file_uploader(label, type=type)
+        if file is not None:
+            data = self.read_file(file, key)
+            if data is not None:
+                st.success(f"{file.name} loaded successfully!")
+                st.write(data)
+                if key == "collar":
+                    self.df_collar = data
+                elif key == "survey":
+                    self.df_survey = data
+                return data
 
 
     def read_file(self, file, key):
