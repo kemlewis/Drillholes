@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 import streamlit as st
 import pandas as pd
 import numpy as np
-#from scipy import interpolate
+from scipy import interpolate
 
 def load_collar_file():
     collar_df = load_data("collar")
@@ -109,9 +106,9 @@ def plot_drillholes(traces, intervals, interval_df, data_cols, show_annotation):
 def load_data(file_type):
     file = st.file_uploader(f"Upload {file_type} file (.csv or .xlsx)")
     if file is not None:
-        if file.endswith(".csv"):
+        if file.name.endswith(".csv"):
             df = pd.read_csv(file)
-        elif file.endswith(".xlsx"):
+        elif file.name.endswith(".xlsx"):
             df = pd.read_excel(file)
         else:
             st.error("File must be of type .csv or .xlsx")
@@ -172,10 +169,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# In[ ]:
-
-
-
-
