@@ -111,7 +111,7 @@ def load_data(file_type):
     if file is not None:
         try:
             if file.name.endswith(".csv"):
-                df = pd.read_csv(file, encoding='utf-8', errors='replace')
+                df = pd.read_csv(file, encoding='utf-8')
             elif file.name.endswith(".xlsx"):
                 df = pd.read_excel(file)
             else:
@@ -119,12 +119,23 @@ def load_data(file_type):
                 return None
             st.dataframe(df.head())
             return df
-        except UnicodeDecodeError:
-            st.error("There was a problem with the file encoding, please try again with a different file")
-            return None
+        except UnicodeDecodeError as e:
+            try:
+                df = pd.read_csv(file, encoding='latin-1')
+                st.dataframe(df.head())
+                return df
+            except:
+                try:
+                    df = pd.read_csv(file, encoding='iso-8859-1')
+                    st.dataframe(df.head())
+                    return df
+                except:
+                    st.error("There was a problem with the file encoding, please try again with a different file or encoding")
+                    return None
     else:
         st.error("Please upload a file")
         return None
+
 
 def load_interval_data():
     interval_df = load_data("interval")
