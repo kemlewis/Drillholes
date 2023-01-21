@@ -9,24 +9,24 @@ class FileReader:
 
     def main(self):
         st.title("File Reader")
-        self.df_collar = self.load_file("Select a collar file (csv or excel)", type=["csv", "xlsx"], key="collar")
-        st.empty()
-        self.df_survey = self.load_file("Select a survey file (csv or excel)", type=["csv", "xlsx"], key="survey")
+        self.load_collar_file()
+        self.load_survey_file()
 
-
-    def load_file(self, label, type, key):
-        file = st.file_uploader(label, type=type)
+    def load_collar_file(self):
+        file = st.file_uploader("Select a collar file (csv or excel)", type=["csv", "xlsx"], key="collar")
         if file is not None:
-            data = self.read_file(file, key)
-            if data is not None:
+            self.df_collar = self.read_file(file, key="collar")
+            if self.df_collar is not None:
                 st.success(f"{file.name} loaded successfully!")
-                st.write(data)
-                if key == "collar":
-                    self.df_collar = data
-                elif key == "survey":
-                    self.df_survey = data
-                return data
+                st.write(self.df_collar)
 
+    def load_survey_file(self):
+        file = st.file_uploader("Select a survey file (csv or excel)", type=["csv", "xlsx"], key="survey")
+        if file is not None:
+            self.df_survey = self.read_file(file, key="survey")
+            if self.df_survey is not None:
+                st.success(f"{file.name} loaded successfully!")
+                st.write(self.df_survey)
 
     def read_file(self, file, key):
         for encoding in self.ENCODINGS:
