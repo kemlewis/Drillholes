@@ -5,11 +5,10 @@ st.title("Upload Data")
 
 def handle_file_upload(file, key):
     if file is None:
-        st.write("NONE")
         return None
-    data = pd.read_csv(file)
-    
-    return data
+    if file is not None:
+        data = pd.read_csv(file)
+        return data
 
 def main():
     collar_file = st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"], key=1)
