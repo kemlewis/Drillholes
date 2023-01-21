@@ -7,20 +7,22 @@ def main():
     st.title("File Reader")
 
     collar_file = st.file_uploader("Select a collar file (csv or excel)", type=["csv", "xlsx"])
+    if collar_file is not None:
+        df_collar = read_file(collar_file)
+        if df_collar is not None:
+            st.success("Collar file loaded successfully!")
+            st.dataframe(df_collar)
+        else:
+            st.warning("An error occurred while loading the collar file.")
+
     survey_file = st.file_uploader("Select a survey file (csv or excel)", type=["csv", "xlsx"])
-
-    if collar_file is None or survey_file is None:
-        st.warning("Please upload both collar and survey files.")
-        return
-
-    df_collar = read_file(collar_file)
-    df_survey = read_file(survey_file)
-
-    if df_collar is None or df_survey is None:
-        st.error("An error occurred while reading the files. Please make sure the files are in the correct format or check the encoding.")
-        return
-    st.dataframe(df_collar)
-    st.dataframe(df_survey)
+    if survey_file is not None:
+        df_survey = read_file(survey_file)
+        if df_survey is not None:
+            st.success("Survey file loaded successfully!")
+            st.dataframe(df_survey)
+        else:
+            st.warning("An error occurred while loading the survey file.")
 
 def read_file(file):
     for encoding in ENCODINGS:
