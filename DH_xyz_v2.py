@@ -27,10 +27,10 @@ def load_survey_file():
     else:
         return None, None, None, None, None, None
 
-def calculate_drillhole_traces(collar_df, id_col, x_col, y_col, z_col, survey_df, id_col, depth_col, dip_col, azimuth_col):
+def calculate_drillhole_traces(collar_df, id_col_collar, x_col, y_col, z_col, survey_df, id_col_survey, depth_col, dip_col, azimuth_col):
     traces = {}
-    for id, collar in collar_df[[id_col, x_col, y_col, z_col]].groupby(id_col):
-        survey = survey_df[survey_df[id_col] == id]
+    for id, collar in collar_df[[id_col_collar, x_col, y_col, z_col]].groupby(id_col_collar):
+        survey = survey_df[survey_df[id_col_survey] == id]
         survey["dx"] = np.cos(np.radians(survey[dip_col])) * np.cos(np.radians(survey[azimuth_col]))
         survey["dy"] = np.cos(np.radians(survey[dip_col])) * np.sin(np.radians(survey[azimuth_col]))
         survey["dz"] = -np.sin(np.radians(survey[dip_col]))
