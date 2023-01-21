@@ -161,7 +161,7 @@ def main():
         azimuth_col = st.selectbox("Select the column containing the azimuth", survey_df.columns)
         extra_cols = st.multiselect("Select any additional columns to display", survey_df.columns)
     if collar_df is not None and survey_df is not None:
-        drillhole_traces = calculate_drillhole_traces(collar_df, id_col, x_col, y_col, z_col, survey_df, id_col, depth_col, dip_col, azimuth_col)
+        traces = calculate_drillhole_traces(collar_df, id_col_collar, x_col, y_col, z_col, survey_df, id_col_survey, depth_col, dip_col, azimuth_col)
         st.write("Drillhole traces:", drillhole_traces)
 
 if __name__ == "__main__":
