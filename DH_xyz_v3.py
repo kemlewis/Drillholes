@@ -110,40 +110,19 @@ def load_data(file_type):
     file = st.file_uploader(f"Upload {file_type} file (.csv or .xlsx)")
     if file is not None:
         try:
-            if file.name.endswith(".csv"):
-                file_contents = file.read()
-                df = pd.read_csv(file_contents, encoding='utf-8')
-            elif file.name.endswith(".xlsx"):
-                df = pd.read_excel(file)
-            else:
-                st.error("File must be of type .csv or .xlsx")
-                return None
-            st.dataframe(df.head())
-            return df
-        except UnicodeDecodeError as e:
-            try:
-                file_contents = file.read()
-                df = pd.read_csv(file_contents, encoding='latin-1')
-                st.dataframe(df.head())
-                return df
-            except:
-                try:
-                    file_contents = file.read()
-                    df = pd.read_csv(file_contents, encoding='iso-8859-1')
+            encodings = ['utf-8', 'latin-1', 'iso-8859-1']
+            for enc in encodings:
+                with open(file, 'r', encoding=enc) as f:
+                    df = pd.read_csv(f)
                     st.dataframe(df.head())
                     return df
-                except:
-                    try:
-                        # remove invalid characters
-                        file_contents = file.read()
-                        df = pd.read_csv(file_contents, encoding='utf-8', errors='replace')
-                        df.replace(r'[^\x00-\x7F]+', '', regex=True, inplace=True)
-                        st.dataframe(df.head())
-                        return df
-                    except:
-                        st.error("An error occurred while trying to read the file. Please check the file format and try again.")
-                        return None
+        except Exception as e:
+            st.error(e)
+            st.error("An error occurred while trying to read the file. Please check the file format and try again.")
+            return None
     else:
+        st.error("Please upload a file")
+        return None
 
 def load_interval_data():
     interval_df = load_data("interval")
