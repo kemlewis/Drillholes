@@ -37,7 +37,7 @@ def read_file(file):
         except Exception as e:
             if encoding == ENCODINGS[-1]:
                 st.warning("An error occurred while reading the file. Please make sure the file is in the correct format or check the encoding.")
-                encoding = st.selectbox("Select the file's encoding", ENCODINGS)
+                encoding = st.selectbox("Select the file's encoding", ENCODINGS, key="unique_encoding_key")
                 if st.button("Confirm"):
                     try:
                         if file.name.endswith(".csv"):
@@ -55,7 +55,3 @@ def read_file(file):
                     continue
             else:
                 continue
-
-
-if __name__ == "__main__":
-    main()
