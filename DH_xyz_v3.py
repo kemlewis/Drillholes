@@ -18,7 +18,7 @@ class FileReader:
             data = self.read_file(file, key)
             if data is not None:
                 st.success(f"{file.name} loaded successfully!")
-                st.dataframe(data, key=key)
+                st.write(data, key=key)
                 return data
             else:
                 st.warning(f"An error occurred while loading the {file.name} file.")
