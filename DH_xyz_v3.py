@@ -23,34 +23,38 @@ def read_csv(file_type):
 
 def select_columns(df, file_type):
     """
-    Allow the user to select columns and return the dataframe with the selected columns
+    Allow the user to select columns and return the dataframe with all columns and the dictionary containing the selected columns
     """
+    col_dict = dict()
     if file_type == "collar":
         hole_id_col = st.selectbox("Select the column for 'hole_id'", df.columns)
         x_col = st.selectbox("Select the column for 'x'", df.columns)
         y_col = st.selectbox("Select the column for 'y'", df.columns)
         z_col = st.selectbox("Select the column for 'z'", df.columns)
-        # Remember the selected columns
-        df = df[[hole_id_col, x_col, y_col, z_col]]
+        # Remember the selected columns index
+        col_dict["hole_id"] = hole_id_col
+        col_dict["x"] = x_col
+        col_dict["y"] = y_col
+        col_dict["z"] = z_col
     elif file_type == "survey":
         hole_id_col = st.selectbox("Select the column for 'hole_id'", df.columns)
         depth_col = st.selectbox("Select the column for 'depth'", df.columns)
         dip_col = st.selectbox("Select the column for 'dip'", df.columns)
         azimuth_col = st.selectbox("Select the column for 'azimuth'", df.columns)
-        # Remember the selected columns
-        df = df[[hole_id_col, depth_col, dip_col, azimuth_col]]
+        # Remember the selected columns index
+        col_dict["hole_id"] = hole_id_col
+        col_dict["depth"] = depth_col
+        col_dict["dip"] = dip_col
+        col_dict["azimuth"] = azimuth_col
     else:
-        return None
-    return df
+        return None, None
+    return df, col_dict
 
 def main():
-    df_collar = read_csv("collar")
+    df_collar, collar_cols = read_csv("collar")
     if df_collar is not None:
-        df_collar = select_columns(df_collar, "collar")
+        df_collar, collar_cols = select_columns(df_collar, "collar")
 
-    df_survey = read_csv("survey")
+    df_survey, survey_cols = read_csv("survey")
     if df_survey is not None:
-        df_survey = select_columns(df_survey, "survey")
-
-if __name__ == "__main__":
-    main()
+        df_survey, survey_cols = select_columns(df_survey, "survey")
