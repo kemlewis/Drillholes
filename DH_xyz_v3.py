@@ -150,14 +150,14 @@ def interpolate_interval_data(interval_df, id_col, from_col, to_col, traces):
 
     
 def main():
-    collar_df = load_collar_file("collar")
+    collar_df = load_collar_file()
     if collar_df is not None:
         id_col = st.selectbox("Select the column containing the drillhole ID", collar_df.columns)
         x_col = st.selectbox("Select the column containing the X coordinate", collar_df.columns)
         y_col = st.selectbox("Select the column containing the Y coordinate", collar_df.columns)
         z_col = st.selectbox("Select the column containing the Z coordinate", collar_df.columns)
         extra_cols = st.multiselect("Select any additional columns to display", collar_df.columns)
-    survey_df = load_survey_file("survey")
+    survey_df = load_survey_file()
     if survey_df is not None:
         id_col = st.selectbox("Select the column containing the drillhole ID", survey_df.columns)
         depth_col = st.selectbox("Select the column containing the depth", survey_df.columns)
