@@ -1,3 +1,6 @@
+import streamlit as st
+import pandas as pd
+
 class FileReader:
     def __init__(self):
         self.ENCODINGS = ["utf-8", "latin1", "iso-8859-1", "ascii"]
