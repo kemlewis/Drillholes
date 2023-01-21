@@ -24,7 +24,7 @@ def read_csv(file_type):
         return None
 
 def load_collar_file():
-    collar_df = load_data("collar")
+    collar_df = read_csv("collar")
     if collar_df is not None:
         id_col = st.selectbox("Select the column containing the drillhole ID", collar_df.columns)
         x_col = st.selectbox("Select the column containing the X coordinate", collar_df.columns)
@@ -36,7 +36,7 @@ def load_collar_file():
         return None, None, None, None, None, None
 
 def load_survey_file():
-    survey_df = load_data("survey")
+    survey_df = read_csv("survey")
     if survey_df is not None:
         id_col = st.selectbox("Select the column containing the drillhole ID", survey_df.columns)
         depth_col = st.selectbox("Select the column containing the depth", survey_df.columns)
