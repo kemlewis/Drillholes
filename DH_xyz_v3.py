@@ -1,26 +1,28 @@
 import streamlit as st
 import pandas as pd
 
-def upload_file():
-    st.set_page_config(page_title="Upload File", page_icon=":file_folder:", layout="wide")
-    st.title("Upload File")
-
-    uploaded_file = st.file_uploader("Choose a CSV or Excel file to upload", type=["csv", "xls", "xlsx"])
-
-    if uploaded_file is not None:
-        try:
-            data = pd.read_csv(uploaded_file)
-            st.dataframe(data.head())
-            st.success("File uploaded and displayed successfully!")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
-
 def main():
-    st.sidebar.title("File Uploader")
-    st.sidebar.selectbox("Select file type", ["CSV", "Excel"])
+    st.title("File Reader")
 
-    if st.button("Upload File"):
-        upload_file()
+    file = st.file_uploader("Select a file", type=["csv", "xlsx"])
+
+    if file is None:
+        st.warning("Please upload a file.")
+        return
+
+    try:
+        if file.endswith(".csv"):
+            data = pd.read_csv(file)
+        elif file.endswith(".xlsx"):
+            data = pd.read_excel(file)
+        else:
+            st.warning("File type not supported. Please upload a csv or excel file.")
+            return
+
+        st.dataframe(data)
+
+    except Exception as e:
+        st.error("An error occurred while reading the file. Please make sure the file is in the correct format.")
 
 if __name__ == "__main__":
     main()
