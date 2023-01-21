@@ -5,7 +5,7 @@ import io
 def get_dataframe_from_csv(file, encodings=["utf-8", "ISO-8859-1"]):
     for encoding in encodings:
         try:
-            return pd.read_csv(io.BytesIO(file), encoding=encoding)
+            return pd.read_csv(file, encoding=encoding)
         except:
             pass
     raise ValueError("Could not read file with any of the specified encodings.")
