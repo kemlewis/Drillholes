@@ -8,7 +8,7 @@ def handle_file_upload(file, key):
         st.write("NONE")
         return None
     data = pd.read_csv(file)
-    st.dataframe(data)
+    
     return data
 
 def main():
@@ -22,7 +22,7 @@ def main():
     df_point_file = point_file
     df_interval_file = interval_file
     
-    
+    st.dataframe(data)
 
 if __name__ == '__main__':
     main()
