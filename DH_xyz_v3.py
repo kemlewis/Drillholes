@@ -105,19 +105,23 @@ def plot_drillholes(traces, intervals, interval_df, data_cols, show_annotation):
                     text = ', '.join([f"{col}: {interval_data.iloc[i][col]}" for col in data_cols])
                     fig.add_trace(go.Scatter3d(x=[point[0]], y=[point[1]], z=[point[2]], text=text, mode='markers', name=id+'_interval'))
     st.plotly_chart(fig)
-
+    
 def load_data(file_type):
     file = st.file_uploader(f"Upload {file_type} file (.csv or .xlsx)")
     if file is not None:
-        if file.name.endswith(".csv"):
-            df = pd.read_csv(file)
-        elif file.name.endswith(".xlsx"):
-            df = pd.read_excel(file)
-        else:
-            st.error("File must be of type .csv or .xlsx")
+        try:
+            if file.name.endswith(".csv"):
+                df = pd.read_csv(file, encoding='utf-8', errors='replace')
+            elif file.name.endswith(".xlsx"):
+                df = pd.read_excel(file)
+            else:
+                st.error("File must be of type .csv or .xlsx")
+                return None
+            st.dataframe(df.head())
+            return df
+        except UnicodeDecodeError:
+            st.error("There was a problem with the file encoding, please try again with a different file")
             return None
-        st.dataframe(df.head())
-        return df
     else:
         st.error("Please upload a file")
         return None
@@ -172,10 +176,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# In[ ]:
-
-
-
-
