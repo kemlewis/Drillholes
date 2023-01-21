@@ -5,11 +5,12 @@ st.title("Upload Data")
 
 def handle_file_upload(file):
     if file.name == "collar_file":
+        st.write("TEST")
         collar_df = pd.read_csv(collar_file)
-        test1 = st.dataframe(collar_df)
+        st.dataframe(collar_df)
     if file.name == "survey_file":
         survey_df = pd.read_csv(survey_file)
-        test2 = st.dataframe(survey_df)
+        st.dataframe(survey_df)
     if file.name == "point_file":
         if point_file is not None:
             point_df = pd.read_csv(point_file)
