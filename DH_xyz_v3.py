@@ -21,7 +21,7 @@ def handle_files(file_uploaders):
     return files, dataframes
 
 
-ef main():
+def main():
     file_uploaders = {'collar': st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"], on_change=lambda file: handle_file_upload(file)),
                       'survey': st.file_uploader("Upload survey data (csv or excel)", type=["csv", "xlsx"], on_change=lambda file: handle_file_upload(file)),
                       'point': st.file_uploader("Upload point data (csv or excel)", type=["csv", "xlsx"], on_change=lambda file: handle_file_upload(file)),
