@@ -4,10 +4,8 @@ import numpy as np
 from scipy import interpolate
 
 def load_collar_file():
-    collar_file = st.file_uploader("Upload collar file (.csv or .xlsx)")
-    if collar_file is not None:
-        collar_df = pd.read_csv(collar_file) if collar_file.endswith(".csv") else pd.read_excel(collar_file)
-        st.dataframe(collar_df.head())
+    collar_df = load_data("collar")
+    if collar_df is not None:
         id_col = st.selectbox("Select the column containing the drillhole ID", collar_df.columns)
         x_col = st.selectbox("Select the column containing the X coordinate", collar_df.columns)
         y_col = st.selectbox("Select the column containing the Y coordinate", collar_df.columns)
@@ -18,10 +16,8 @@ def load_collar_file():
         return None, None, None, None, None, None
 
 def load_survey_file():
-    survey_file = st.file_uploader("Upload survey file (.csv or .xlsx)")
-    if survey_file is not None:
-        survey_df = pd.read_csv(survey_file) if survey_file.endswith(".csv") else pd.read_excel(survey_file)
-        st.dataframe(survey_df.head())
+    survey_df = load_data("survey")
+    if survey_df is not None:
         id_col = st.selectbox("Select the column containing the drillhole ID", survey_df.columns)
         depth_col = st.selectbox("Select the column containing the depth", survey_df.columns)
         dip_col = st.selectbox("Select the column containing the dip", survey_df.columns)
@@ -83,36 +79,90 @@ def interpolate_intervals(traces, interval_df, id_col, from_col, to_col):
             intervals[id] = [f(group[from_col]), f(group[to_col])]
     return intervals
 
-def plot_drillholes(traces, points=None, intervals=None):
+def plot_drillholes(traces, intervals, interval_df, data_cols, show_annotation):
     import plotly.graph_objs as go
-    data = []
+    fig = go.Figure()
     for id, trace in traces.items():
-        data.append(go.Scatter3d(x=trace[:, 0], y=trace[:, 1], z=trace[:, 2], mode="lines", name=id))
-    if points is not None:
-        for id, group in points.items():
-            data.append(go.Scatter3d(x=[p[0] for p in group], y=[p[1] for p in group], z=[p[2] for p in group], mode="markers", name=id))
-    if intervals is not None:
-        for id, group in intervals.items():
-            data.append(go.Scatter3d(x=[p[0] for p in group], y=[p[1] for p in group], z=[p[2] for p in group], mode="lines", name=id))
-    st.plotly_chart(go.Figure(data=data))
+        x = trace[:, 0]
+        y = trace[:, 1]
+        z = trace[:, 2]
+        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=id))
+    for id, interval in intervals.items():
+        if id in traces:
+            x = [traces[id][0][0], traces[id][-1][0]]
+            y = [traces[id][0][1], traces[id][-1][1]]
+            z = [traces[id][0][2], traces[id][-1][2]]
+            interval_data = interval_df[interval_df[id_col] == id]
+            fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name=id+'_interval'))
+            if show_annotation:
+                for i, point in enumerate(interval):
+                    text = ', '.join([f"{col}: {interval_data.iloc[i][col]}" for col in data_cols])
+                    fig.add_trace(go.Scatter3d(x=[point[0]], y=[point[1]], z=[point[2]], text=text, mode='markers', name=id+'_interval'))
+    st.plotly_chart(fig)
 
+def load_data(file_type):
+    file = st.file_uploader(f"Upload {file_type} file (.csv or .xlsx)")
+    if file is not None:
+        if file.endswith(".csv"):
+            df = pd.read_csv(file)
+        elif file.endswith(".xlsx"):
+            df = pd.read_excel(file)
+        else:
+            st.error("File must be of type .csv or .xlsx")
+            return None
+        st.dataframe(df.head())
+        return df
+    else:
+        st.error("Please upload a file")
+        return None
+
+def load_interval_data():
+    interval_df = load_data("interval")
+    if interval_df is not None:
+        id_col = st.selectbox("Select the column containing the drillhole ID", interval_df.columns)
+        from_col = st.selectbox("Select the column containing the 'from' value", interval_df.columns)
+        to_col = st.selectbox("Select the column containing the 'to' value", interval_df.columns)
+        if from_col == to_col:
+            st.error("'from' column and 'to' column should be different")
+            return None, None, None, None
+        if not (interval_df[from_col] <= interval_df[to_col]).all():
+            st.error("'from' column should be less than or equal to 'to' column")
+            return None, None, None, None
+        extra_cols = st.multiselect("Select any additional columns to display", interval_df.columns)
+        return interval_df, id_col, from_col, to_col, extra_cols
+    else:
+        return None, None, None, None, None
+
+def interpolate_interval_data(interval_df, id_col, from_col, to_col, traces):
+    interpolated_data = {}
+    for id, intervals in interval_df[[id_col, from_col, to_col]].groupby(id_col):
+        if id in traces:
+            trace = traces[id]
+            f = interpolate.interp1d(trace[:, 3], trace[:, :3], axis=0)
+            intervals["distance_from"] = f(intervals[from_col])[:, 3]
+            intervals["distance_to"] = f(intervals[to_col])[:, 3]
+            interpolated_data[id] = intervals[["distance_from", "distance_to"]].values
+    return interpolated_data
+
+    
 def main():
-    st.title("Drillhole Trace Calculator")
-    collar_df, id_col, x_col, y_col, z_col, extra_cols = load_collar_file()
-    survey_df, id_col, depth_col, dip_col, azimuth_col, extra_cols = load_survey_file()
+    collar_df = load_data("collar")
+    if collar_df is not None:
+        id_col = st.selectbox("Select the column containing the drillhole ID", collar_df.columns)
+        x_col = st.selectbox("Select the column containing the X coordinate", collar_df.columns)
+        y_col = st.selectbox("Select the column containing the Y coordinate", collar_df.columns)
+        z_col = st.selectbox("Select the column containing the Z coordinate", collar_df.columns)
+        extra_cols = st.multiselect("Select any additional columns to display", collar_df.columns)
+    survey_df = load_data("survey")
+    if survey_df is not None:
+        id_col = st.selectbox("Select the column containing the drillhole ID", survey_df.columns)
+        depth_col = st.selectbox("Select the column containing the depth", survey_df.columns)
+        dip_col = st.selectbox("Select the column containing the dip", survey_df.columns)
+        azimuth_col = st.selectbox("Select the column containing the azimuth", survey_df.columns)
+        extra_cols = st.multiselect("Select any additional columns to display", survey_df.columns)
     if collar_df is not None and survey_df is not None:
-        traces = calculate_drillhole_traces(collar_df, id_col, x_col, y_col, z_col, survey_df, id_col, depth_col, dip_col, azimuth_col)
-        st.write(f"Number of drillholes: {len(traces)}")
-        st.write(f"Total drilled meterage: {sum([trace[-1, 3] for trace in traces.values()])}")
-        points = None
-        point_df, id_col, depth_col, extra_cols = load_point_data()
-        if point_df is not None:
-            points = interpolate_points(traces, point_df, id_col, depth_col)
-        intervals = None
-        interval_df, id_col, from_col, to_col, extra_cols = load_interval_data()
-        if interval_df is not None:
-            intervals = interpolate_intervals(traces, interval_df, id_col, from_col, to_col)
-        plot_drillholes(traces, points, intervals)
+        drillhole_traces = calculate_drillhole_traces(collar_df, id_col, x_col, y_col, z_col, survey_df, id_col, depth_col, dip_col, azimuth_col)
+        st.write("Drillhole traces:", drillhole_traces)
 
 if __name__ == "__main__":
     main()
