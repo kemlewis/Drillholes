@@ -3,7 +3,7 @@ import pandas as pd
 import io
 
 def get_dataframe_from_csv(file):
-    return pd.read_csv(io.BytesIO(file.read()))
+    return pd.read_csv(file)
 
 def main():
     st.title("Upload multiple CSV files")
