@@ -55,3 +55,20 @@ def read_file(file):
                     continue
             else:
                 continue
+
+def __init__(self):
+    self.ENCODINGS = ["utf-8", "latin1", "iso-8859-1", "ascii"]
+    self.df_collar = None
+    self.df_survey = None
+
+def main():
+    self = __init__()
+    st.title("File Reader")
+    df_collar = load_file("Select a collar file (csv or excel)", type=["csv", "xlsx"])
+    df_survey = load_file("Select a survey file (csv or excel)", type=["csv", "xlsx"])
+    if df_collar is not None:
+        self.df_collar = df_collar
+        st.dataframe(df_collar)
+    if df_survey is not None:
+        self.df_survey = df_survey
+        st.dataframe(df_survey)
