@@ -6,13 +6,28 @@
 
 import streamlit as st
 
-def open_file():
-    file = st.file_uploader("Choose a file", type=["csv", "txt", "xlsx"])
-    if file is not None:
-        st.success("File uploaded: " + file.name)
+def open_collar_file():
+    collar_file = st.file_uploader("Select Collar .csv", type=["csv"])
+    if collar_file is not None:
+        collar_file_path = collar_file.name
+        st.success("Collar file uploaded: " + collar_file_path)
+        return collar_file_path
+
+def open_survey_file():
+    survey_file = st.file_uploader("Select Survey .csv", type=["csv"])
+    if survey_file is not None:
+        survey_file_path = survey_file.name
+        st.success("Survey file uploaded: " + survey_file_path)
+        return survey_file_path
 
 st.title("Open File Example")
-st.button("Open file", open_file)
+collar_file_path = st.button("Select Collar .csv", open_collar_file)
+survey_file_path = st.button("Select Survey .csv", open_survey_file)
+
+if collar_file_path:
+    st.write("Collar file path:", collar_file_path)
+if survey_file_path:
+    st.write("Survey file path:", survey_file_path)
 
 
 # In[10]:
