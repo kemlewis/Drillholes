@@ -90,7 +90,7 @@ for i, val in enumerate(unique):
             
         row_previous = df_collar_xyz.iloc[index]
 
-display(df_collar_xyz)
+# display(df_collar_xyz)
 
 
 # In[2]:
@@ -114,16 +114,16 @@ dN = dDepth*((math.sin(dip_1)*math.cos(azi_1))+(math.sin(dip_2)*math.cos(azi_2))
 dE = dDepth*((math.sin(dip_1)*math.sin(azi_1))+(math.sin(dip_2)*math.sin(azi_2)))*RF
 dV = dDepth*(math.cos(dip_1)+math.cos(dip_2))*RF
 
-print('RF: ')
-print(RF)
-print('dDepth: ')
-print(dDepth)
-print('dN: ')
-print(dN)
-print('dE: ')
-print(dE)
-print('dV: ')
-print(dV)
+#print('RF: ')
+#print(RF)
+#print('dDepth: ')
+#print(dDepth)
+#print('dN: ')
+#print(dN)
+#print('dE: ')
+#print(dE)
+#print('dV: ')
+#print(dV)
 
 
 # In[14]:
