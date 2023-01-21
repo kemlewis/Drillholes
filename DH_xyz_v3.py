@@ -18,6 +18,8 @@ def read_csv(file_type):
             return None, None
     except FileNotFoundError:
         st.error("The file could not be found.")
+        #debugging code
+        print(f"file:{file}")
         return None, None
     if not file.name.endswith('.csv'):
         st.error("The file is not a valid csv file.")
@@ -25,13 +27,16 @@ def read_csv(file_type):
 
     # Create a dataframe from the file
     try:
-        df = pd.read_csv(file)
+        #debugging code
+        print(f"file path: {file.name}")
+        df = pd.read_csv(file.name)
     except Exception as e:
         st.error(f"An error occurred while reading the {file_type} file. Please check that it is a valid CSV file.")
         st.exception(e)
         return None, None
     else:
         return df, None
+
 
 def select_columns(df, file_type):
     """
