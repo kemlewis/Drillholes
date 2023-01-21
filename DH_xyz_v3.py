@@ -8,7 +8,6 @@ def handle_file_upload(file, key):
         st.write("NONE")
         return
     data = pd.read_csv(file)
-    st.dataframe(data)
     if key == 1:
         df_collar = data
     elif key == 2:
@@ -17,6 +16,7 @@ def handle_file_upload(file, key):
         df_point = data
     elif key == 4:
         df_interval = data
+    st.dataframe(data)
 
 def main():
     collar_file = st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"], key=1, on_change=lambda file: handle_file_upload(file, 1))
