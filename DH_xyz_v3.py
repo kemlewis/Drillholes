@@ -109,27 +109,41 @@ def plot_drillholes(traces, intervals, interval_df, data_cols, show_annotation):
 def load_data(file_type):
     file = st.file_uploader(f"Upload {file_type} file (.csv or .xlsx)")
     if file is not None:
-        encodings = ["utf-8", "latin-1", "iso-8859-1"]
-        for enc in encodings:
+        try:
+            if file.name.endswith(".csv"):
+                file_contents = file.read()
+                df = pd.read_csv(file_contents, encoding='utf-8')
+            elif file.name.endswith(".xlsx"):
+                df = pd.read_excel(file)
+            else:
+                st.error("File must be of type .csv or .xlsx")
+                return None
+            st.dataframe(df.head())
+            return df
+        except UnicodeDecodeError as e:
             try:
-                if file.name.endswith(".csv"):
-                    df = pd.read_csv(file, encoding=enc)
+                file_contents = file.read()
+                df = pd.read_csv(file_contents, encoding='latin-1')
+                st.dataframe(df.head())
+                return df
+            except:
+                try:
+                    file_contents = file.read()
+                    df = pd.read_csv(file_contents, encoding='iso-8859-1')
                     st.dataframe(df.head())
                     return df
-                elif file.name.endswith(".xlsx"):
-                    df = pd.read_excel(file)
-                    st.dataframe(df.head())
-                    return df
-            except (UnicodeDecodeError, pd.errors.ParserError):
-                continue
-        # Remove invalid characters
-        df = pd.read_csv(file, encoding='utf-8', errors='replace')
-        df.replace(r'[^\x00-\x7F]+', '', regex=True, inplace=True)
-        st.dataframe(df.head())
-        return df
+                except:
+                    try:
+                        # remove invalid characters
+                        file_contents = file.read()
+                        df = pd.read_csv(file_contents, encoding='utf-8', errors='replace')
+                        df.replace(r'[^\x00-\x7F]+', '', regex=True, inplace=True)
+                        st.dataframe(df.head())
+                        return df
+                    except:
+                        st.error("An error occurred while trying to read the file. Please check the file format and try again.")
+                        return None
     else:
-        st.error("Please upload a file")
-        return None
 
 def load_interval_data():
     interval_df = load_data("interval")
