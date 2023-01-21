@@ -5,6 +5,11 @@
 
 
 import streamlit as st
+import pandas as pd
+import numpy as np
+import math
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
 
 def open_collar_file():
     collar_file = st.file_uploader("Select Collar .csv", type=["csv"])
@@ -20,38 +25,12 @@ def open_survey_file():
         st.success("Survey file uploaded: " + survey_file_path)
         return survey_file_path
 
-st.title("Open File Example")
-collar_file_path = st.button("Select Collar .csv", open_collar_file)
-survey_file_path = st.button("Select Survey .csv", open_survey_file)
-
-if collar_file_path:
-    st.write("Collar file path:", collar_file_path)
-if survey_file_path:
-    st.write("Survey file path:", survey_file_path)
-
-
-# In[10]:
-
-
-import pandas as pd
-import numpy as np
-import math
-
-df_collar = pd.read_csv('C:/Users/keith/Downloads/Huu_dc_vhd_collar_acq (1).csv', encoding='unicode_escape')
-df_survey = pd.read_csv('C:/Users/keith/Downloads/Huu_dc_vhd_survey_acq.csv', encoding='unicode_escape')
-
-print("Number of drillholes in collar file: " + str(len(df_collar)))
-print("Total drillhole meterage: " + str(round(df_collar.loc[df_collar["DEPTH"] > 0, "DEPTH"].sum(),0)) + " meters")
-print("Number of drillholes in survey file: " + str(len(df_survey['HOLEID'].unique())))
-print("Collar file headers: " )
-print(df_collar.columns.values)
-
-
-# In[12]:
-
-
-#display(df_collar)
-#display(df_survey)
+def drillhole_summary(df_collar, df_survey):
+    print("Number of drillholes in collar file: " + str(len(df_collar)))
+    #print("Total drillhole meterage: " + str(round(df_collar.loc[df_collar["DEPTH"] > 0, "DEPTH"].sum(),0)) + " meters")
+    print("Number of drillholes in survey file: " + str(len(df_survey['HOLEID'].unique())))
+    print("Collar file headers: " )
+    print(df_collar.columns.values)
 
 df_collar_xyz = df_collar[['HOLEID', 'DH_X', 'DH_Y', 'DH_RL']]
 df_collar_xyz=df_collar_xyz.merge(df_survey[['HOLEID','DEPTH','AZIMUTH','DIP']],how='left',on='HOLEID')
@@ -105,13 +84,7 @@ for i, val in enumerate(unique):
             
         row_previous = df_collar_xyz.iloc[index]
 
-# display(df_collar_xyz)
-
-
-# In[2]:
-
-
-# Getting the formula to work https://www.drillingformulas.com/minimum-curvature-method/
+# Formula reference: https://www.drillingformulas.com/minimum-curvature-method/
 depth_1 = 0
 depth_2 = 30
 dip_1 = math.radians(90-70.0)
@@ -129,23 +102,6 @@ dN = dDepth*((math.sin(dip_1)*math.cos(azi_1))+(math.sin(dip_2)*math.cos(azi_2))
 dE = dDepth*((math.sin(dip_1)*math.sin(azi_1))+(math.sin(dip_2)*math.sin(azi_2)))*RF
 dV = dDepth*(math.cos(dip_1)+math.cos(dip_2))*RF
 
-#print('RF: ')
-#print(RF)
-#print('dDepth: ')
-#print(dDepth)
-#print('dN: ')
-#print(dN)
-#print('dE: ')
-#print(dE)
-#print('dV: ')
-#print(dV)
-
-
-# In[14]:
-
-
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'qt')
 
 fig = plt.figure(figsize=(10, 10))
@@ -154,14 +110,18 @@ ax.scatter3D(df_collar_xyz['DH_X'], df_collar_xyz['DH_Y'], df_collar_xyz['DH_RL'
 plt.show()
 
 
-# In[10]:
-
-
 df_collar_xyz.to_csv('DH_xyz.csv')
 
 
-# In[ ]:
+st.title("Drillhole Calculations Example")
+collar_file_path = st.button("Select Collar .csv", open_collar_file)
+survey_file_path = st.button("Select Survey .csv", open_survey_file)
 
-
-
-
+if collar_file_path:
+    st.write("Collar file path:", collar_file_path)
+    df_collar = pd.read_csv(collar_file_path)
+if survey_file_path:
+    st.write("Survey file path:", survey_file_path)
+    df_survey = pd.read_csv(survey_file_path)
+if st.button("Process data"):
+        drillhole_summary(df_collar, df_survey)
