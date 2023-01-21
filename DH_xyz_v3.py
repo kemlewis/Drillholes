@@ -10,23 +10,23 @@ class FileReader:
     def main(self):
         st.title("File Reader")
         self.df_collar = self.load_file("Select a collar file (csv or excel)", type=["csv", "xlsx"], key="collar")
+        st.empty()
         self.df_survey = self.load_file("Select a survey file (csv or excel)", type=["csv", "xlsx"], key="survey")
 
-    def load_file(self, label, type, key):
-        file = st.file_uploader(label, type=type)
-        if file is not None:
-            data = self.read_file(file, key)
-            if data is not None:
-                st.success(f"{file.name} loaded successfully!")
-                if key == "collar":
-                    self.df_collar = data
+
+def load_file(self, label, type, key):
+    file = st.file_uploader(label, type=type)
+    if file is not None:
+        data = self.read_file(file, key)
+        if data is not None:
+            st.success(f"{file.name} loaded successfully!")
+            st.write(data)
+            if key == "collar":
+                self.df_collar = data
             elif key == "survey":
                 self.df_survey = data
-                st.write(data)
-                return data
-            else:
-                st.warning(f"An error occurred while loading the {file.name} file.")
-                return None
+            return data
+
 
     def read_file(self, file, key):
         for encoding in self.ENCODINGS:
