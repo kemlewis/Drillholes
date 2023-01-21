@@ -15,11 +15,12 @@ def read_csv(file_type):
         except Exception as e:
             st.error(f"An error occurred while reading the {file_type} file. Please check that it is a valid CSV file.")
             st.exception(e)
-            return None
+            return None, None
         else:
-            return df
+            return df, None
     else:
-        return None
+        return None, None
+
 
 def select_columns(df, file_type):
     """
