@@ -9,6 +9,7 @@ class FileReader:
     def main(self):
         st.title("File Reader")
         i = 0
+        j = 0
         while True:
             file = st.file_uploader("Select a file (csv or excel)", type=["csv", "xlsx"], key=f"file_{i}")
             i += 1
@@ -18,8 +19,10 @@ class FileReader:
                     st.success(f"{file.name} loaded successfully!")
                     st.write(df_file)
                     self.df_files.append(df_file)
-            if not st.button("Add another file"):
+            if not st.button("Add another file", key=f"add_file_{j}"):
                 break
+            j += 1
+
 
 
     def read_file(self, file):
