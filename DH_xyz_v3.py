@@ -63,7 +63,7 @@ def calculate_drillhole_traces(collar_df, id_col_collar, x_col, y_col, z_col, su
 def load_point_data():
     point_file = st.file_uploader("Upload point data file (.csv or .xlsx)")
     if point_file is not None:
-        point_df = pd.read_csv(point_file) if point_file.endswith(".csv") else pd.read_excel(point_file)
+        point_df = pd.read_csv(point_file) if point_file.name.endswith(".csv") else pd.read_excel(point_file)
         id_col = st.selectbox("Select the column containing the drillhole ID", point_df.columns)
         depth_col = st.selectbox("Select the column containing the depth", point_df.columns)
         extra_cols = st.multiselect("Select any additional columns to display", point_df.columns)
@@ -74,7 +74,7 @@ def load_point_data():
 def load_interval_data():
     interval_file = st.file_uploader("Upload interval data file (.csv or .xlsx)")
     if interval_file is not None:
-        interval_df = pd.read_csv(interval_file) if interval_file.endswith(".csv") else pd.read_excel(interval_file)
+        interval_df = pd.read_csv(interval_file) if interval_file.name.endswith(".csv") else pd.read_excel(interval_file)
         id_col = st.selectbox("Select the column containing the drillhole ID", interval_df.columns)
         from_col = st.selectbox("Select the column containing the 'from' depth", interval_df.columns)
         to_col = st.selectbox("Select the column containing the 'to' depth", interval_df.columns)
