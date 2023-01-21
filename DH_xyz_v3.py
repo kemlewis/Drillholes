@@ -58,3 +58,6 @@ def main():
     df_survey, survey_cols = read_csv("survey")
     if df_survey is not None:
         df_survey, survey_cols = select_columns(df_survey, "survey")
+
+if __name__ == "__main__":
+    main()
