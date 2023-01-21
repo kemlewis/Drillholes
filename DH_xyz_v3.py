@@ -5,7 +5,6 @@ def get_dataframe_from_csv(file):
     return pd.read_csv(file)
 
 def main():
-    st.set_page_config(page_title="CSV to Dataframe", page_icon=":chart_with_upwards_trend:", layout="wide")
     st.title("Upload multiple CSV files")
 
     uploaded_files = st.file_uploader("Choose a CSV file", type=["csv"], multiple=True)
