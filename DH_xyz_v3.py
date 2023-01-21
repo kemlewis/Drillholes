@@ -4,29 +4,23 @@ import pandas as pd
 class FileReader:
     def __init__(self):
         self.ENCODINGS = ["utf-8", "latin1", "iso-8859-1", "ascii"]
-        self.df_collar = None
-        self.df_survey = None
 
     def main(self):
         st.title("File Reader")
-        self.df_collar = self.load_collar_file()
-        self.df_survey = self.load_survey_file()
+        self.df_collar = self.load_file("Select a collar file (csv or excel)", type=["csv", "xlsx"], key="collar")
+        st.empty()
+        self.df_survey = self.load_file("Select a survey file (csv or excel)", type=["csv", "xlsx"], key="survey")
 
-    def load_collar_file(self):
-        file = st.file_uploader("Select a collar file (csv or excel)", type=["csv", "xlsx"], key="collar")
-        if file is not None:
-            self.df_collar = self.read_file(file, key="collar")
-            if self.df_collar is not None:
-                st.success(f"{file.name} loaded successfully!")
-                st.write(self.df_collar)
 
-    def load_survey_file(self):
-        file = st.file_uploader("Select a survey file (csv or excel)", type=["csv", "xlsx"], key="survey")
+    def load_file(self, label, type, key):
+        file = st.file_uploader(label, type=type)
         if file is not None:
-            self.df_survey = self.read_file(file, key="survey")
-            if self.df_survey is not None:
+            data = self.read_file(file, key)
+            if data is not None:
                 st.success(f"{file.name} loaded successfully!")
-                st.write(self.df_survey)
+                st.write(data)
+                return data
+
 
     def read_file(self, file, key):
         for encoding in self.ENCODINGS:
@@ -55,6 +49,7 @@ class FileReader:
                             return data
                         except Exception as e:
                             st.error("An error occurred while reading the file. Please make sure the file is in the correct format or check the encoding.")
+
 
 
 if __name__ == "__main__":
