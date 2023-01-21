@@ -8,7 +8,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import math
-from mpl_toolkits.mplot3d import Axes3D
+#from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
 def open_collar_file():
@@ -110,7 +110,7 @@ ax.scatter3D(df_collar_xyz['DH_X'], df_collar_xyz['DH_Y'], df_collar_xyz['DH_RL'
 plt.show()
 
 
-df_collar_xyz.to_csv('DH_xyz.csv')
+#df_collar_xyz.to_csv('DH_xyz.csv')
 
 
 st.title("Drillhole Calculations Example")
