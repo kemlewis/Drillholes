@@ -4,19 +4,19 @@ import pandas as pd
 st.title("Upload Data")
 
 def handle_file_upload(file):
-    if file.name = collar_file:
+    if file.name == "collar_file":
         if collar_file is None:
             collar_df = pd.read_csv(collar_file)
             diplay_collar_df = st.dataframe(collar_df)
-    if file.name = survey_file:
+    if file.name == "survey_file":
         if survey_file is None:
             survey_df = pd.read_csv(survey_file)
             diplay_survey_df = st.dataframe(survey_df)
-    if file.name = point_file:
+    if file.name == "point_file":
         if point_file is not None:
             point_df = pd.read_csv(point_file)
             st.dataframe(point_df)
-    if file.name = interval_file:
+    if file.name == "interval_file":
         if interval_file is not None:
             interval_df = pd.read_csv(interval_file)
             st.dataframe(interval_df)
