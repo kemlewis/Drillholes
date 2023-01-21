@@ -9,6 +9,31 @@ import pandas as pd
 import numpy as np
 from scipy import interpolate
 
+def load_data(file_type):
+    file = st.file_uploader(f"Upload {file_type} file (.csv or .xlsx)")
+    if file is None:
+        st.error("Please upload a file")
+        return None
+
+    if not file.name.endswith(".csv") and not file.name.endswith(".xlsx"):
+        st.error("File must be of type .csv or .xlsx")
+        return None
+
+    encodings = ['utf-8', 'latin-1', 'iso-8859-1', 'utf-8']
+    for enc in encodings:
+        try:
+            with open(file, 'r', encoding=enc) as f:
+                if file.name.endswith(".csv"):
+                    df = pd.read_csv(f)
+                else:
+                    df = pd.read_excel(f)
+            st.dataframe(df.head())
+            return df
+        except:
+            pass
+    st.error("An error occurred while trying to read the file. Please check the file format and try again.")
+    return None
+
 def load_collar_file():
     collar_df = load_data("collar")
     if collar_df is not None:
@@ -106,30 +131,7 @@ def plot_drillholes(traces, intervals, interval_df, data_cols, show_annotation):
                     fig.add_trace(go.Scatter3d(x=[point[0]], y=[point[1]], z=[point[2]], text=text, mode='markers', name=id+'_interval'))
     st.plotly_chart(fig)
     
-def load_data(file_type):
-    file = st.file_uploader(f"Upload {file_type} file (.csv or .xlsx)")
-    if file is None:
-        st.error("Please upload a file")
-        return None
 
-    if not file.name.endswith(".csv") and not file.name.endswith(".xlsx"):
-        st.error("File must be of type .csv or .xlsx")
-        return None
-
-    encodings = ['utf-8', 'latin-1', 'iso-8859-1', 'utf-8']
-    for enc in encodings:
-        try:
-            with open(file, 'r', encoding=enc) as f:
-                if file.name.endswith(".csv"):
-                    df = pd.read_csv(f)
-                else:
-                    df = pd.read_excel(f)
-            st.dataframe(df.head())
-            return df
-        except:
-            pass
-    st.error("An error occurred while trying to read the file. Please check the file format and try again.")
-    return None
 
 def load_interval_data():
     interval_df = load_data("interval")
