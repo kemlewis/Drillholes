@@ -8,7 +8,7 @@ def handle_file_upload(file):
         return None
     if file is not None:
         data = pd.read_csv(file)
-        st.write(data)
+        st.dataframe(data)
 
 def handle_files(file_uploaders):
     files = {}
