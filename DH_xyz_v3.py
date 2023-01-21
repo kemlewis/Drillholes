@@ -3,27 +3,25 @@ import pandas as pd
 
 st.title("Upload Data")
 
-def handle_file_upload(file):
+def handle_file_upload(file, key):
     if file is None:
         return
-    if 'collar_file' in file.filename:
-        collar_df = pd.read_csv(file)
-        st.dataframe(collar_df)
-    elif 'survey_file' in file.filename:
-        survey_df = pd.read_csv(file)
-        st.dataframe(survey_df)
-    elif 'point_file' in file.filename:
-        point_df = pd.read_csv(file)
-        st.dataframe(point_df)
-    elif 'interval_file' in file.filename:
-        interval_df = pd.read_csv(file)
-        st.dataframe(interval_df)
+    data = pd.read_csv(file)
+    st.dataframe(data)
+    if key == 1:
+        df_collar = data
+    elif key == 2:
+        df_survey = data
+    elif key == 3:
+        df_point = data
+    elif key == 4:
+        df_interval = data
 
 def main():
-    collar_file = st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"], key=1, on_change=handle_file_upload)
-    survey_file = st.file_uploader("Upload survey data (csv or excel)", type=["csv", "xlsx"], key=2, on_change=handle_file_upload)
-    point_file = st.file_uploader("Upload point data (csv or excel)", type=["csv", "xlsx"], key=3, on_change=handle_file_upload)
-    interval_file = st.file_uploader("Upload interval data (csv or excel)", type=["csv", "xlsx"], key=4, on_change=handle_file_upload)
+    collar_file = st.file_uploader("Upload collar data (csv or excel)", type=["csv", "xlsx"], key=1, on_change=lambda file: handle_file_upload(file, 1))
+    survey_file = st.file_uploader("Upload survey data (csv or excel)", type=["csv", "xlsx"], key=2, on_change=lambda file: handle_file_upload(file, 2))
+    point_file = st.file_uploader("Upload point data (csv or excel)", type=["csv", "xlsx"], key=3, on_change=lambda file: handle_file_upload(file, 3))
+    interval_file = st.file_uploader("Upload interval data (csv or excel)", type=["csv", "xlsx"], key=4, on_change=lambda file: handle_file_upload(file, 4))
 
 if __name__ == '__main__':
     main()
