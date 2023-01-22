@@ -13,10 +13,10 @@ def handle_file_upload(file, key):
         data = pd.read_csv(file)
         if key == 1:
             df_collar = data
-            st.dataframe(df_collar)
+            st.write(df_collar)
         elif key == 2:
             df_survey = data
-            st.dataframe(df_survey)
+            st.write(df_survey)
 
 def handle_files(file_uploaders):
     files = {}
