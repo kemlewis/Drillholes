@@ -5,10 +5,17 @@ df_collar = pd.DataFrame()
 dict_collar = {"HoleID": None, "DH_X": None, "DH_Y": None, "DH_Z": None}
 
 # Create a function for each page
+file_uploaded = False
+
 def load_collar():
-    file_uploaded = st.file_uploader("Upload file", type=["csv", "xlsx"])
-    if file_uploaded:
-        process_file(file_uploaded)
+    global file_uploaded
+    if not file_uploaded:
+        file = st.file_uploader("Upload file", type=["csv", "xlsx"])
+        if file:
+            process_file(file)
+            file_uploaded = True
+    else:
+        select_columns()
 
 def process_file(file):
     _, file_extension = os.path.splitext(file.name)
@@ -38,7 +45,6 @@ def process_file(file):
     else:
         st.success("File loaded successfully")
         st.dataframe(df_collar)
-        select_columns()
 
 
 
