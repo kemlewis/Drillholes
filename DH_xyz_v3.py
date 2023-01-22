@@ -7,6 +7,7 @@ global df_collar
 global df_survey
 
 def handle_file_upload(file, key):
+    st.write("TEST")
     if file is None:
         return None
     if file is not None:
