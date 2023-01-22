@@ -33,11 +33,13 @@ def main():
                 uploaded_files[file_category+"_file"] = file
                 uploaded_files[file_category+"_category"] = file_category
                 st.success("File stored successfully")
+                st.write(uploaded_files)
             else:
                 uploaded_files[file.name] = file
                 uploaded_files[file.name + "_df"] = df
                 uploaded_files[file.name + "_category"] = file_category
                 st.success("File stored successfully")
+                st.write(uploaded_files)
 
 if __name__ == "__main__":
     main()
