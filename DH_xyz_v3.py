@@ -23,19 +23,20 @@ def plot_3d():
 
 # Create a function to navigate between pages
 def navigate():
-    page = st.sidebar.selectbox("Select a page", ["Load Collar", "Load Survey", "Load Point Data", "Load Interval Data", "3d Plot"])
-    if page == "Load Collar":
+    if st.sidebar.button("Load Collar"):
         load_collar()
-    elif page == "Load Survey":
+    if st.sidebar.button("Load Survey"):
         load_survey()
-    elif page == "Load Point Data":
+    if st.sidebar.button("Load Point Data"):
         load_point_data()
-    elif page == "Load Interval Data":
+    if st.sidebar.button("Load Interval Data"):
         load_interval_data()
-    elif page == "3d Plot":
+    if st.sidebar.button("3d Plot"):
         plot_3d()
 
+
 def main():
+    st.markdown("<h1 style='text-align:center;font-size:3rem;'>Drillhole Wizard</h1>", unsafe_allow_html=True)
     st.title("My App")
     navigate()
 
