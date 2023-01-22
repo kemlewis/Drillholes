@@ -105,7 +105,7 @@ def navigate():
     """
     st.sidebar.markdown(style, unsafe_allow_html=True)
     
-    if st.button("Load Collar", key='load_collar', className="stButton"):
+    if st.button("Load Collar", key='load_collar'):
         load_collar()
     else:
         file_uploaded = False
@@ -121,7 +121,6 @@ def navigate():
         
     if st.sidebar.button("3d Plot", key='plot_3d'):
         plot_3d()
-
 
 
 def main():
