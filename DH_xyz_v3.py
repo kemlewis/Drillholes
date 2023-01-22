@@ -5,6 +5,8 @@ import math
 
 df_collar = None
 df_survey = None
+uploaded_collar = False
+uploaded_survey = False
 
 def main():
     st.title("Drillhole Collar and Survey Data")
@@ -12,8 +14,8 @@ def main():
     
     global df_collar
     global df_survey
-    global uploaded_collar = False
-    global uploaded_survey = False
+    global uploaded_collar
+    global uploaded_survey
 
     # Allow user to select collar data file
     file_upload = st.file_uploader("Select the collar data file", type="csv")
