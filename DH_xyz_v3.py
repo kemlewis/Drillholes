@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 # Initialize an empty dictionary
 uploaded_files = {}
