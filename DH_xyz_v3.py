@@ -1,3 +1,5 @@
+import streamlit as st
+
 # Initialize an empty dictionary
 uploaded_files = {}
 
