@@ -6,28 +6,27 @@ dict_collar = {"HoleID": None, "DH_X": None, "DH_Y": None, "DH_Z": None}
 
 # Create a function for each page
 def load_collar():
-    file_types = ["csv", "xlsx"]
-    file_type = st.selectbox("Select file type", file_types)
-    file = st.file_uploader("Upload file", type=file_types)
+    file_uploaded = st.file_uploader("Upload file", type=["csv", "xlsx"])
+    if file_uploaded:
+        process_file(file_uploaded)
 
-    # File validation and error handling
-    if file is None:
-        st.error("Please upload a file")
-        return
-    if file_type not in file.name:
+def process_file(file):
+    _, file_extension = os.path.splitext(file.name)
+    file_extension = file_extension.replace(".", "")
+    if file_extension not in ['csv', 'xlsx']:
         st.error("Invalid file type")
         return
 
     global df_collar
     try:
-        if file_type == 'csv':
+        if file_extension == 'csv':
             for encoding in ['utf-8', 'ISO-8859-1']:
                 try:
                     df_collar = pd.read_csv(file, encoding=encoding)
                     break
                 except:
                     continue
-        elif file_type == 'xlsx':
+        elif file_extension == 'xlsx':
             df_collar = pd.read_excel(file)
     except Exception as e:
         st.error(f"Error: {e}")
@@ -40,6 +39,8 @@ def load_collar():
         st.success("File loaded successfully")
         st.dataframe(df_collar)
         select_columns()
+
+
 
 def select_columns():
     # HoleID default to left-most column
