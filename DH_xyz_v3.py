@@ -9,6 +9,9 @@ df_survey = None
 def main():
     st.title("Drillhole Collar and Survey Data")
     st.write("Select the collar data file and survey data file")
+    
+    global df_collar
+    global df_survey
 
     # Allow user to select collar data file
     collar_file = st.file_uploader("Select the collar data file", type="csv")
