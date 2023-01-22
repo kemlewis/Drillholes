@@ -24,23 +24,24 @@ def plot_3d():
 # Create a function to navigate between pages
 def navigate():
     style = """
+    <style>
     .stButton {
         width: 100%;
         text-align: center;
     }
+    </style>
     """
-    st.sidebar.markdown(f'<style>{style}</style>', unsafe_allow_html=True)
-    if st.sidebar.button("Load Collar", key='load_collar', className="stButton"):
+    st.sidebar.markdown(style, unsafe_allow_html=True)
+    if st.sidebar.button("Load Collar", key='load_collar'):
         load_collar()
-    if st.sidebar.button("Load Survey", key='load_survey', className="stButton"):
+    if st.sidebar.button("Load Survey", key='load_survey'):
         load_survey()
-    if st.sidebar.button("Load Point Data", key='load_point_data', className="stButton"):
+    if st.sidebar.button("Load Point Data", key='load_point_data'):
         load_point_data()
-    if st.sidebar.button("Load Interval Data", key='load_interval_data', className="stButton"):
+    if st.sidebar.button("Load Interval Data", key='load_interval_data'):
         load_interval_data()
-    if st.sidebar.button("3d Plot", key='plot_3d', className="stButton"):
+    if st.sidebar.button("3d Plot", key='plot_3d'):
         plot_3d()
-
 
 
 def main():
