@@ -25,7 +25,7 @@ def main():
         uploaded_collar = True
         
     # Allow user to select survey data file
-    file_upload  = st.file_uploader("Select the survey data file", type="csv")
+    survey_file  = st.file_uploader("Select the survey data file", type="csv")
     if survey_file is not None:
         df_survey = None
         df_survey = pd.read_csv(survey_file, encoding='unicode_escape')
