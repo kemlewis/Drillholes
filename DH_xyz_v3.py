@@ -32,7 +32,6 @@ def navigate():
 
 def main():
     st.title("My App")
-    st.set_page_header(icon = ":guardsman:")
     navigate()
 
 
