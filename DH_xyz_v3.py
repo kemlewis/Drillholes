@@ -8,13 +8,18 @@ dict_collar = {"HoleID": None, "DH_X": None, "DH_Y": None, "DH_Z": None}
 # Create a function for each page
 file_uploaded = False
 
+file_uploaded = False
+
+file_uploaded = False
+
 def load_collar():
     global file_uploaded
     if not file_uploaded:
         file = st.file_uploader("Upload file", type=["csv", "xlsx"])
-        if file:
-            process_file(file)
-            file_uploaded = True
+        if st.button('Process File'):
+            if file:
+                process_file(file)
+                file_uploaded = True
     else:
         select_columns()
 
@@ -46,9 +51,9 @@ def process_file(file):
     else:
         st.success("File loaded successfully")
         st.dataframe(df_collar)
-
-
-
+        select_columns()
+        
+        
 def select_columns():
     # HoleID default to left-most column
     hole_id = st.selectbox("Select HoleID column", df_collar.columns, index=0)
