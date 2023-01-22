@@ -2,18 +2,23 @@ import streamlit as st
 
 # Create a function for each page
 def load_collar():
+    st.title("Load Collar")
     st.write("This is the Load Collar page.")
 
 def load_survey():
+    st.title("Load Survey")
     st.write("This is the Load Survey page.")
 
 def load_point_data():
+    st.title("Load Point Data")
     st.write("This is the Load Point Data page.")
 
 def load_interval_data():
+    st.title("Load Interval Data")
     st.write("This is the Load Interval Data page.")
 
 def plot_3d():
+    st.title("3d Plot")
     st.write("This is the 3d Plot page.")
 
 # Create a function to navigate between pages
