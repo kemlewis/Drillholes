@@ -21,4 +21,4 @@ if uploaded_file2 is not None:
         else:
             st.dataframe(data2)
     except pd.errors.EmptyDataError:
-        st.error("The file is empty or doesn't contain any
+        st.error("The file is empty or doesn't contain any data.")
