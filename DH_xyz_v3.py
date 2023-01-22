@@ -6,11 +6,12 @@ uploaded_files = {}
 
 def main():
     # Allow user to select file
+    df = None
     file = st.file_uploader("Select a file", type=["csv", "xlsx"])
     if file is not None:
         # Read the file into a DataFrame
         if file.name.endswith(".csv"):
-            encodings = ['utf-8', 'iso-8859-1']
+            encodings = ["utf-8", "latin1", "iso-8859-1", "ascii"]
             for e in encodings:
                 try:
                     df = pd.read_csv(file, encoding=e)
