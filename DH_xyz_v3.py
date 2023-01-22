@@ -7,7 +7,8 @@ uploaded_files = {}
 def main():
     # Allow user to select file
     df = None
-    file = st.file_uploader("Select a file", type=["csv", "xlsx"])
+    st.file_uploader("Select a file", type=["csv", "xlsx"], clear_cache=True)
+    file = st.file_uploader("Select a file", type=["csv", "xlsx"], clear_cache=False)
     if file is not None:
         # Read the file into a DataFrame
         if file.name.endswith(".csv"):
@@ -33,15 +34,11 @@ def main():
                 uploaded_files[file_category+"_file"] = file
                 uploaded_files[file_category+"_category"] = file_category
                 st.success("File stored successfully")
-                # Clear the file uploader
-                st.file_uploader("Select a file", type=["csv", "xlsx"], clear_cache=True)
             else:
                 uploaded_files[file.name] = file
                 uploaded_files[file.name + "_df"] = df
                 uploaded_files[file.name + "_category"] = file_category
                 st.success("File stored successfully")
-                # Clear the file uploader
-                st.file_uploader("Select a file", type=["csv", "xlsx"], clear_cache=True)
 
 if __name__ == "__main__":
     main()
