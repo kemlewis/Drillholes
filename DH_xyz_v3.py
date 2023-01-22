@@ -26,7 +26,8 @@ def navigate():
     style = """
     <style>
     .stButton {
-        width: 100%;
+        width: 150px;
+        font-size: 1.2rem;
         text-align: center;
     }
     </style>
@@ -42,6 +43,7 @@ def navigate():
         load_interval_data()
     if st.sidebar.button("3d Plot", key='plot_3d'):
         plot_3d()
+
 
 
 def main():
