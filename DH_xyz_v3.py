@@ -12,22 +12,26 @@ def main():
     
     global df_collar
     global df_survey
+    global uploaded_collar = False
+    global uploaded_survey = False
 
     # Allow user to select collar data file
-    collar_file = st.file_uploader("Select the collar data file", type="csv", key=1)
+    file_upload = st.file_uploader("Select the collar data file", type="csv")
     if collar_file is not None:
         df_collar = None
         df_collar = pd.read_csv(collar_file, encoding='unicode_escape')
+        uploaded_collar = True
         
     # Allow user to select survey data file
-    survey_file = st.file_uploader("Select the survey data file", type="csv", key=2)
+    survey_file = st.file_uploader("Select the survey data file", type="csv")
     if survey_file is not None:
         df_survey = None
         df_survey = pd.read_csv(survey_file, encoding='unicode_escape')
+        uploaded_survey = True
         
 
     # Read in the selected files
-    if df_collar is not None and df_survey is not None:
+    if uploaded_collar is True and uploaded_survey is True:
 
         st.write("Number of drillholes in collar file: " + str(len(df_collar['HOLEID'].unique())))
         st.write("Total drillhole meterage: " + str(round(df_collar.loc[df_collar["DEPTH"] > 0, "DEPTH"].sum(),0)) + " meters")
