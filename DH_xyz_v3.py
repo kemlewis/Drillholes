@@ -4,9 +4,6 @@ import pandas as pd
 # Initialize an empty dictionary
 uploaded_files = {}
 
-# Initialize an empty dictionary
-uploaded_files = {}
-
 def main():
     # Allow user to select file
     file = st.file_uploader("Select a file", type=["csv", "xlsx"])
