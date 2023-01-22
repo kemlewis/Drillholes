@@ -8,10 +8,6 @@ dict_collar = {"HoleID": None, "DH_X": None, "DH_Y": None, "DH_Z": None}
 # Create a function for each page
 file_uploaded = False
 
-file_uploaded = False
-
-file_uploaded = False
-
 def load_collar():
     global file_uploaded
     if not file_uploaded:
