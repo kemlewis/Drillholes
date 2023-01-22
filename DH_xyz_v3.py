@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 import math
 
-df_collar = pd.dataframe()
-df_survey = pd.dataframe()
+df_collar = None
+df_survey = None
 
 def main():
     st.title("Drillhole Collar and Survey Data")
