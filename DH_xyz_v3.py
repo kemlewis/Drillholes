@@ -14,12 +14,12 @@ def main():
     global df_survey
 
     # Allow user to select collar data file
-    collar_file = st.file_uploader("Select the collar data file", type="csv")
+    collar_file = st.file_uploader("Select the collar data file", type="csv", key=1)
     if collar_file is not None:
         df_collar = pd.read_csv(collar_file, encoding='unicode_escape')
         
     # Allow user to select survey data file
-    survey_file = st.file_uploader("Select the survey data file", type="csv")
+    survey_file = st.file_uploader("Select the survey data file", type="csv", key=2)
     if survey_file is not None:
         df_survey = pd.read_csv(survey_file, encoding='unicode_escape')
         
