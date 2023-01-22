@@ -1,106 +1,76 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import math
 
-# Create global variables for dataframes and column dictionaries
-df_collar = None
-df_survey = None
-dict_collar_cols = {}
-dict_survey_cols = {}
-
-# Create function to handle file uploads and data validation
-def upload_and_validate(file_type):
-    if file_type == 'collar':
-        dataframe = 'df_collar'
-        column_dict = 'dict_collar_cols'
-        required_columns = ['HoleID', 'DH_X', 'DH_Y', 'DH_Z']
-    elif file_type == 'survey':
-        dataframe = 'df_survey'
-        column_dict = 'dict_survey_cols'
-        required_columns = ['HoleID', 'DEPTH', 'DIP', 'AZI']
-    else:
-        st.error('Invalid file type')
-        return
-
-    # Allow user to upload file
-    file = st.file_uploader(f'Upload {file_type} file')
-
-    # Try to load file as a pandas dataframe
-    if file is not None:
-        try:
-            globals()[dataframe] = pd.read_csv(file)
-        except:
-            try:
-                globals()[dataframe] = pd.read_excel(file)
-            except:
-                st.error('Failed to load file as a dataframe')
-                return
-
-    # Check that all required columns are present in the dataframe
-    for column in required_columns:
-        if column not in globals()[dataframe].columns:
-            st.error(f'{column} column not found in {file_type} file')
-            return
-
-    # Prompt user to select column indexes for required columns
-    for column in required_columns:
-        globals()[column_dict][column] = st.selectbox(f'Select {column} column index:', globals()[dataframe].columns)
-
-    check_for_blank_duplicate(globals()[dataframe])
-    st.success(f'{file_type} file loaded and validated successfully')
-
-def check_for_blank_duplicate(dataframe):
-    dataframe.dropna(inplace=True)
-    dataframe.drop_duplicates(inplace=True)
-
-# Create function to calculate and plot drillhole traces
-def calculate_and_plot():
-    # Check that both dataframes have been loaded
-    if df_collar is None or df_survey is None:
-        st.error('Please upload both collar and survey files')
-        return
-
-    # Sort df_survey by HoleID and depth
-    df_survey.sort_values(by=['HoleID', 'DEPTH'], inplace=True)
-
-    # Perform calculations using minimum curvature method
-    df_drilltraces = df_survey.copy()
-    df_drilltraces['X'] = df_collar.loc[df_drilltraces['HoleID'].values, 'DH_X'].values + df_drilltraces['DEPTH'] * np.cos(df_drilltraces['DIP'])
-    df_drilltraces['Y'] = df_collar.loc[df_drilltraces['HoleID'].values, 'DH_Y'].values + df_drilltraces['DEPTH'] * np.sin(df_drilltraces['DIP']) * np.cos(df_drilltraces['AZI'])
-    df_drilltraces['Z'] = df_collar.loc[df_drilltraces['HoleID'].values, 'DH_Z'].values + df_drilltraces['DEPTH'] * np.sin(df_drilltraces['DIP']) * np.sin(df_drilltraces['AZI'])
-
-    # Plot the drill traces using a 3D plot
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    for hole_id in df_collar['HoleID'].unique():
-        ax.plot(df_drilltraces.loc[df_drilltraces['HoleID'] == hole_id, 'X'],
-                df_drilltraces.loc[df_drilltraces['HoleID'] == hole_id, 'Y'],
-                df_drilltraces.loc[df_drilltraces['HoleID'] == hole_id, 'Z'])
-    st.pyplot(fig)
-
-    # Show basic information about the data
-    st.write('Number of drillholes:', len(df_collar['HoleID'].unique()))
-    st.write('Minimum depth:', df_drilltraces['DEPTH'].min())
-    st.write('Maximum depth:', df_drilltraces['DEPTH'].max())
-
-# Create main function to run app
 def main():
-    st.set_page_config(page_title='Drillhole Dataset App', page_icon=':guardsman:', layout='wide')
-    st.title('Drillhole Dataset App')
-    st.sidebar.title('Options')
+    st.title("Drillhole Collar and Survey Data")
+    st.write("Select the collar data file and survey data file")
 
-    # Add buttons to upload and validate collar and survey files
-    if st.sidebar.button('Upload collar file'):
-        upload_and_validate('collar')
-    if st.sidebar.button('Upload survey file'):
-        upload_and_validate('survey')
+    # Allow user to select collar data file
+    collar_file = st.file_uploader("Select the collar data file", type="csv")
 
-    # Add button to calculate and plot drillhole traces
-    if st.sidebar.button('Generate drillhole traces'):
-        calculate_and_plot()
+    # Allow user to select survey data file
+    survey_file = st.file_uploader("Select the survey data file", type="csv")
 
+    # Read in the selected files
+    if collar_file is not None and survey_file is not None:
+        df_collar = pd.read_csv(collar_file, encoding='unicode_escape')
+        df_survey = pd.read_csv(survey_file, encoding='unicode_escape')
+
+        st.write("Number of drillholes in collar file: " + str(len(df_collar)))
+        st.write("Total drillhole meterage: " + str(round(df_collar.loc[df_collar["DEPTH"] > 0, "DEPTH"].sum(),0)) + " meters")
+        st.write("Number of drillholes in survey file: " + str(len(df_survey['HOLEID'].unique())))
+        st.write("Collar file headers: " )
+        st.write(df_collar.columns.values)
+
+        df_collar_xyz = df_collar[['HOLEID', 'DH_X', 'DH_Y', 'DH_RL']]
+        df_collar_xyz=df_collar_xyz.merge(df_survey[['HOLEID','DEPTH','AZIMUTH','DIP']],how='left',on='HOLEID')
+        df_collar_xyz.loc[df_collar_xyz['DEPTH'] != 0, ['DH_X', 'DH_Y', 'DH_RL']] = np.nan
+        df_collar_xyz.sort_values(['HOLEID', 'DEPTH'], ascending=True)
+
+        unique = df_collar_xyz['HOLEID'].unique()
+        size_test = df_collar_xyz.groupby(['HOLEID']).size()
+
+        # Minimum curvature formula for calcuating change in xyz from distance, dip and azi
+        def calculate_xyz(depth_1, dip_1, azi_1, depth_2, dip_2, azi_2):
+            MD = depth_2 - depth_1
+            if abs(dip_1) != 90:
+                dip_1 = math.radians(90+dip_1)
+                dip_2 = math.radians(90+dip_2)
+                azi_1 = math.radians(azi_1)
+                azi_2 = math.radians(azi_2)
+
+                B_rad = math.acos (math.cos(dip_2-dip_1)-(math.sin(dip_1)*math.sin(dip_2)*(1-math.cos(azi_2-azi_1))))
+                                B_deg = math.degrees (B_rad)
+                if B_rad != 0:
+                    RF = (2/B_rad)*math.tan(B_rad/2)
+                else:
+                    RF = 0
+
+                dDepth = (MD/2)
+                dN = dDepth*((math.sin(dip_1)*math.cos(azi_1))+(math.sin(dip_2)*math.cos(azi_2)))*RF
+                dE = dDepth*((math.sin(dip_1)*math.sin(azi_1))+(math.sin(dip_2)*math.sin(azi_2)))*RF
+                dV = dDepth*(math.cos(dip_1)+math.cos(dip_2))*RF
+
+                return(MD, RF, dN, dE, dV)
+            else:
+                return(MD, 0, 0, 0, MD)
+                
+        for i, val in enumerate(unique):
+            for index, row in df_collar_xyz.loc[df_collar_xyz['HOLEID']==unique[i]].iterrows():
+                if row[4] > 0:
+                    results = calculate_xyz(row_previous[4], row_previous[6], row_previous[5], row[4], row[6], row[5])
+                    df_collar_xyz.at[index, 'DH_X'] = row_previous[1] + results[3]
+                    df_collar_xyz.at[index, 'DH_Y'] = row_previous[2] + results[4]
+                    df_collar_xyz.at[index, 'DH_RL'] = row_previous[3] + results[5]
+
+                row_previous = row
+        
+        # Show the result
+        st.write("The modified dataframe with the x, y, z coordinates is:")
+        st.write(df_collar_xyz)
+        
 if __name__ == '__main__':
     main()
 
