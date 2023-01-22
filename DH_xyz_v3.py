@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 import math
 
+df_collar = pd.dataframe()
+df_survey = pd.dataframe()
+
 def main():
     st.title("Drillhole Collar and Survey Data")
     st.write("Select the collar data file and survey data file")
@@ -10,12 +13,12 @@ def main():
     # Allow user to select collar data file
     collar_file = st.file_uploader("Select the collar data file", type="csv")
     if collar_file is not None:
-        df_collar = pd.read_csv(collar_file, encoding='unicode_escape')
+        global df_collar = pd.read_csv(collar_file, encoding='unicode_escape')
         
     # Allow user to select survey data file
     survey_file = st.file_uploader("Select the survey data file", type="csv")
     if survey_file is not None:
-        df_survey = pd.read_csv(survey_file, encoding='unicode_escape')
+        global df_survey = pd.read_csv(survey_file, encoding='unicode_escape')
         
 
     # Read in the selected files
