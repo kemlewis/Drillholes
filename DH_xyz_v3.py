@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 
 df_collar = pd.DataFrame()
 dict_collar = {"HoleID": None, "DH_X": None, "DH_Y": None, "DH_Z": None}
