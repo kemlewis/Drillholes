@@ -42,7 +42,7 @@ def main():
                 azi_2 = math.radians(azi_2)
 
                 B_rad = math.acos (math.cos(dip_2-dip_1)-(math.sin(dip_1)*math.sin(dip_2)*(1-math.cos(azi_2-azi_1))))
-                                B_deg = math.degrees (B_rad)
+                B_deg = math.degrees (B_rad)
                 if B_rad != 0:
                     RF = (2/B_rad)*math.tan(B_rad/2)
                 else:
