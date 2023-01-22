@@ -18,14 +18,14 @@ def main():
     global uploaded_survey
 
     # Allow user to select collar data file
-    file_upload = st.file_uploader("Select the collar data file", type="csv")
+    collar_file = st.file_uploader("Select the collar data file", type="csv")
     if collar_file is not None:
         df_collar = None
         df_collar = pd.read_csv(collar_file, encoding='unicode_escape')
         uploaded_collar = True
         
     # Allow user to select survey data file
-    survey_file = st.file_uploader("Select the survey data file", type="csv")
+    file_upload  = st.file_uploader("Select the survey data file", type="csv")
     if survey_file is not None:
         df_survey = None
         df_survey = pd.read_csv(survey_file, encoding='unicode_escape')
