@@ -1,133 +1,106 @@
 import streamlit as st
 import pandas as pd
-import os
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
-df_collar = pd.DataFrame()
-dict_collar = {"HoleID": None, "DH_X": None, "DH_Y": None, "DH_Z": None}
+# Create global variables for dataframes and column dictionaries
+df_collar = None
+df_survey = None
+dict_collar_cols = {}
+dict_survey_cols = {}
 
-# Create a function for each page
-file_uploaded = False
-
-def load_collar():
-    global file_uploaded
-    if not file_uploaded:
-        file = st.file_uploader("Upload file", type=["csv", "xlsx"])
-        if st.button('Process File'):
-            if file:
-                process_file(file)
-                file_uploaded = True
+# Create function to handle file uploads and data validation
+def upload_and_validate(file_type):
+    if file_type == 'collar':
+        dataframe = 'df_collar'
+        column_dict = 'dict_collar_cols'
+        required_columns = ['HoleID', 'DH_X', 'DH_Y', 'DH_Z']
+    elif file_type == 'survey':
+        dataframe = 'df_survey'
+        column_dict = 'dict_survey_cols'
+        required_columns = ['HoleID', 'DEPTH', 'DIP', 'AZI']
     else:
-        select_columns()
-
-def process_file(file):
-    _, file_extension = os.path.splitext(file.name)
-    file_extension = file_extension.replace(".", "")
-    if file_extension not in ['csv', 'xlsx']:
-        st.error("Invalid file type")
+        st.error('Invalid file type')
         return
 
-    global df_collar
-    try:
-        if file_extension == 'csv':
-            for encoding in ['utf-8', 'ISO-8859-1']:
-                try:
-                    df_collar = pd.read_csv(file, encoding=encoding)
-                    break
-                except:
-                    continue
-        elif file_extension == 'xlsx':
-            df_collar = pd.read_excel(file)
-    except Exception as e:
-        st.error(f"Error: {e}")
+    # Allow user to upload file
+    file = st.file_uploader(f'Upload {file_type} file')
+
+    # Try to load file as a pandas dataframe
+    if file is not None:
+        try:
+            globals()[dataframe] = pd.read_csv(file)
+        except:
+            try:
+                globals()[dataframe] = pd.read_excel(file)
+            except:
+                st.error('Failed to load file as a dataframe')
+                return
+
+    # Check that all required columns are present in the dataframe
+    for column in required_columns:
+        if column not in globals()[dataframe].columns:
+            st.error(f'{column} column not found in {file_type} file')
+            return
+
+    # Prompt user to select column indexes for required columns
+    for column in required_columns:
+        globals()[column_dict][column] = st.selectbox(f'Select {column} column index:', globals()[dataframe].columns)
+
+    check_for_blank_duplicate(globals()[dataframe])
+    st.success(f'{file_type} file loaded and validated successfully')
+
+def check_for_blank_duplicate(dataframe):
+    dataframe.dropna(inplace=True)
+    dataframe.drop_duplicates(inplace=True)
+
+# Create function to calculate and plot drillhole traces
+def calculate_and_plot():
+    # Check that both dataframes have been loaded
+    if df_collar is None or df_survey is None:
+        st.error('Please upload both collar and survey files')
         return
 
-    if df_collar.empty:
-        st.error("File contains no data")
-        return
-    else:
-        st.success("File loaded successfully")
-        st.dataframe(df_collar)
-        select_columns()
-        
-        
-def select_columns():
-    # HoleID default to left-most column
-    hole_id = st.selectbox("Select HoleID column", df_collar.columns, index=0)
-    dict_collar["HoleID"] = hole_id
-    
-    x_cols = [col for col in df_collar.columns if 'x' in col.lower()]
-    # DH_X default to first column that contains 'x'
-    dh_x = st.selectbox("Select DH_X column", x_cols, index=0)
-    dict_collar["DH_X"] = dh_x
-    
-    y_cols = [col for col in df_collar.columns if 'y' in col.lower()]
-    # DH_Y default to first column that contains 'y'
-    dh_y = st.selectbox("Select DH_Y column", y_cols, index=0)
-    dict_collar["DH_Y"] = dh_y
+    # Sort df_survey by HoleID and depth
+    df_survey.sort_values(by=['HoleID', 'DEPTH'], inplace=True)
 
-    z_cols = [col for col in df_collar.columns if '_z' in col.lower() or 'rl' in col.lower()]
-    # DH_Z default to first column that contains '_z' or 'rl'
-    if z_cols:
-        dh_z = st.selectbox("Select DH_Z column", z_cols, index=0)
-    else:
-        dh_z = st.selectbox("Select DH_Z column", df_collar.columns)
-    dict_collar["DH_Z"] = dh_z
-    
-    if st.button("Confirm"):
-        st.success("Columns selected successfully")
+    # Perform calculations using minimum curvature method
+    df_drilltraces = df_survey.copy()
+    df_drilltraces['X'] = df_collar.loc[df_drilltraces['HoleID'].values, 'DH_X'].values + df_drilltraces['DEPTH'] * np.cos(df_drilltraces['DIP'])
+    df_drilltraces['Y'] = df_collar.loc[df_drilltraces['HoleID'].values, 'DH_Y'].values + df_drilltraces['DEPTH'] * np.sin(df_drilltraces['DIP']) * np.cos(df_drilltraces['AZI'])
+    df_drilltraces['Z'] = df_collar.loc[df_drilltraces['HoleID'].values, 'DH_Z'].values + df_drilltraces['DEPTH'] * np.sin(df_drilltraces['DIP']) * np.sin(df_drilltraces['AZI'])
 
-def load_survey():
-    st.title("Load Survey")
-    st.write("This is the Load Survey page.")
+    # Plot the drill traces using a 3D plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for hole_id in df_collar['HoleID'].unique():
+        ax.plot(df_drilltraces.loc[df_drilltraces['HoleID'] == hole_id, 'X'],
+                df_drilltraces.loc[df_drilltraces['HoleID'] == hole_id, 'Y'],
+                df_drilltraces.loc[df_drilltraces['HoleID'] == hole_id, 'Z'])
+    st.pyplot(fig)
 
-def load_point_data():
-    st.title("Load Point Data")
-    st.write("This is the Load Point Data page.")
+    # Show basic information about the data
+    st.write('Number of drillholes:', len(df_collar['HoleID'].unique()))
+    st.write('Minimum depth:', df_drilltraces['DEPTH'].min())
+    st.write('Maximum depth:', df_drilltraces['DEPTH'].max())
 
-def load_interval_data():
-    st.title("Load Interval Data")
-    st.write("This is the Load Interval Data page.")
-
-def plot_3d():
-    st.title("3d Plot")
-    st.write("This is the 3d Plot page.")
-
-# Create a function to navigate between pages
-def navigate():
-    style = """
-    <style>
-    .stButton {
-        width: 150px;
-        font-size: 1.2rem;
-        text-align: center;
-    }
-    </style>
-    """
-    st.sidebar.markdown(style, unsafe_allow_html=True)
-    
-    if st.button("Load Collar", key='load_collar'):
-        load_collar()
-    else:
-        file_uploaded = False
-        
-    if st.sidebar.button("Load Survey", key='load_survey'):
-        load_survey()
-        
-    if st.sidebar.button("Load Point Data", key='load_point_data'):
-        load_point_data()
-        
-    if st.sidebar.button("Load Interval Data", key='load_interval_data'):
-        load_interval_data()
-        
-    if st.sidebar.button("3d Plot", key='plot_3d'):
-        plot_3d()
-
-
+# Create main function to run app
 def main():
-    st.markdown("<h1 style='text-align:center;font-size:3rem;'>Drillhole Wizard</h1>", unsafe_allow_html=True)
-    st.title("My App")
-    navigate()
+    st.set_page_config(page_title='Drillhole Dataset App', page_icon=':guardsman:', layout='wide')
+    st.title('Drillhole Dataset App')
+    st.sidebar.title('Options')
 
+    # Add buttons to upload and validate collar and survey files
+    if st.sidebar.button('Upload collar file'):
+        upload_and_validate('collar')
+    if st.sidebar.button('Upload survey file'):
+        upload_and_validate('survey')
 
-if __name__ == "__main__":
+    # Add button to calculate and plot drillhole traces
+    if st.sidebar.button('Generate drillhole traces'):
+        calculate_and_plot()
+
+if __name__ == '__main__':
     main()
+
