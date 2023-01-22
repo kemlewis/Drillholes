@@ -104,14 +104,21 @@ def navigate():
     </style>
     """
     st.sidebar.markdown(style, unsafe_allow_html=True)
-    if st.sidebar.button("Load Collar", key='load_collar'):
+    
+    if st.button("Load Collar", key='load_collar', className="stButton"):
         load_collar()
+    else:
+        file_uploaded = False
+        
     if st.sidebar.button("Load Survey", key='load_survey'):
         load_survey()
+        
     if st.sidebar.button("Load Point Data", key='load_point_data'):
         load_point_data()
+        
     if st.sidebar.button("Load Interval Data", key='load_interval_data'):
         load_interval_data()
+        
     if st.sidebar.button("3d Plot", key='plot_3d'):
         plot_3d()
 
