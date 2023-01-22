@@ -31,8 +31,10 @@ def navigate():
         plot_3d()
 
 def main():
-    st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
+    st.title("My App")
+    st.set_page_header(icon = ":guardsman:")
     navigate()
+
 
 if __name__ == "__main__":
     main()
