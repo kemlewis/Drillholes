@@ -1,9 +1,71 @@
 import streamlit as st
+import pandas as pd
+
+df_collar = pd.DataFrame()
+dict_collar = {"HoleID": None, "DH_X": None, "DH_Y": None, "DH_Z": None}
 
 # Create a function for each page
 def load_collar():
-    st.title("Load Collar")
-    st.write("This is the Load Collar page.")
+    file_types = ["csv", "xlsx"]
+    file_type = st.selectbox("Select file type", file_types)
+    file = st.file_uploader("Upload file", type=file_types)
+
+    # File validation and error handling
+    if file is None:
+        st.error("Please upload a file")
+        return
+    if file_type not in file.name:
+        st.error("Invalid file type")
+        return
+
+    global df_collar
+    try:
+        if file_type == 'csv':
+            for encoding in ['utf-8', 'ISO-8859-1']:
+                try:
+                    df_collar = pd.read_csv(file, encoding=encoding)
+                    break
+                except:
+                    continue
+        elif file_type == 'xlsx':
+            df_collar = pd.read_excel(file)
+    except Exception as e:
+        st.error(f"Error: {e}")
+        return
+
+    if df_collar.empty:
+        st.error("File contains no data")
+        return
+    else:
+        st.success("File loaded successfully")
+        st.dataframe(df_collar)
+        select_columns()
+
+def select_columns():
+    # HoleID default to left-most column
+    hole_id = st.selectbox("Select HoleID column", df_collar.columns, index=0)
+    dict_collar["HoleID"] = hole_id
+    
+    x_cols = [col for col in df_collar.columns if 'x' in col.lower()]
+    # DH_X default to first column that contains 'x'
+    dh_x = st.selectbox("Select DH_X column", x_cols, index=0)
+    dict_collar["DH_X"] = dh_x
+    
+    y_cols = [col for col in df_collar.columns if 'y' in col.lower()]
+    # DH_Y default to first column that contains 'y'
+    dh_y = st.selectbox("Select DH_Y column", y_cols, index=0)
+    dict_collar["DH_Y"] = dh_y
+
+    z_cols = [col for col in df_collar.columns if '_z' in col.lower() or 'rl' in col.lower()]
+    # DH_Z default to first column that contains '_z' or 'rl'
+    if z_cols:
+        dh_z = st.selectbox("Select DH_Z column", z_cols, index=0)
+    else:
+        dh_z = st.selectbox("Select DH_Z column", df_collar.columns)
+    dict_collar["DH_Z"] = dh_z
+    
+    if st.button("Confirm"):
+        st.success("Columns selected successfully")
 
 def load_survey():
     st.title("Load Survey")
