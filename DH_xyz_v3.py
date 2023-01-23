@@ -8,7 +8,8 @@ df = None
 
 def main():
     upload_file()
-    file_type_submit(df, file)
+    if df is not None:
+        file_type_submit(df, file)
     
 def upload_file():
     # Allow user to select file
