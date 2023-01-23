@@ -3,6 +3,7 @@ import pandas as pd
 
 # Initialize an empty dictionary
 uploaded_files = {}
+file = None
 
 def main():
     # Allow user to select file
