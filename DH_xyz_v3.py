@@ -5,12 +5,16 @@ import pandas as pd
 uploaded_files = {}
 file = None
 df = None
+file_category = None
 
 def main():
     upload_file()
     if df is not None:
         st.write(df)
         file_type_submit(df, file)
+        if file_category no None:
+            identify_columns(file_category, df)
+        
     
 def upload_file():
     # Allow user to select file
@@ -34,8 +38,8 @@ def upload_file():
 def file_type_submit(df, file):
     with st.form(key="form_file_type_submit"):
         #Prompt user to select category
+        global file_category
         file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
-        
         # Submit form button
         submitted = st.form_submit_button("Submit")
         if submitted:
@@ -45,12 +49,10 @@ def file_type_submit(df, file):
                 uploaded_files[file_category+"_df"] = df
                 uploaded_files[file_category+"_file"] = file
                 uploaded_files[file_category+"_category"] = file_category
-                identify_columns(file_category, df)
             else:
                 uploaded_files[file.name] = file
                 uploaded_files[file.name + "_df"] = df
                 uploaded_files[file.name + "_category"] = file_category
-                identify_columns(file_category, df)
 
                 
 def identify_columns(file_category, df):
