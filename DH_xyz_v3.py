@@ -12,7 +12,7 @@ def main():
     if df is not None:
         st.write(df)
         file_type_submit(df, file)
-        if file_category no None:
+        if file_category not None:
             identify_columns(file_category, df)
         
     
