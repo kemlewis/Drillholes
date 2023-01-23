@@ -4,10 +4,15 @@ import pandas as pd
 # Initialize an empty dictionary
 uploaded_files = {}
 file = None
+df = None
 
 def main():
-    # Allow user to select file
-    df = None
+    file, df = upload_file()
+    file_type_sumbit(df, file)
+    
+def upload_file():
+        # Allow user to select file
+    global df
     global file
     file = st.file_uploader("Select a file", type=["csv", "xlsx"])
     if file is not None:
@@ -24,6 +29,7 @@ def main():
             df = pd.read_excel(file)
     st.write(df)
     
+def file_type_sumbit(df, file):
     with st.form(key="my_form"):
         #Prompt user to select category
         file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
