@@ -45,14 +45,33 @@ def file_type_submit(df, file):
                 uploaded_files[file_category+"_df"] = df
                 uploaded_files[file_category+"_file"] = file
                 uploaded_files[file_category+"_category"] = file_category
-                st.success("File stored successfully")
-                st.write(uploaded_files)
+                identify_columns(file_category, df)
             else:
                 uploaded_files[file.name] = file
                 uploaded_files[file.name + "_df"] = df
                 uploaded_files[file.name + "_category"] = file_category
-                st.success("File stored successfully")
-                st.write(uploaded_files)
+                identify_columns(file_category, df)
 
+                
+def identify_columns(file_category, df):
+    if file_category == "Collar":
+        columns_to_identify = ["HoleID", "DH_X", "DH_Y", "DH_Z"]
+    elif file_category == "Survey":
+        columns_to_identify = ["HoleID", "Depth", "Dip", "Azimuth"]
+    elif file_category == "Point":
+        columns_to_identify = ["HoleID", "Depth"]
+    elif file_category == "Interval":
+        columns_to_identify = ["HoleID", "From", "To"]
+    else:
+        st.warning("Invalid file category")
+        return
+    selected_columns = []
+    for column in columns_to_identify:
+        selected_columns.append(st.selectbox(f"Select the column for {column}", df.columns))
+    uploaded_files[file_category+"_columns"] = selected_columns
+    st.success("Columns stored successfully")
+    st.write(uploaded_files)
+
+    
 if __name__ == "__main__":
     main()
