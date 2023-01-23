@@ -23,7 +23,6 @@ def main():
                         continue
             else:
                 df = pd.read_excel(file)
-
             #Prompt user to select category
             file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
             st.write(df)
