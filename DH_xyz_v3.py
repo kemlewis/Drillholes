@@ -7,7 +7,7 @@ file = None
 df = None
 
 def main():
-    file, df = upload_file()
+    upload_file()
     file_type_sumbit(df, file)
     
 def upload_file():
