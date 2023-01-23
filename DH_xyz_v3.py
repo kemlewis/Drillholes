@@ -12,8 +12,8 @@ def main():
     if df is not None:
         st.write(df)
         file_type_submit(df, file)
-        if file_category_chosen is True:
-            identify_columns(file_category, df)
+    if file_category_chosen is True:
+        identify_columns(file_category, df)
         
     
 def upload_file():
