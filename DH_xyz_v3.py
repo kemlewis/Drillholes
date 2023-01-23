@@ -7,7 +7,7 @@ uploaded_files = {}
 def main():
     # Allow user to select file
     df = None
-    with st.form("my_form"):
+    with st.form(key="my_form"):
         file = st.file_uploader("Select a file", type=["csv", "xlsx"], clear_cache=True)
         if file is not None:
             # Read the file into a DataFrame
@@ -25,7 +25,7 @@ def main():
             #Prompt user to select category
             file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
             st.write(df)
-            # Confirm button
+    # Confirm button
     submitted = st.form_submit_button("Submit")
     if submitted:
         if file_category == "Collar" or file_category == "Survey":
