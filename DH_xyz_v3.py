@@ -9,6 +9,7 @@ df = None
 def main():
     upload_file()
     if df is not None:
+        st.write(df)
         file_type_submit(df, file)
     
 def upload_file():
@@ -28,7 +29,7 @@ def upload_file():
                     continue
         else:
             df = pd.read_excel(file)
-    st.write(df)
+    
     
 def file_type_submit(df, file):
     with st.form(key="my_form"):
