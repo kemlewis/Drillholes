@@ -78,6 +78,7 @@ def identify_columns(file_category, df):
             st.success("Columns stored successfully")
             st.write(uploaded_files)
 
+
 if __name__ == "__main__":
     main()
 
