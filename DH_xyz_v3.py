@@ -22,7 +22,7 @@ def main():
             df = pd.read_excel(file)
 
         st.write(df)
-        with st.form():
+        with st.form("myform"):
             #Prompt user to select category
             file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
             # Confirm button
