@@ -5,14 +5,14 @@ import pandas as pd
 uploaded_files = {}
 file = None
 df = None
-file_category = None
+file_category_chosen = False
 
 def main():
     upload_file()
     if df is not None:
         st.write(df)
         file_type_submit(df, file)
-        if file_category is not None:
+        if file_category_chosen is True:
             identify_columns(file_category, df)
         
     
@@ -49,10 +49,12 @@ def file_type_submit(df, file):
                 uploaded_files[file_category+"_df"] = df
                 uploaded_files[file_category+"_file"] = file
                 uploaded_files[file_category+"_category"] = file_category
+                file_category_chosen = True
             else:
                 uploaded_files[file.name] = file
                 uploaded_files[file.name + "_df"] = df
                 uploaded_files[file.name + "_category"] = file_category
+                file_category_chosen = True
 
                 
 def identify_columns(file_category, df):
