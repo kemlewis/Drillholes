@@ -9,23 +9,25 @@ def main():
     # Allow user to select file
     df = None
     global file
+    file = st.file_uploader("Select a file", type=["csv", "xlsx"])
+    if file is not None:
+        # Read the file into a DataFrame
+        if file.name.endswith(".csv"):
+            encodings = ["utf-8", "latin1", "iso-8859-1", "ascii"]
+            for e in encodings:
+                try:
+                    df = pd.read_csv(file, encoding=e)
+                    break
+                except:
+                    continue
+        else:
+            df = pd.read_excel(file)
+    st.write(df)
+    
     with st.form(key="my_form"):
-        file = st.file_uploader("Select a file", type=["csv", "xlsx"])
-        if file is not None:
-            # Read the file into a DataFrame
-            if file.name.endswith(".csv"):
-                encodings = ["utf-8", "latin1", "iso-8859-1", "ascii"]
-                for e in encodings:
-                    try:
-                        df = pd.read_csv(file, encoding=e)
-                        break
-                    except:
-                        continue
-            else:
-                df = pd.read_excel(file)
-            #Prompt user to select category
-            file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
-            st.write(df)
+        #Prompt user to select category
+        file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
+        
         # Confirm button
         submitted = st.form_submit_button("Submit")
         if submitted:
