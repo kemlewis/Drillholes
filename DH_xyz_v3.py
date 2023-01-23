@@ -11,9 +11,9 @@ def main():
     upload_file()
     if df is not None:
         st.write(df)
-        file_type_submit(df, file)
-    if file_category_chosen is True:
-        identify_columns(file_category, df)
+        file_category = file_type_submit(df, file)
+        if file_category:
+            identify_columns(file_category, df)
         
     
 def upload_file():
@@ -38,7 +38,6 @@ def upload_file():
 def file_type_submit(df, file):
     with st.form(key="form_file_type_submit"):
         #Prompt user to select category
-        global file_category
         file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
         # Submit form button
         submitted = st.form_submit_button("Submit")
@@ -53,19 +52,11 @@ def file_type_submit(df, file):
                 uploaded_files[file.name] = file
                 uploaded_files[file.name + "_df"] = df
                 uploaded_files[file.name + "_category"] = file_category
-    selected_columns = identify_columns(file_category,df)
-    with st.form(key="identify_columns"):
-        for column in columns_to_identify:
-            selected_columns.append(st.selectbox(f"Select the column for {column}", df.columns))
-        # Submit form button
-        submitted = st.form_submit_button("Submit")
-        if submitted:
-            uploaded_files[file_category+"_columns"] = selected_columns
-            st.success("Columns stored successfully")
-            st.write(uploaded_files)
-                
+            return file_category
+   
 
 def identify_columns(file_category, df):
+    selected_columns = []
     if file_category == "Collar":
         columns_to_identify = ["HoleID", "DH_X", "DH_Y", "DH_Z"]
     elif file_category == "Survey":
@@ -77,6 +68,16 @@ def identify_columns(file_category, df):
     else:
         st.warning("Invalid file category")
         return
-    
+    with st.form(key="identify_columns"):
+        for column in columns_to_identify:
+            selected_columns.append(st.selectbox(f"Select the column for {column}", df.columns))
+        # Submit form button
+        submitted = st.form_submit_button("Submit")
+        if submitted:
+            uploaded_files[file_category+"_columns"] = selected_columns
+            st.success("Columns stored successfully")
+            st.write(uploaded_files)
+
 if __name__ == "__main__":
     main()
+
