@@ -10,7 +10,7 @@ def main():
     df = None
     global file
     with st.form(key="my_form"):
-        file = st.file_uploader("Select a file", type=["csv", "xlsx"], clear_cache=True)
+        file = st.file_uploader("Select a file", type=["csv", "xlsx"])
         if file is not None:
             # Read the file into a DataFrame
             if file.name.endswith(".csv"):
