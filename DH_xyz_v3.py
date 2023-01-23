@@ -32,11 +32,11 @@ def upload_file():
     
     
 def file_type_submit(df, file):
-    with st.form(key="my_form"):
+    with st.form(key="form_file_type_submit"):
         #Prompt user to select category
         file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
         
-        # Confirm button
+        # Submit form button
         submitted = st.form_submit_button("Submit")
         if submitted:
             if file_category == "Collar" or file_category == "Survey":
@@ -65,12 +65,18 @@ def identify_columns(file_category, df):
     else:
         st.warning("Invalid file category")
         return
+    
     selected_columns = []
-    for column in columns_to_identify:
-        selected_columns.append(st.selectbox(f"Select the column for {column}", df.columns))
-    uploaded_files[file_category+"_columns"] = selected_columns
-    st.success("Columns stored successfully")
-    st.write(uploaded_files)
+    
+    with st.form(key="identify_columns"):
+        for column in columns_to_identify:
+            selected_columns.append(st.selectbox(f"Select the column for {column}", df.columns))
+        # Submit form button
+        submitted = st.form_submit_button("Submit")
+        if submitted:
+            uploaded_files[file_category+"_columns"] = selected_columns
+            st.success("Columns stored successfully")
+            st.write(uploaded_files)
 
     
 if __name__ == "__main__":
