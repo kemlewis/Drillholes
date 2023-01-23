@@ -8,10 +8,10 @@ df = None
 
 def main():
     upload_file()
-    file_type_sumbit(df, file)
+    file_type_submit(df, file)
     
 def upload_file():
-        # Allow user to select file
+    # Allow user to select file
     global df
     global file
     file = st.file_uploader("Select a file", type=["csv", "xlsx"])
@@ -29,7 +29,7 @@ def upload_file():
             df = pd.read_excel(file)
     st.write(df)
     
-def file_type_sumbit(df, file):
+def file_type_submit(df, file):
     with st.form(key="my_form"):
         #Prompt user to select category
         file_category = st.selectbox("Select a category for the file:", ["Collar", "Survey", "Point", "Interval"])
