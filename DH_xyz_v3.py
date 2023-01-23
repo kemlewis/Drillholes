@@ -7,7 +7,7 @@ uploaded_files = {}
 def main():
     # Allow user to select file
     df = None
-    file = st.file_uploader("Select a file", type=["csv", "xlsx"], clear_cache=False)
+    file = st.file_uploader("Select a file", type=["csv", "xlsx"], clear_cache=True)
     if file is not None:
         # Read the file into a DataFrame
         if file.name.endswith(".csv"):
