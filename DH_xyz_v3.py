@@ -27,21 +27,21 @@ def main():
             st.write(df)
             # Confirm button
     submitted = st.form_submit_button("Submit")
-       if submitted:
-            if file_category == "Collar" or file_category == "Survey":
-                if file_category+"_df" in uploaded_files:
-                    st.warning("A file already exists for this category, it will be overwritten")
-                uploaded_files[file_category+"_df"] = df
-                uploaded_files[file_category+"_file"] = file
-                uploaded_files[file_category+"_category"] = file_category
-                st.success("File stored successfully")
-                st.write(uploaded_files)
-            else:
-                uploaded_files[file.name] = file
-                uploaded_files[file.name + "_df"] = df
-                uploaded_files[file.name + "_category"] = file_category
-                st.success("File stored successfully")
-                st.write(uploaded_files)
+    if submitted:
+        if file_category == "Collar" or file_category == "Survey":
+            if file_category+"_df" in uploaded_files:
+                st.warning("A file already exists for this category, it will be overwritten")
+            uploaded_files[file_category+"_df"] = df
+            uploaded_files[file_category+"_file"] = file
+            uploaded_files[file_category+"_category"] = file_category
+            st.success("File stored successfully")
+            st.write(uploaded_files)
+        else:
+            uploaded_files[file.name] = file
+            uploaded_files[file.name + "_df"] = df
+            uploaded_files[file.name + "_category"] = file_category
+            st.success("File stored successfully")
+            st.write(uploaded_files)
 
 if __name__ == "__main__":
     main()
