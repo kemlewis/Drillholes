@@ -81,6 +81,8 @@ def identify_columns(file_category, df):
         if submitted:
             uploaded_files[file_category+"_columns"] = selected_columns
             return "Columns stored successfully"
+        else:
+            return ""
 
 
 
