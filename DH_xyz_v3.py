@@ -13,11 +13,13 @@ def main():
     upload_file()
     if df is not None:
         st.write(df)
-        file_cat = file_type_submit(df, file)
-        selected_cols = column_identification(file_cat)
+        file_category = file_type_submit(df, file)
+        uploaded_files[file_category+"_columns"] = {}
+        selected_cols = column_identification(file_category)
         if selected_cols:
             identify_columns(selected_cols, df, file_category)
             st.success("Columns stored successfully")
+
 
 
 
