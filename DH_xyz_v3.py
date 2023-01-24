@@ -7,10 +7,6 @@ file = None
 df = None
 file_category_chosen = False
 
-uploaded_files = {}
-file = None
-df = None
-file_category_chosen = False
 
 def main():
     upload_file()
