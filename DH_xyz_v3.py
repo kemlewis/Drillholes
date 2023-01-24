@@ -12,9 +12,10 @@ def main():
     upload_file()
     if df is not None:
         st.write(df)
-        file_category = file_type_submit(df, file)
-        if file_category:
-            identify_columns(file_category, df)
+        file_cat = file_type_submit(df, file)
+        selected_cols = column_identification(file_cat)
+        if columnes_to_id:
+            identify_columns(selected_cols, df)
             st.success("Columns stored successfully")
 
 
@@ -57,21 +58,23 @@ def file_type_submit(df, file):
                 uploaded_files[file.name + "_category"] = file_category
             return file_category
    
-
-def identify_columns(file_category, df):
+def column_identification(file_category):
+    selected_columns = []
+    if file_category == "Collar":
+        columns_to_identify = ["HoleID", "DH_X", "DH_Y", "DH_Z"]
+    elif file_category == "Survey":
+        columns_to_identify = ["HoleID", "Depth", "Dip", "Azimuth"]
+    elif file_category == "Point":
+        columns_to_identify = ["HoleID", "Depth"]
+    elif file_category == "Interval":
+        columns_to_identify = ["HoleID", "From", "To"]
+    else:
+        columns_to_identify = None
+        st.warning("Invalid file category")
+    return columns_to_identify
+        
+def identify_columns(selected_columns, df):
     with st.form(key="identify_columns"):
-        selected_columns = []
-        if file_category == "Collar":
-            columns_to_identify = ["HoleID", "DH_X", "DH_Y", "DH_Z"]
-        elif file_category == "Survey":
-            columns_to_identify = ["HoleID", "Depth", "Dip", "Azimuth"]
-        elif file_category == "Point":
-            columns_to_identify = ["HoleID", "Depth"]
-        elif file_category == "Interval":
-            columns_to_identify = ["HoleID", "From", "To"]
-        else:
-            st.warning("Invalid file category")
-            return
         for column in columns_to_identify:
             selected_columns.append(st.selectbox(f"Select the column for {column}", df.columns))
         # Submit form button
