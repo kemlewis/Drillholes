@@ -13,7 +13,7 @@ def main():
         st.write(df)
         file_category = file_type_submit(df, file)
         if file_category:
-            message, files = identify_columns(file_category, df)
+            message = identify_columns(file_category, df)
             if message and files:
                 st.success(message)
                 st.write(files)
@@ -80,7 +80,7 @@ def identify_columns(file_category, df):
         submitted = st.form_submit_button("Submit")
         if submitted:
             uploaded_files[file_category+"_columns"] = selected_columns
-            return "Columns stored successfully", uploaded_files
+            return "Columns stored successfully"
 
 
 
