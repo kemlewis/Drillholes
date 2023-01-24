@@ -7,6 +7,11 @@ file = None
 df = None
 file_category_chosen = False
 
+uploaded_files = {}
+file = None
+df = None
+file_category_chosen = False
+
 def main():
     upload_file()
     if df is not None:
@@ -17,12 +22,9 @@ def main():
             st.success("Columns stored successfully")
             st.write(uploaded_files)
             # reset the values of uploaded_files, file, and df for the next file upload
-            global uploaded_files
-            uploaded_files = {}
-            global file
             file = None
-            global df
             df = None
+
 
 
     
