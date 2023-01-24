@@ -14,8 +14,10 @@ def main():
         file_category = file_type_submit(df, file)
         if file_category:
             message, files = identify_columns(file_category, df)
-            st.success(message)
-            st.write(files)
+            if message and files:
+                st.success(message)
+                st.write(files)
+
 
         
     
