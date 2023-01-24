@@ -18,9 +18,6 @@ def main():
             st.success("Columns stored successfully")
             if st.button('View uploaded files'):
                 st.write(uploaded_files)
-        # reset the values of uploaded_files, file, and df for the next file upload
-        file = None
-        df = None
 
     
 def upload_file():
