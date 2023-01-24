@@ -14,7 +14,7 @@ def main():
         st.write(df)
         file_cat = file_type_submit(df, file)
         selected_cols = column_identification(file_cat)
-        if columnes_to_id:
+        if selected_cols:
             identify_columns(selected_cols, df)
             st.success("Columns stored successfully")
 
@@ -35,8 +35,11 @@ def upload_file():
                     break
                 except:
                     continue
-        else:
+        elif file.name.endswith(".xlsx"):
             df = pd.read_excel(file)
+        else:
+            st.error("Invalid file type. Please upload a file in .csv or .xlsx format")
+            return
     
     
 def file_type_submit(df, file):
@@ -46,7 +49,7 @@ def file_type_submit(df, file):
         # Submit form button
         submitted = st.form_submit_button("Submit")
         if submitted:
-            if file_category == "Collar" or file_category == "Survey":
+            if file_category in ["Collar", "Survey"]:
                 if file_category+"_df" in uploaded_files:
                     st.warning("A file already exists for this category, it will be overwritten")
                 uploaded_files[file_category+"_df"] = df
@@ -61,28 +64,26 @@ def file_type_submit(df, file):
 def column_identification(file_category):
     selected_columns = []
     if file_category == "Collar":
-        columns_to_identify = ["HoleID", "DH_X", "DH_Y", "DH_Z"]
+        selected_columns = ["HoleID", "DH_X", "DH_Y", "DH_Z"]
     elif file_category == "Survey":
-        columns_to_identify = ["HoleID", "Depth", "Dip", "Azimuth"]
+        selected_columns = ["HoleID", "Depth", "Dip", "Azimuth"]
     elif file_category == "Point":
-        columns_to_identify = ["HoleID", "Depth"]
+        selected_columns = ["HoleID", "Depth"]
     elif file_category == "Interval":
-        columns_to_identify = ["HoleID", "From", "To"]
+        selected_columns = ["HoleID", "From", "To"]
     else:
-        columns_to_identify = None
-        st.warning("Invalid file category")
-    return columns_to_identify
+        return None
+    return selected_columns
         
 def identify_columns(selected_columns, df):
     with st.form(key="identify_columns"):
-        for column in columns_to_identify:
-            selected_columns.append(st.selectbox(f"Select the column for {column}", df.columns))
+        for column in selected_columns:
+            selected_column = st.selectbox(f"Select the column for {column}", df.columns)
+            uploaded_files[file_category+"_columns"][column] = selected_column
         # Submit form button
         submitted = st.form_submit_button("Submit")
         if submitted:
-            uploaded_files[file_category+"_columns"] = selected_columns
             st.success("Columns stored successfully")
-
 
 
 
