@@ -13,14 +13,18 @@ def main():
         st.write(df)
         file_category = file_type_submit(df, file)
         if file_category:
-            message = identify_columns(file_category, df)
-            if message is not None:
-                st.success(message)
-                st.write(uploaded_files)
+            identify_columns(file_category, df)
+            st.success("Columns stored successfully")
+            st.write(uploaded_files)
+            # reset the values of uploaded_files, file, and df for the next file upload
+            global uploaded_files
+            uploaded_files = {}
+            global file
+            file = None
+            global df
+            df = None
 
 
-
-        
     
 def upload_file():
     # Allow user to select file
@@ -81,9 +85,10 @@ def identify_columns(file_category, df):
         submitted = st.form_submit_button("Submit")
         if submitted:
             uploaded_files[file_category+"_columns"] = selected_columns
-            return "Columns stored successfully"
-        else:
-            return ""
+            st.success("Columns stored successfully")
+            if st.button('View uploaded files'):
+                st.write(uploaded_files)
+
 
 
 
