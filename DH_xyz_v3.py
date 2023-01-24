@@ -15,8 +15,9 @@ def main():
         file_cat = file_type_submit(df, file)
         selected_cols = column_identification(file_cat)
         if selected_cols:
-            identify_columns(selected_cols, df)
+            identify_columns(selected_cols, df, file_category)
             st.success("Columns stored successfully")
+
 
 
     
@@ -75,7 +76,7 @@ def column_identification(file_category):
         return None
     return selected_columns
         
-def identify_columns(selected_columns, df):
+def identify_columns(selected_columns, df, file_category):
     with st.form(key="identify_columns"):
         for column in selected_columns:
             selected_column = st.selectbox(f"Select the column for {column}", df.columns)
@@ -84,6 +85,7 @@ def identify_columns(selected_columns, df):
         submitted = st.form_submit_button("Submit")
         if submitted:
             st.success("Columns stored successfully")
+
 
 
 
