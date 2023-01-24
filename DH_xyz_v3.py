@@ -5,6 +5,7 @@ import pandas as pd
 uploaded_files = {}
 file = None
 df = None
+file_category = None
 file_category_chosen = False
 
 
