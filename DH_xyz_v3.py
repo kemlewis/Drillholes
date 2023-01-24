@@ -79,7 +79,7 @@ def identify_columns(selected_columns, df, file_category):
         for column in selected_columns:
             selected_column = st.selectbox(f"Select the column for {column}", df.columns)
             # Submit form button
-            submitted = st.form_submit_button("Submit")
+            submitted = st.form_submit_button("Submit", key=f"FormSubmitter:identify_columns-Submit-{column}")
             if submitted:
                 uploaded_files[file_category+"_columns"][column] = selected_column
                 st.success("Columns stored successfully")
