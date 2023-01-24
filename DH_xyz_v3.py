@@ -15,8 +15,8 @@ def main():
         if file_category:
             message = identify_columns(file_category, df)
             if message:
-                st.success(message)
-                st.write(files)
+                st.success("Columns stored successfully")
+                st.write(uploaded_files)
 
 
         
