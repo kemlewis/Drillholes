@@ -78,13 +78,8 @@ def identify_columns(file_category, df):
             st.success("Columns stored successfully")
             st.write(uploaded_files)
             st.success("File has been processed successfully")
-            global uploaded_files
-            uploaded_files = {}
-            global file
             file = None
-            global df
             df = None
-            global file_category_chosen
             file_category_chosen = False
 
 
