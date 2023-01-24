@@ -14,14 +14,9 @@ def main():
     if df is not None:
         st.write(df)
         file_category = file_type_submit(df, file)
-        uploaded_files[file_category+"_columns"] = {}
         selected_cols = column_identification(file_category)
         if selected_cols:
             identify_columns(selected_cols, df, file_category)
-            st.success("Columns stored successfully")
-
-
-
 
     
 def upload_file():
@@ -83,17 +78,16 @@ def identify_columns(selected_columns, df, file_category):
     with st.form(key="identify_columns"):
         for column in selected_columns:
             selected_column = st.selectbox(f"Select the column for {column}", df.columns)
-            uploaded_files[file_category+"_columns"][column] = selected_column
         # Submit form button
         submitted = st.form_submit_button("Submit")
         if submitted:
+            uploaded_files[file_category+"_columns"][column] = selected_column
+            file = None
+            df = None
+            file_category = None
+            file_category_chosen = False
             st.success("Columns stored successfully")
-
-
-
-
 
 
 if __name__ == "__main__":
     main()
-
