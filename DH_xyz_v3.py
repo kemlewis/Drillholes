@@ -60,25 +60,25 @@ def file_type_submit(df, file):
 
 def identify_columns(file_category, df):
     with st.form(key="identify_columns"):
-    selected_columns = []
-    if file_category == "Collar":
-        columns_to_identify = ["HoleID", "DH_X", "DH_Y", "DH_Z"]
-    elif file_category == "Survey":
-        columns_to_identify = ["HoleID", "Depth", "Dip", "Azimuth"]
-    elif file_category == "Point":
-        columns_to_identify = ["HoleID", "Depth"]
-    elif file_category == "Interval":
-        columns_to_identify = ["HoleID", "From", "To"]
-    else:
-        st.warning("Invalid file category")
-        return
-    for column in columns_to_identify:
-        selected_columns.append(st.selectbox(f"Select the column for {column}", df.columns))
-    # Submit form button
-    submitted = st.form_submit_button("Submit")
-    if submitted:
-        uploaded_files[file_category+"_columns"] = selected_columns
-        st.success("Columns stored successfully")
+        selected_columns = []
+        if file_category == "Collar":
+            columns_to_identify = ["HoleID", "DH_X", "DH_Y", "DH_Z"]
+        elif file_category == "Survey":
+            columns_to_identify = ["HoleID", "Depth", "Dip", "Azimuth"]
+        elif file_category == "Point":
+            columns_to_identify = ["HoleID", "Depth"]
+        elif file_category == "Interval":
+            columns_to_identify = ["HoleID", "From", "To"]
+        else:
+            st.warning("Invalid file category")
+            return
+        for column in columns_to_identify:
+            selected_columns.append(st.selectbox(f"Select the column for {column}", df.columns))
+        # Submit form button
+        submitted = st.form_submit_button("Submit")
+        if submitted:
+            uploaded_files[file_category+"_columns"] = selected_columns
+            st.success("Columns stored successfully")
 
 
 
