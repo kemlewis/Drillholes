@@ -17,7 +17,7 @@ def main():
     # Process each uploaded file
     for file in uploaded_files:
         # Create a pandas dataframe from the file
-        df = pd.read_csv(file) if file.endswith(".csv") else pd.read_excel(file)
+        df = pd.read_csv(file) if file.name.endswith(".csv") else pd.read_excel(file)
 
         # Categorize the file based on its type
         file_type = st.selectbox("Select the file type", file_types)
