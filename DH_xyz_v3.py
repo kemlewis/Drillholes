@@ -36,7 +36,7 @@ def categorise_files():
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
-            st.write(file_category)
+            st.write(files_dict)
             #identify_columns()
 
 # Create a function to handle column identification
