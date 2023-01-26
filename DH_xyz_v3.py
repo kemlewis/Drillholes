@@ -30,7 +30,7 @@ def categorise_files_form():
         # Creating new dictionary
         file_categories_dict = dict.fromkeys(files_dict.keys(), [])
         for file in file_categories_dict.items():
-            file_category, file = st.selectbox(f"Select file category for {file}", ["Collar", "Survey", "Point", "Interval"])
+            file.name + "_combobox" = st.selectbox(f"Select file category for {file}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit)
 
