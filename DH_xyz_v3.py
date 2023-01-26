@@ -37,6 +37,7 @@ def upload_files():
 
 # Create a function to handle file categorization
 def categorise_files():
+    print("categorise_files was run")
     with st.form("categoirse_files"):
         # Use a form to present the list of files and a dropdown menu for each file
         for file_name, file_info in files_dict.items():
