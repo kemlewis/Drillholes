@@ -11,13 +11,13 @@ def main():
     page = st.sidebar.selectbox("Select a page", ["Upload Files", "Categorise Files", "Identify Columns", "View Summary"])
 
     if page == "Upload Files":
-        self.upload_files()
+        upload_files()
     elif page == "Categorise Files":
-        self.categorise_files()
+        categorise_files()
     elif page == "Identify Columns":
-        self.identify_columns()
+        identify_columns()
     elif page == "View Summary":
-        self.view_summary()
+        view_summary()
 
 # Create a function to handle file uploads
 def upload_files():
@@ -36,7 +36,7 @@ def upload_files():
         categorise_files()
 
 # Create a function to handle file categorization
-def categorise_files(self):
+def categorise_files():
     st.set_page_config(page_title="Categorise Files", page_icon=":file_folder:", layout="wide")
 
     # Use a form to present the list of files and a dropdown menu for each file
@@ -58,7 +58,7 @@ def categorise_files(self):
     # Add a "Next" button to navigate to the next page
     if st.button("Next"):
         st.write("Navigating to Identify Columns")
-        self.identify_columns()
+        identify_columns()
 
 
 # Create a function to handle column identification
