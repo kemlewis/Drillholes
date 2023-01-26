@@ -28,7 +28,7 @@ def upload_files():
 # Create a function to handle file categorization
 def categorise_files():
     # Creating new dictionary
-    file_categories_dict = dict.fromkeys(set(files_dict.values()), [])
+    file_categories_dict = files_dict.fromkeys(set(files_dict.values()), [])
     # Use a form to present the list of files and a dropdown menu for each file
     with st.form("categoirse_files"):
         for file_name in file_types_dict.items():
