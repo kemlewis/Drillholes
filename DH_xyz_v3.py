@@ -26,7 +26,7 @@ def main():
         columns = st.multiselect("Select the columns to include", df.columns.tolist())
 
         # Store the information for the file in the dictionary
-        file_data[file] = {"file_type": file_type, "columns": columns, "dataframe": df}
+        file_data[file.name] = {"file_type": file_type, "columns": columns, "dataframe": df}
 
     # Display the information for each file
     for file, data in file_data.items():
