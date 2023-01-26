@@ -59,9 +59,7 @@ def categorise_files():
                 st.error("There must be exactly one Collar file and exactly one Survey file.")
             else:
                 st.success("File categories were stored correctly.")
-                if st.button("Next"):
-                    st.write("Navigating to Categorise Files")
-                    identify_columns()
+                identify_columns()
 
 
 # Create a function to handle column identification
