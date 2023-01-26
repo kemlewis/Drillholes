@@ -1,23 +1,13 @@
 import streamlit as st
 import pandas as pd
+import traceback
 
 # Create a dictionary to store uploaded files and their information
 files_dict = {}
 
 def main():
-    
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
-
-    st.sidebar.title("Navigation")
-    page = st.sidebar.selectbox("Select a page", ["Upload Files", "Categorise Files", "Identify Columns", "View Summary"])
-    if page == "Upload Files":
-        upload_files()
-    elif page == "Categorise Files":
-        categorise_files()
-    elif page == "Identify Columns":
-        identify_columns()
-    elif page == "View Summary":
-        view_summary()
+    upload_files()
 
 # Create a function to handle file uploads
 def upload_files():
@@ -37,9 +27,9 @@ def upload_files():
 
 # Create a function to handle file categorization
 def categorise_files():
-    print("categorise_files was run")
+
+    # Use a form to present the list of files and a dropdown menu for each file
     with st.form("categoirse_files"):
-        # Use a form to present the list of files and a dropdown menu for each file
         for file_name, file_info in files_dict.items():
             file_type = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
             file_info["type"] = file_type
@@ -47,23 +37,13 @@ def categorise_files():
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
-            e = RuntimeError('This is an exception of type RuntimeError')
-            st.exception(e)
-            identify_columns()
-            st.write("CLICKED!")
-            # Perform validation of the selections
-            collar_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Collar"]
-            survey_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Survey"]
-            point_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Point"]
-            interval_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Interval"]
-            
-            if len(collar_files) != 1 or len(survey_files) != 1:
-                st.error("There must be exactly one Collar file and exactly one Survey file.")
+            if not files_dict:
+                st.warning("Please select a file before submitting the form.")
             else:
+                for file_name, file_info in files_dict.items():
+                    file_info["type"] = file_type
                 st.success("File categories were stored correctly.")
-                if st.button("Next", disabled=False):
-                    st.write("Navigating to Categorise Files")
-                    identify_columns()
+
 
 # Create a function to handle column identification
 def identify_columns():
