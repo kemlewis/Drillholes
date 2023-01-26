@@ -30,19 +30,16 @@ def categorise_files():
 
     # Use a form to present the list of files and a dropdown menu for each file
     with st.form("categoirse_files"):
-        for file_name, file_info in files_dict.items():
+        for file_name in files_dict.items():
             file_type = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
-            file_info["type"] = file_type
+            
 
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
-            if not files_dict:
-                st.warning("Please select a file before submitting the form.")
-            else:
-                for file_name, file_info in files_dict.items():
-                    file_info["type"] = file_type
-                st.success("File categories were stored correctly.")
+            file_info["type"] = file_type
+            st.write(file_info)
+
 
 
 # Create a function to handle column identification
