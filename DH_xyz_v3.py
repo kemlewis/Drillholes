@@ -43,23 +43,23 @@ def categorise_files():
             file_type = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
             file_info["type"] = file_type
             
-        submitted = st.form_submit_button("submit_categoirse_files")
-        
         # Perform validation of the selections
         collar_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Collar"]
         survey_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Survey"]
         point_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Point"]
         interval_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Interval"]
 
-
-
         # Submit the form and initiate identifying columns
+        submitted = st.form_submit_button("submit_categoirse_files")
         if submitted:
             if len(collar_files) != 1 or len(survey_files) != 1:
                 st.error("There must be exactly one Collar file and exactly one Survey file.")
+                st.write("Navigating to Categorise Files", disabled=True)
             else:
                 st.success("File categories were stored correctly.")
-                identify_columns()
+                if st.button("Next"):
+                    st.write("Navigating to Categorise Files", disabled=False)
+                    identify_columns()
 
 
 # Create a function to handle column identification
