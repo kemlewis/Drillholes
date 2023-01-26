@@ -46,6 +46,7 @@ def categorise_files():
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
+            identify_columns()
             st.write("CLICKED!")
             # Perform validation of the selections
             collar_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Collar"]
