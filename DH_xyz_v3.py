@@ -52,14 +52,8 @@ def categorise_files():
         # Submit the form and initiate identifying columns
         submitted = st.form_submit_button("submit_categoirse_files")
         if submitted:
-            if len(collar_files) != 1 or len(survey_files) != 1:
-                st.error("There must be exactly one Collar file and exactly one Survey file.")
-                st.write("Navigating to Categorise Files", disabled=True)
-            else:
-                st.success("File categories were stored correctly.")
-                if st.button("Next"):
-                    st.write("Navigating to Categorise Files", disabled=False)
-                    identify_columns()
+            identify_columns()
+
 
 
 # Create a function to handle column identification
