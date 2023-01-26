@@ -9,7 +9,6 @@ def main():
 
     st.sidebar.title("Navigation")
     page = st.sidebar.selectbox("Select a page", ["Upload Files", "Categorise Files", "Identify Columns", "View Summary"])
-
     if page == "Upload Files":
         upload_files()
     elif page == "Categorise Files":
