@@ -44,7 +44,7 @@ def categorise_files():
             file_info["type"] = file_type
 
         # Submit the form and initiate identifying columns
-        submit_file_categories = st.form_submit_button("Submit", key="submit_file_categories")
+        submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
             st.write("CLICKED!")
             # Perform validation of the selections
