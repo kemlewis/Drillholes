@@ -23,7 +23,7 @@ def upload_files():
     # Add a "Next" button to navigate to the next page
     if st.button("Next"):
         st.write("Navigating to Categorise Files")
-        categorise_files()
+        categorise_files_form()
 
 # Create a function to handle file categorization
 def categorise_files_form():
