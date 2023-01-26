@@ -27,10 +27,10 @@ def upload_files():
 
 # Create a function to handle file categorization
 def categorise_files_form():
-    # Creating new dictionary
-    file_categories_dict = dict.fromkeys(files_dict.keys(), [])
     # Use a form to present the list of files and a dropdown menu for each file
     with st.form("categoirse_files"):
+        # Creating new dictionary
+        file_categories_dict = dict.fromkeys(files_dict.keys(), [])
         for file_name in file_categories_dict.items():
             file_category = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
         # Submit the form and initiate identifying columns
