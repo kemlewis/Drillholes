@@ -54,8 +54,7 @@ def identify_columns_form():
         file_select = st.selectbox("Select a file to identify columns for:", [file.name for file in files_list])
 
         # Show the dataframe preview for the selected file
-        selected_file = files_list[file_select]
-        st.dataframe(selected_file.df)
+        st.dataframe(file_select.df)
 
         if selected_file.category == "Collar":
             column_select = st.multiselect("Select the necessary columns for Collar file:", ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"])
