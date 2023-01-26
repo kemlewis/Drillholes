@@ -34,7 +34,7 @@ def categorise_files_form():
         for file_name in file_categories_dict.items():
             file_category = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
         # Submit the form and initiate identifying columns
-        submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit())
+        submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit)
 
 def categorise_files_submit():
     st.write("FORM WAS SUBMITTED")
