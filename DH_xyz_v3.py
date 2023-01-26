@@ -26,7 +26,7 @@ def upload_files():
         categorise_files()
 
 # Create a function to handle file categorization
-def categorise_files():
+def categorise_files_form():
     # Creating new dictionary
     file_categories_dict = dict.fromkeys(files_dict.keys(), [])
     # Use a form to present the list of files and a dropdown menu for each file
@@ -34,11 +34,11 @@ def categorise_files():
         for file_name in file_categories_dict.items():
             file_category = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
         # Submit the form and initiate identifying columns
-        submit_file_categories = st.form_submit_button("Submit")
-        if submit_file_categories:
-            st.write(files_dict)
-            #identify_columns()
+        submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit())
 
+def categorise_files_submit():
+    st.write("FORM WAS SUBMITTED")
+    
 # Create a function to handle column identification
 def identify_columns():
     st.write("I'm trying to identify columns")
