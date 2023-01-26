@@ -19,6 +19,8 @@ def main():
         upload_files()
     with st.expander("Categorise Files"):
         categorise_files_form()
+    with st.expander("Identify Columns"):
+        identify_columns_form()
 
 # Create a function to handle file uploads
 def upload_files():
