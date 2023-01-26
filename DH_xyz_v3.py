@@ -10,6 +10,7 @@ def main():
     with st.expander("Upload Files"):
         upload_files()
     with st.expander("Categorise Files"):
+        categorise_files_form()
 
 # Create a function to handle file uploads
 def upload_files():
