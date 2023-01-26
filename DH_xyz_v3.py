@@ -42,31 +42,35 @@ def categorise_files():
         for file_name, file_info in files_dict.items():
             file_type = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
             file_info["type"] = file_type
-            
-        # Perform validation of the selections
-        collar_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Collar"]
-        survey_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Survey"]
-        point_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Point"]
-        interval_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Interval"]
 
         # Submit the form and initiate identifying columns
         submitted = st.form_submit_button("submit_categoirse_files")
         if submitted:
-            identify_columns()
-
-
+            # Perform validation of the selections
+            collar_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Collar"]
+            survey_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Survey"]
+            point_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Point"]
+            interval_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Interval"]
+            
+            if len(collar_files) != 1 or len(survey_files) != 1:
+                st.error("There must be exactly one Collar file and exactly one Survey file.")
+            else:
+                st.success("File categories were stored correctly.")
+                if st.button("Next", disabled=False):
+                    st.write("Navigating to Categorise Files")
+                    identify_columns()
 
 # Create a function to handle column identification
 def identify_columns():
+    # Create a dropdown menu to select a file to identify columns for
+    file_select = st.selectbox("Select a file to identify columns for:", files_by_category["Collar"] + files_by_category["Survey"] + files_by_category["Point"] + files_by_category["Interval"])
+
+    # Show the dataframe preview for the selected file
+    selected_file = file_dict[file_select]
+    st.dataframe(selected_file)
+    
+    # Create a form to select columns for the selected file based on file type
     with st.form("identify_columns"):
-        # Create a dropdown menu to select a file to identify columns for
-        file_select = st.selectbox("Select a file to identify columns for:", files_by_category["Collar"] + files_by_category["Survey"] + files_by_category["Point"] + files_by_category["Interval"])
-
-        # Show the dataframe preview for the selected file
-        selected_file = file_dict[file_select]
-        st.dataframe(selected_file)
-
-        # Create a form to select columns for the selected file based on file type
         if file_select in files_by_category["Collar"]:
             column_select = st.multiselect("Select the necessary columns for Collar file:", ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"])
         elif file_select in files_by_category["Survey"]:
