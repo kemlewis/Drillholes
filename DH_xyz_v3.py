@@ -44,6 +44,7 @@ def categorise_files():
 
 # Create a function to handle column identification
 def identify_columns():
+    st.write("I'm trying to identify columns")
     # Create a dropdown menu to select a file to identify columns for
     file_select = st.selectbox("Select a file to identify columns for:", files_by_category["Collar"] + files_by_category["Survey"] + files_by_category["Point"] + files_by_category["Interval"])
 
