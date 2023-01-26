@@ -7,7 +7,9 @@ files_dict = {}
 
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
-    upload_files()
+    with st.expander("Upload Files"):
+        upload_files()
+    with st.expander("Categorise Files"):
 
 # Create a function to handle file uploads
 def upload_files():
@@ -20,29 +22,28 @@ def upload_files():
         files_dict[file.name] = {"dataframe": file_df}
         st.success(f"File {file.name} was successfully uploaded.")
 
-    # Add a "Next" button to navigate to the next page
-    if st.button("Next"):
-        st.write("Navigating to Categorise Files")
-        categorise_files_form()
-
 # Create a function to handle file categorization
 def categorise_files_form():
     # Use a form to present the list of files and a dropdown menu for each file
-    with st.form("categoirse_files"):
+    with st.form("categorise_files"):
         # Creating new dictionary
         file_categories_dict = dict.fromkeys(files_dict.keys(), [])
-        for file_name in file_categories_dict.items():
-            file_category = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
+        for file in file_categories_dict.items():
+            file_category, file = st.selectbox(f"Select file category for {file}", ["Collar", "Survey", "Point", "Interval"])
         # Submit the form and initiate identifying columns
-        submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit)
+        submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit, args=)
 
 def categorise_files_submit():
     st.write("FORM WAS SUBMITTED")
+    for file_name in file_categories_dict.items():
+        file_category = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
+
+    # Add a "Next" button to navigate to the next page
+    if st.button("Next"):
+        identify_columns_form()
     
 # Create a function to handle column identification
 def identify_columns_form():
-
-    
     # Create a form to select columns for the selected file based on file type
     with st.form("identify_columns"):
         # Create a dropdown menu to select a file to identify columns for
