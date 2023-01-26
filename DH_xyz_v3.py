@@ -22,7 +22,7 @@ def main():
 # Create a function to handle file uploads
 def upload_files():
     
-    uploaded_files = st.file_uploader("Choose files to upload", type=["csv", "xlsx"], multiple=True)
+    uploaded_files = st.file_uploader("Choose files to upload", type=["csv", "xlsx"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
 
     # Create a pandas dataframe for each file
     for file in uploaded_files:
