@@ -9,7 +9,7 @@ def main():
     file_types = ["File Type A", "File Type B", "File Type C"]
 
     # Allow the user to upload multiple files
-    uploaded_files = st.file_uploader("Select files to upload", type=["csv", "xlsx"], multiple=True)
+    uploaded_files = st.file_uploader("Select files to upload", type=["csv", "xlsx"], accept_multiple_files=True)
 
     # Create a dictionary to store the information for each file
     file_data = {}
