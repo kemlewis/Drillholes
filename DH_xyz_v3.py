@@ -5,6 +5,7 @@ import pandas as pd
 files_dict = {}
 
 def main():
+    
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
 
     st.sidebar.title("Navigation")
@@ -20,7 +21,7 @@ def main():
 
 # Create a function to handle file uploads
 def upload_files():
-    st.set_page_config(page_title="Upload Files", page_icon=":paperclip:", layout="wide")
+    
     uploaded_files = st.file_uploader("Choose files to upload", type=["csv", "xlsx"], multiple=True)
 
     # Create a pandas dataframe for each file
@@ -36,8 +37,7 @@ def upload_files():
 
 # Create a function to handle file categorization
 def categorise_files():
-    st.set_page_config(page_title="Categorise Files", page_icon=":file_folder:", layout="wide")
-
+    
     # Use a form to present the list of files and a dropdown menu for each file
     for file_name, file_info in files_dict.items():
         file_type = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
@@ -62,8 +62,7 @@ def categorise_files():
 
 # Create a function to handle column identification
 def identify_columns():
-    st.set_page_config(page_title="Identify Columns", page_icon=":bar_chart:", layout="wide")
-
+    
      # Create a dropdown menu to select a file to identify columns for
     file_select = st.selectbox("Select a file to identify columns for:", files_by_category["Collar"] + files_by_category["Survey"] + files_by_category["Point"] + files_by_category["Interval"])
 
