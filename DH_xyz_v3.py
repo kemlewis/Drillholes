@@ -37,27 +37,30 @@ def upload_files():
 
 # Create a function to handle file categorization
 def categorise_files():
-    
-    # Use a form to present the list of files and a dropdown menu for each file
-    for file_name, file_info in files_dict.items():
-        file_type = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
-        file_info["type"] = file_type
+    with st.form("categoirse_files"):
+        # Use a form to present the list of files and a dropdown menu for each file
+        for file_name, file_info in files_dict.items():
+            file_type = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
+            file_info["type"] = file_type
+            
+        submitted = st.form_submit_button("submit_categoirse_files", disabled=True)
+        
+        # Perform validation of the selections
+        collar_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Collar"]
+        survey_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Survey"]
+        point_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Point"]
+        interval_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Interval"]
 
-    # Perform validation of the selections
-    collar_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Collar"]
-    survey_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Survey"]
-    point_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Point"]
-    interval_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Interval"]
+        if len(collar_files) != 1 or len(survey_files) != 1:
+            st.error("There must be exactly one Collar file and exactly one Survey file.")
+        else:
+            st.success("File categories were stored correctly.")
+            submitted.disabled=False
 
-    if len(collar_files) != 1 or len(survey_files) != 1:
-        st.error("There must be exactly one Collar file and exactly one Survey file.")
-    else:
-        st.success("File categories were stored correctly.")
-
-    # Add a "Next" button to navigate to the next page
-    if st.button("Next"):
-        st.write("Navigating to Identify Columns")
-        identify_columns()
+        # Submit the form and initiate identifying columns
+        if submitted:
+            st.write("Navigating to Identify Columns")
+            identify_columns()
 
 
 # Create a function to handle column identification
