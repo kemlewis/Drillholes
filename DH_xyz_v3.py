@@ -26,7 +26,7 @@ def upload_files():
 
     # Create a pandas dataframe for each file
     for file in uploaded_files:
-        file_df = pd.read_csv(file) if file.endswith("csv") else pd.read_excel(file)
+        file_df = pd.read_csv(file) if file.name.endswith("csv") else pd.read_excel(file)
         files_dict[file.name] = {"dataframe": file_df}
         st.success(f"File {file.name} was successfully uploaded.")
 
