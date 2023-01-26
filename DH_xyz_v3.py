@@ -47,6 +47,8 @@ def categorise_files():
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
+            e = RuntimeError('This is an exception of type RuntimeError')
+            st.exception(e)
             identify_columns()
             st.write("CLICKED!")
             # Perform validation of the selections
