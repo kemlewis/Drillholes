@@ -28,17 +28,16 @@ def upload_files():
 # Create a function to handle file categorization
 def categorise_files():
     # Creating new dictionary
-    file_categories_dict = files_dict.fromkeys(set(files_dict.values()), [])
+    file_categories_dict = dict.fromkeys(files_dict.keys(), [])
     # Use a form to present the list of files and a dropdown menu for each file
     with st.form("categoirse_files"):
-        for file_name in file_types_dict.items():
+        for file_name in file_categories_dict.items():
             file_category = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
             st.write(file_category)
-
-
+            identify_columns()
 
 # Create a function to handle column identification
 def identify_columns():
@@ -47,7 +46,7 @@ def identify_columns():
     file_select = st.selectbox("Select a file to identify columns for:", files_by_category["Collar"] + files_by_category["Survey"] + files_by_category["Point"] + files_by_category["Interval"])
 
     # Show the dataframe preview for the selected file
-    selected_file = file_dict[file_select]
+    selected_file = files_dict[file_select]
     st.dataframe(selected_file)
     
     # Create a form to select columns for the selected file based on file type
@@ -67,7 +66,7 @@ def identify_columns():
         #Submit the form
         if st.button("Submit"):
             # Store the column selections in the dictionary reference for the selected file
-            file_dict[file_select]["columns"] = column_select
+            files_dict[file_select]["columns"] = column_select
             # Show a success message
             st.success("Column selections stored successfully for file: " + file_select)
 
