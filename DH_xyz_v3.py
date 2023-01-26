@@ -1,39 +1,113 @@
 import streamlit as st
 import pandas as pd
 
-def main():
-    st.set_page_config(page_title="File Upload and Processing", page_icon=":clipboard:", layout="wide")
-    st.title("File Upload and Processing")
+# Create a dictionary to store uploaded files and their information
+files_dict = {}
 
-    # Define the list of predefined file types
-    file_types = ["File Type A", "File Type B", "File Type C"]
+class MyApp:
+    def __init__(self):
+        self.file_data = {}
 
-    # Allow the user to upload multiple files
-    uploaded_files = st.file_uploader("Select files to upload", type=["csv", "xlsx"], accept_multiple_files=True)
+    def main(self):
+        st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
+        
+        st.sidebar.title("Navigation")
+        page = st.sidebar.selectbox("Select a page", ["Upload Files", "Categorise Files", "Identify Columns", "View Summary"])
 
-    # Create a dictionary to store the information for each file
-    file_data = {}
+        if page == "Upload Files":
+            self.upload_files()
+        elif page == "Categorise Files":
+            self.categorise_files()
+        elif page == "Identify Columns":
+            self.identify_columns()
+        elif page == "View Summary":
+            self.view_summary()
 
-    # Process each uploaded file
-    for file in uploaded_files:
-        # Create a pandas dataframe from the file
-        df = pd.read_csv(file) if file.name.endswith(".csv") else pd.read_excel(file)
+    # Create a function to handle file uploads
+    def upload_files():
+        st.set_page_config(page_title="Upload Files", page_icon=":paperclip:", layout="wide")
+        uploaded_files = st.file_uploader("Choose files to upload", type=["csv", "xlsx"], multiple=True)
 
-        # Categorize the file based on its type
-        file_type = st.selectbox("Select the file type", file_types)
+        # Create a pandas dataframe for each file
+        for file in uploaded_files:
+            file_df = pd.read_csv(file) if file.endswith("csv") else pd.read_excel(file)
+            files_dict[file.name] = {"dataframe": file_df}
+            st.success(f"File {file.name} was successfully uploaded.")
 
-        # Identify specific columns in the file
-        columns = st.multiselect("Select the columns to include", df.columns.tolist())
+        # Add a "Next" button to navigate to the next page
+        if st.button("Next"):
+            st.write("Navigating to Categorise Files")
+            categorise_files()
 
-        # Store the information for the file in the dictionary
-        file_data[file.name] = {"file_type": file_type, "columns": columns, "dataframe": df}
+    # Create a function to handle file categorization
+    def categorise_files():
+        st.set_page_config(page_title="Categorise Files", page_icon=":file_folder:", layout="wide")
 
-    # Display the information for each file
-    for file, data in file_data.items():
-        st.header(file)
-        st.write("File Type: ", data["file_type"])
-        st.write("Columns: ", data["columns"])
-        st.write("Dataframe: ", data["dataframe"])
+        # Use a form to present the list of files and a dropdown menu for each file
+        for file_name, file_info in files_dict.items():
+            file_type = st.selectbox(f"Select file type for {file_name}", ["Collar", "Survey", "Point", "Interval"])
+            file_info["type"] = file_type
 
-if __name__=="__main__":
-    main()
+        # Perform validation of the selections
+        collar_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Collar"]
+        survey_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Survey"]
+        point_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Point"]
+        interval_files = [file_info for file_name, file_info in files_dict.items() if file_info["type"] == "Interval"]
+
+        if len(collar_files) != 1 or len(survey_files) != 1:
+            st.error("There must be exactly one Collar file and exactly one Survey file.")
+        else:
+            st.success("File categories were stored correctly.")
+
+        # Add a "Next" button to navigate to the next page
+        if st.button("Next"):
+            st.write("Navigating to Identify Columns")
+            identify_columns()
+
+    # Create a function to handle column identification
+    def identify_columns():
+        st.set_page_config(page_title="Identify Columns", page_icon=":bar_chart:", layout="wide")
+
+         # Create a dropdown menu to select a file to identify columns for
+        file_select = st.selectbox("Select a file to identify columns for:", files_by_category["Collar"] + files_by_category["Survey"] + files_by_category["Point"] + files_by_category["Interval"])
+
+        # Show the dataframe preview for the selected file
+        selected_file = file_dict[file_select]
+        st.dataframe(selected_file)
+
+        # Create a form to select columns for the selected file
+        column_select = st.multiselect("Select the necessary columns for this file:", selected_file.columns)
+
+        # Store the column selections in the dictionary reference for the selected file
+        file_dict[file_select]["columns"] = column_select
+
+        # Show a success message
+        st.success("Column selections stored successfully for file: " + file_select)
+
+        # Add "Next File" button
+        if st.button("Next File"):
+            identify_columns()
+        else:
+            st.warning("Please select all columns before moving to next file")
+
+
+    def view_summary():
+
+        # display summary information for each file
+        for file in files:
+            st.write("File:", file["name"])
+            st.write("Category:", file["category"])
+            if file["category"] == "Collar":
+                st.write("Number of drillholes:", len(file["df"]["HoleID"].unique()))
+            else:
+                st.write("Number of drillholes:", len(file["df"]["HoleID"].unique()))
+                st.write("Number of drillholes with missing references:", len(collar_holes.difference(file["df"]["HoleID"].unique())))
+                st.write("List of drillholes missing references:", list(collar_holes.difference(file["df"]["HoleID"].unique())))
+                if file["category"] == "Survey":
+                    st.write("Number of drillholes missing collar references:", len(file["df"]["HoleID"].unique().difference(collar_holes)))
+                    st.write("List of drillholes missing collar reference:", list(file["df"]["HoleID"].unique().difference(collar_holes)))
+
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.main()
