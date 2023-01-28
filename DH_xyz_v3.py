@@ -29,7 +29,8 @@ def main():
         if len(files_list) == 0:
             raise ValueError("No files have been uploaded.")
         with st.expander("Categorise Files"):
-            categorise_files_form()
+            for file in files_list:
+                categorise_files_form(file)
     except ValueError as e:
         st.error(e)
     try:
@@ -61,11 +62,10 @@ def upload_files():
 
         
 # Create a function to handle file categorization
-def categorise_files_form():
+def categorise_files_form(file):
     # Use a form to present the list of files and a dropdown menu for each file
     with st.form("categorise_files"):
-        for file in files_list:
-            file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
+        file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit)
 
