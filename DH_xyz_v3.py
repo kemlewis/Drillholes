@@ -20,6 +20,7 @@ def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     with st.expander("Upload Files", expanded=True):
         upload_files()
+        st.write(files_list)
     try:
         if len(files_list) == 0:
             raise ValueError("No files have been uploaded.")
@@ -52,7 +53,7 @@ def upload_files():
         uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_simplified_dtypes)
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
-    st.write(files_list)
+    
 
         
 # Create a function to handle file categorization
