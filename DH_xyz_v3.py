@@ -71,23 +71,17 @@ def identify_columns_form():
             with st.container(file.name):
                 with st.column(1):
                     # Show the dataframe preview for the selected file
-                    st.dataframe(file_select.df)
+                    st.dataframe(file.df)
                 with st.column(2):
-                    for i in file.columns:
+                    for column_header in file.columns:
                         cols = st.columns(2)
                         cols[0].write(file.columns[i])
-                        cols[1].write(st.selectbox())
-            # Submit the form and initiate view summary
-            submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
+                        column_header = cols[1].write(st.selectbox())
+                # Submit the form and initiate view summary
+                submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
 
 def identify_columns_submit():
-    # Find the selected File object in the files_list
-    selected_file = next((file for file in files_list if file.name == file_select), None)
-
-    # Update the selected File object's columns attribute with the selected column_select value
-    selected_file.columns = column_select
-
     # Show a success message
     st.success("Column selections stored successfully for file: " + selected_file.name)
 
