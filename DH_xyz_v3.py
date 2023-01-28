@@ -70,7 +70,7 @@ def categorise_files_form():
         for file in files_list:
             file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
             # Submit the form and initiate identifying columns
-            submit_file_categories = st.form_submit_button("Submit")
+            submit_file_categories = st.form_submit_button("Submit", key=file.name)
         if submit_file_categories:
             for file in files_list:
                 file.required_columns = required_columns(file)
