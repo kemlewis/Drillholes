@@ -93,21 +93,21 @@ def identify_columns_form(file):
         with col1:
             # Show the dataframe preview for the selected file
             st.dataframe(file.df)
-            with st.form(file.name):
-                selected_options = []
-                for column in file.columns:
-                    with col2:
-                        st.write(f"Select the datatype for column: {column}")
-                    with col3:
-                        option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns, label_visibility="collapsed")
-                        if option in file.required_columns:
-                            if option in selected_options:
-                                st.warning(f"{option} has already been selected. Please select a different option.")
-                            else:
-                                selected_options.append(option)
-                                file.columns_datatype[column] = option
-                # Submit the form and initiate view summary
-                submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
+        selected_options = []
+        for column in file.columns:
+            with col2:
+                st.write(f"Select the datatype for column: {column}")
+            with col3:
+                with st.form(file.name):
+                    option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns, label_visibility="collapsed")
+                    if option in file.required_columns:
+                        if option in selected_options:
+                            st.warning(f"{option} has already been selected. Please select a different option.")
+                        else:
+                            selected_options.append(option)
+                            file.columns_datatype[column] = option
+                    # Submit the form and initiate view summary
+                    submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
 
 def identify_columns_submit():
