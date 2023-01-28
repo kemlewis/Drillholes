@@ -54,6 +54,7 @@ def upload_files():
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
         st.write(uploaded_file_guessed_col_dtypes)
+        st.write(uploaded_file_df.dtypes)
 
         
 # Create a function to handle file categorization
