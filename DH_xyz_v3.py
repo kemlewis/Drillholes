@@ -98,7 +98,7 @@ def identify_columns_form(file):
             with col2:
                 st.write(f"Select the datatype for column: {column}")
             with col3:
-                with st.form(file.name):
+                with st.form():
                     option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns, label_visibility="collapsed")
                     if option in file.required_columns:
                         if option in selected_options:
