@@ -41,16 +41,14 @@ def main():
     except ValueError as e:
         st.error(e)
 
-"""
-upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget, 
-and allows the user to select multiple files of type csv and xlsx.
-
-When files are uploaded, it creates a pandas DataFrame for each file and creates a File object for each file.
-The function also calls the function simplify_dtypes() and assigns the returned value as 
-uploaded_file_simplified_dtypes which is used to create the File object.
-
-The function then appends the File objects to the files_list and displays a success message.
-"""
+#   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget, 
+#   and allows the user to select multiple files of type csv and xlsx.
+#   
+#   When files are uploaded, it creates a pandas DataFrame for each file and creates a File object for each file.
+#   The function also calls the function simplify_dtypes() and assigns the returned value as 
+#   uploaded_file_simplified_dtypes which is used to create the File object.
+#   
+#   The function then appends the File objects to the files_list and displays a success message.
 
 def upload_files():
     uploaded_files = st.file_uploader("Choose files to upload", type=["csv", "xlsx"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
@@ -62,13 +60,11 @@ def upload_files():
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
         
-"""
-categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
-with a select box for each file in the files_list. The user can select a category for 
-each file, and when the form is submitted, the function calls the required_columns(file) 
-function to get the required columns for each file's category and assigns it to the 
-required_columns attribute of the File object. The function then displays a success message for each file.
-"""
+#   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
+#   with a select box for each file in the files_list. The user can select a category for 
+#   each file, and when the form is submitted, the function calls the required_columns(file) 
+#   function to get the required columns for each file's category and assigns it to the 
+#   required_columns attribute of the File object. The function then displays a success message for each file.
 
 def categorise_files_form():
     if len(files_list) == 0:
@@ -83,12 +79,12 @@ def categorise_files_form():
                 for file in files_list:
                     file.required_columns = required_columns(file)
                     st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
-"""
-required_columns is a function that takes a File object as an input and returns a list of required 
-columns for the file's category. Depending on the category, the function returns a 
-list of required columns. If the category is not one of the four options (Collar, Survey, 
-Point, Interval) it assigns "Not populated" and displays an error message.
-"""
+
+#   required_columns is a function that takes a File object as an input and returns a list of required 
+#   columns for the file's category. Depending on the category, the function returns a 
+#   list of required columns. If the category is not one of the four options (Collar, Survey, 
+#   Point, Interval) it assigns "Not populated" and displays an error message.
+
 def required_columns(file):
     if file.category == "Collar":
         required_columns = ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"]
@@ -103,17 +99,15 @@ def required_columns(file):
         st.write("No file category is assigned to " + file.name)
     return required_columns
 
-"""
-identify_columns_form is a function that allows the user to define data types of all the columns in 
-for the pandas dataframes that were created for each file they uploaded. Each file has a separate st.form, 
-all the select boxes for the data type choices are run when the "submit" button is clicked by the user. 
-
-The simplified datatypes that can be assigned by the user are: "Text", "Category", "Numeric", "Datetime", "Boolean".
-The user must also identify the "required columns" depending on the file category that they chose earlier (ie Collar, Survey etc).
-These required columns will be used later for data processing and analysis.
-When the user submits the form, it runs the df_reassigned_dtypes function which creates a new pandas dataframe and 
-assigns dtypes based on the users selections.
-"""
+#   identify_columns_form is a function that allows the user to define data types of all the columns in 
+#   for the pandas dataframes that were created for each file they uploaded. Each file has a separate st.form, 
+#   all the select boxes for the data type choices are run when the "submit" button is clicked by the user. 
+#   
+#   The simplified datatypes that can be assigned by the user are: "Text", "Category", "Numeric", "Datetime", "Boolean".
+#   The user must also identify the "required columns" depending on the file category that they chose earlier (ie Collar, Survey etc).
+#   These required columns will be used later for data processing and analysis.
+#   When the user submits the form, it runs the df_reassigned_dtypes function which creates a new pandas dataframe and 
+#   assigns dtypes based on the users selections.
 
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
@@ -179,14 +173,13 @@ def simplify_dtypes(df):
             dtypes[col] = "Boolean"
     return dtypes
 
-"""
-In the change_dtypes function, df is the input dataframe, and column_types is the input dictionary with 
-column names as keys and their desired datatype as values. The function first creates a copy 
-of the input dataframe, then loops through the dictionary and checks if the column exists in 
-the dataframe. If it does, it tries to convert the column to the specified datatype using pandas' 
-built-in functions. If it fails to convert, it will try similar datatype or will set it to text. 
-Then it returns the new dataframe with changed dtypes.
-"""
+#   In the change_dtypes function, df is the input dataframe, and column_types is the input dictionary with 
+#   column names as keys and their desired datatype as values. The function first creates a copy 
+#   of the input dataframe, then loops through the dictionary and checks if the column exists in 
+#   the dataframe. If it does, it tries to convert the column to the specified datatype using pandas' 
+#   built-in functions. If it fails to convert, it will try similar datatype or will set it to text. 
+#   Then it returns the new dataframe with changed dtypes.
+
 def change_dtypes(df, column_types):
     df_copy = df.copy()
     for column, col_type in column_types.items():
