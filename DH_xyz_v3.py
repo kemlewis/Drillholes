@@ -51,16 +51,16 @@ def categorise_files_submit():
     st.write("FORM WAS SUBMITTED")
     
 def required_columns(file):
-    if file_category == "Collar":
+    if file.category == "Collar":
         required_columns = ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"]
-    elif file_category == "Survey":
+    elif file.category == "Survey":
         required_columns = ["HoleID", "Depth", "Dip", "Azimuth"]
-    elif file_category == "Point":
+    elif file.category == "Point":
         required_columns = ["HoleID", "Depth"]
-    elif file_category == "Interval":
+    elif file.category == "Interval":
         required_columns = ["HoleID", "From", "To"]
     else:
-        file_category == None
+        required_columns == None
         st.write("No file category is assigned to " + file.name)
     
 # Create a function to handle column identification
