@@ -56,56 +56,50 @@ def upload_files():
     uploaded_files = st.file_uploader("Upload your file", type=["csv", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
     if uploaded_files:
         for uploaded_file in uploaded_files:
-            # Detect file encoding using chardet
-            with open(uploaded_file, 'rb') as f:
-                result = chardet.detect(f.read())
-                encoding = result['encoding']
-                if uploaded_file.name.endswith("csv"):
-                    try:
-                        uploaded_file_df = pd.read_csv(uploaded_file, encoding=encoding, engine='python', error_bad_lines=False)
-                    except:
-                        codecs = ['utf_8','utf_8_sig','utf_16','utf_16_be','utf_16_le','utf_7','ascii','latin_1','iso8859_1','utf_32','utf_32_be','utf_32_le','mac_roman','cp1252','cp850','iso8859_15','windows_1252','iso8859_2','cp1250','big5','big5hkscs','cp037','cp273','cp424','cp437','cp500','cp720','cp737','cp775','cp852','cp855','cp856','cp857','cp858','cp860','cp861','cp862','cp863','cp864','cp865','cp866','cp869','cp874','cp875','cp932','cp949','cp950','cp1006','cp1026','cp1125','cp1140','cp1251','cp1253','cp1254','cp1255','cp1256','cp1257','cp1258','euc_jp','euc_jis_2004','euc_jisx0213','euc_kr','gb2312','gbk','gb18030','hz','iso2022_jp','iso2022_jp_1','iso2022_jp_2','iso2022_jp_2004','iso2022_jp_3','iso2022_jp_ext','iso2022_kr','iso8859_3','iso8859_4','iso8859_5','iso8859_6','iso8859_7','iso8859_8','iso8859_9','iso8859_10','iso8859_11','iso8859_13','iso8859_14','iso8859_16','johab','koi8_r','koi8_t','koi8_u','kz1048','mac_cyrillic','mac_greek','mac_iceland','mac_latin2','mac_turkish','ptcp154','shift_jis','shift_jis_2004','shift_jisx0213']
-                        for codec in codecs:
-                            try:
-                                uploaded_file_df = pd.read_csv(uploaded_file, encoding=codec)
-                                break
-                            except:
-                                uploaded_file_df = None
-                                st.error(f"Failed to read {uploaded_file.name}")
-                                pass
-                else:
-                    try:
-                        uploaded_file_df = pd.read_excel(uploaded_file, engine='openpyxl', encoding=encoding)
-                    except:
-                        pass
-                    try:
-                        uploaded_file_df = pd.read_excel(uploaded_file)
-                    except:
-                        uploaded_file_df = None
-                        st.error(f"Failed to read {uploaded_file.name}")
-                        continue
-
-            # check if file already exists
+            uploaded_file_df = read_file(uploaded_file)
+            if uploaded_file_df is None:
+                continue
             existing_file = next((file for file in files_list if file.file_name == uploaded_file.name), None)
-            if existing_file:
-                # ask user if they want to overwrite or rename the file
-                overwrite_file = st.confirm(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
-                if overwrite_file:
-                    # delete existing file
-                    files_list.remove(existing_file)
-                    # add new file
-                    files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns))
-                    st.success(f"File {uploaded_file.name} was successfully overwritten.")
-                else:
-                    # get new file name
-                    new_file_name = st.text_input(f"Please enter a new name for {uploaded_file.name}")
-                    # add new file
-                    files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns))
-                    st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
-            else:
-                # add new file
-                files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns))
-                st.success(f"File {uploaded_file.name} was successfully uploaded.")
+            handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
+
+def read_file(uploaded_file):
+    with open(uploaded_file, 'rb') as f:
+        result = chardet.detect(f.read())
+        encoding = result['encoding']
+    try:
+        if uploaded_file.name.endswith("csv"):
+            uploaded_file_df = pd.read_csv(uploaded_file, encoding=encoding, engine='python', error_bad_lines=False)
+        else:
+            uploaded_file_df = pd.read_excel(uploaded_file, engine='openpyxl', encoding=encoding)
+    except:
+        if uploaded_file.name.endswith("csv"):
+            codecs = ['utf_8','utf_8_sig','utf_16','utf_16_be','utf_16_le','utf_7','ascii','latin_1','iso8859_1']
+            for codec in codecs:
+                try:
+                    uploaded_file_df = pd.read_csv(uploaded_file, encoding=codec)
+                    break
+                except:
+                    uploaded_file_df = None
+                    st.error(f"Failed to read {uploaded_file.name}")
+                    pass
+        else:
+            uploaded_file_df = pd.read_excel(uploaded_file)
+    return uploaded_file_df
+
+def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
+    if existing_file:
+        overwrite_file = st.confirm(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
+        if overwrite_file:
+            files_list.remove(existing_file)
+            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns))
+            st.success(f"File {uploaded_file.name} was successfully overwritten.")
+        else:
+            new_file_name = st.text_input(f"Please enter a new name for {uploaded_file.name}")
+            files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns))
+            st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
+    else:
+        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df
+
 
         
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
