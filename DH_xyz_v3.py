@@ -92,14 +92,14 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
         overwrite_file = st.confirm(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
         if overwrite_file:
             files_list.remove(existing_file)
-            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns))
+            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
             st.success(f"File {uploaded_file.name} was successfully overwritten.")
         else:
             new_file_name = st.text_input(f"Please enter a new name for {uploaded_file.name}")
-            files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns))
+            files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
             st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
     else:
-        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df
+        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
 #   with a select box for each file in the files_list. The user can select a category for 
