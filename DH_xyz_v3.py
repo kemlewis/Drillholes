@@ -106,8 +106,11 @@ def identify_columns_form(file):
         try:
             col1, col2 = st.columns()
         except ValueError as e:
-            st.error("Too many or too few values to unpack.")
-        
+            if "too many values to unpack" in str(e):
+                st.error("Error: too many columns selected. Please select only two columns.")
+            else:
+                raise e
+
         with col1:
             # Show the dataframe preview for the selected file
             st.dataframe(file.df)
