@@ -65,16 +65,19 @@ def upload_files():
         
 # Create a function to handle file categorization
 def categorise_files_form():
-    # Use a form to present the list of files and a dropdown menu for each file
-    with st.form("categorise_files"):
-        for i, file in files_list:
-            file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
-        # Submit the form and initiate identifying columns
-        submit_file_categories = st.form_submit_button("Submit", key="categorise_files_submit")
-        if submit_file_categories:
-            for file in files_list:
-                file.required_columns = required_columns(file)
+    if files_list:
+        with st.form("categorise_files"):
+            for i, file in enumerate(files_list):
+                file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
 
+            submit_file_categories = st.form_submit_button("Submit", key="categorise_files_submit")
+            if submit_file_categories:
+                st.write("Submitting files...")
+                for file in files_list:
+                    file.required_columns = required_columns(file)
+                    st.write(f'Required columns for {file.name} are {file.required_columns}')
+    else:
+        st.warning("No files found")
             
 def required_columns(file):
     if file.category == "Collar":
