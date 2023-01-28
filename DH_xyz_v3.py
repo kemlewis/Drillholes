@@ -47,10 +47,10 @@ def upload_files():
     uploaded_files = st.file_uploader("Choose files to upload", type=["csv", "xlsx"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
 
     # Create a pandas dataframe for each file and create a File object
-    for file in uploaded_files:
-        file_df = pd.read_csv(file) if file.name.endswith("csv") else pd.read_excel(file)
-        file_obj = File(file.name, file_df, None)
-        files_list.append(file_obj)
+    for uploaded_file in uploaded_files:
+        uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
+        uploaded_file_obj = File(uploaded_file.name, file_df, None, uploaded_file_df.columns, None, None)
+        files_list.append(uploaded_file_obj)
         st.success(f"File {file.name} was successfully uploaded.")
 
         
@@ -87,7 +87,7 @@ def required_columns(file):
 def identify_columns_form(file):
     # Create a form to select columns for the selected file based on file type
     with st.form(file.name):
-        with st.container(file.name):
+        with st.container():
             with st.column(1):
                 # Show the dataframe preview for the selected file
                 st.dataframe(file.df)
