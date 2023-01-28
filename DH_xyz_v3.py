@@ -28,10 +28,9 @@ def main():
         if len(files_list) == 0:
             raise ValueError("No files have been uploaded.")
         with st.expander("Categorise Files"):
-            for file in files_list:
-                categorise_files_form()
-                st.write(file.name)
-                st.write(file.category)
+            categorise_files_form()
+            st.write(file.name)
+            st.write(file.category)
     except ValueError as e:
         st.error(e)
     try:
