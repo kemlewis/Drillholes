@@ -49,7 +49,7 @@ def upload_files():
     # Create a pandas dataframe for each file and create a File object
     for uploaded_file in uploaded_files:
         uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
-        uploaded_file_obj = File(uploaded_file.name, file_df, None, uploaded_file_df.columns, None, None)
+        uploaded_file_obj = File(uploaded_file.name, file_df, None, uploaded_file_df.columns, [], [])
         files_list.append(uploaded_file_obj)
         st.success(f"File {file.name} was successfully uploaded.")
 
