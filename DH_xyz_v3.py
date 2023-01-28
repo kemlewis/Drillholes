@@ -110,7 +110,7 @@ def identify_columns_form(file):
                     this_col_default = str(this_col_default)
                     this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
-                    option = st.selectbox(label=f"Select the data type for column '{column}':", options=this_col_options, key=file.name + "_" + column)
+                    option = st.selectbox(label=f"Select the data type for column '{column}':", options=this_col_options, default=this_col_default, key=file.name + "_" + column)
                 # Submit the form and initiate view summary
                 submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
