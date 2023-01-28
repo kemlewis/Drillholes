@@ -107,7 +107,7 @@ def identify_columns_form(file):
                         this_col_options = list(map(str, this_col_options))
                         st.write(this_col_default)
                         st.write(this_col_options)
-                        option = st.selectbox(f"Select the data type for column '{column}':", options=["TEST1", "TEST2"], key=column)
+                        option = st.selectbox(label=f"Select the data type for column '{column}':", options=["TEST1", "TEST2"], key=column)
                     if option in file.required_columns:
                         if option in selected_options:
                             st.warning(f"{option} has already been selected. Please select a different option.")
