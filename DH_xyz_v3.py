@@ -66,21 +66,17 @@ def required_columns(file):
 # Create a function to handle column identification
 def identify_columns_form():
     # Create a form to select columns for the selected file based on file type
-    
     for file in files_list:
         with st.form(file.name):
             with st.container(file.name):
                 with st.column(1):
                     # Show the dataframe preview for the selected file
                     st.dataframe(file_select.df)
-
-                 with st.column(2):
-
+                with st.column(2):
                     for i in file.columns:
                         cols = st.columns(2)
                         cols[0].write(file.columns[i])
                         cols[1].write(st.selectbox())
-
             # Submit the form and initiate view summary
             submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
