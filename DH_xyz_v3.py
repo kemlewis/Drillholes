@@ -102,7 +102,9 @@ def identify_columns_form(file):
     selected_options = []
     with st.container():
         st.header(f"Select column data types for the " + file.category + " file: " + file.name)
-        col1, col2 = st.columns(2)
+        cols = st.columns(2)
+        col1 = cols[0]
+        col2 = cols[1]
         with col1:
             # Show the dataframe preview for the selected file
             st.dataframe(file.df)
