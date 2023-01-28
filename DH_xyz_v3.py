@@ -51,33 +51,38 @@ def categorise_files_submit():
     st.write("FORM WAS SUBMITTED")
     
 def required_columns(file):
-    if file_category == "Collar" then required_columns = ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"]
-    elif file_category == "Survey" then required_columns = ["HoleID", "Depth", "Dip", "Azimuth"]
-    elif file_category == "Point" then required_columns = ["HoleID", "Depth"]
-    elif file_category == "Point" then required_columns = ["HoleID", "From", "To"]
+    if file_category == "Collar":
+        required_columns = ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"]
+    elif file_category == "Survey":
+        required_columns = ["HoleID", "Depth", "Dip", "Azimuth"]
+    elif file_category == "Point":
+        required_columns = ["HoleID", "Depth"]
+    elif file_category == "Interval":
+        required_columns = ["HoleID", "From", "To"]
     else:
         file_category == None
-        st.write("No file category is assigned to " + file
+        st.write("No file category is assigned to " + file.name)
     
 # Create a function to handle column identification
 def identify_columns_form():
     # Create a form to select columns for the selected file based on file type
-    with st.form("identify_columns"):
-        for file in files_list:
+    
+    for file in files_list:
+        with st.form(file.name):
             with st.container(file.name)
                 with st.column(1):
                     # Show the dataframe preview for the selected file
                     st.dataframe(file_select.df)
-                 
+
              with st.column(2):
 
-                for i in range(1, 10):
+                for i in file.columns:
                     cols = st.columns(2)
-                    cols[0].write(f'{i}')
-                    cols[1].write(f'{i * i}')
+                    cols[0].write(file.columns[i])
+                    cols[1].write(st.selectbox())
 
-        # Submit the form and initiate view summary
-        submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
+            # Submit the form and initiate view summary
+            submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
 
 def identify_columns_submit():
