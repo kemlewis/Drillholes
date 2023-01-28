@@ -3,13 +3,14 @@ import pandas as pd
 import traceback
 
 class File:
-    def __init__(self, name, df, category, columns=[], columns_datatype=[], required_columns=[]):
+    def __init__(self, name, df, category, columns=[], columns_datatype=[], required_columns=[], guessed_cols_dtypes={}):
         self.name = name
         self.df = df
         self.category = category
         self.columns = columns
         self.columns_datatype = columns_datatype
         self.required_columns = required_columns
+        self.guessed_cols_dtypes = guessed_cols_dtypes
 
 
 # Create a list to store the files
@@ -49,7 +50,8 @@ def upload_files():
     # Create a pandas dataframe for each file and create a File object
     for uploaded_file in uploaded_files:
         uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
-        uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [])
+        uploaded_file_guessed_col_dtypes = guess_column_datatypes(uploaded_file_df)
+        uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_guessed_col_dtypes)
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
 
@@ -95,13 +97,10 @@ def identify_columns_form(file):
             # Show the dataframe preview for the selected file
             st.dataframe(file.df)
         with col2:
-            for column in file.columns:
-                st.write(f"Select the datatype for column: {column}")
-        with col3:
             # Create a form to select columns for the selected file based on file type
             with st.form(file.name):
                 for column in file.columns:
-                    option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns, label_visibility="collapsed")
+                    option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns)
                     if option in file.required_columns:
                         if option in selected_options:
                             st.warning(f"{option} has already been selected. Please select a different option.")
@@ -133,5 +132,13 @@ def view_summary():
                 st.write("List of drillholes missing collar reference:", list(file.df["HoleID"].unique().difference(collar_holes)))
 
 
+def guess_column_datatypes(df):
+    guessed_dtypes = {}
+    for col in df.columns:
+        guessed_dtype = pd.api.types.infer_dtype(df[col])
+        guessed_dtypes[col] = guessed_dtype
+    return guessed_dtypes
+
+                
 if __name__ == '__main__':
     main()
