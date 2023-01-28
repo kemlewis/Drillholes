@@ -88,23 +88,29 @@ def identify_columns_form(file):
     # Create a form to select columns for the selected file based on file type
     dtypes = ["int64", "float64", "bool", "datetime64", "timedelta", "category"]
     with st.container():
+        st.header(f"Select column data types for the " + file.category + " file: " file.name)
         col1, col2 = st.columns(2)
         with col1:
             # Show the dataframe preview for the selected file
             st.dataframe(file.df)
         with col2:
-            with st.form(file.name):
-                selected_options = []
-                for column in file.columns:
-                    option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns)
-                    if option in file.required_columns:
-                        if option in selected_options:
-                            st.warning(f"{option} has already been selected. Please select a different option.")
-                        else:
-                            selected_options.append(option)
-                            file.columns_datatype[column] = option
-                # Submit the form and initiate view summary
-                submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
+            cola, colb = st.columns(2)
+            with cola:
+                st.write(file.name)
+            with colb:
+                with st.form(file.name):
+                    selected_options = []
+                    for column in file.columns:
+                        with col1:
+                            option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns, label_visibility=collapsed)
+                        if option in file.required_columns:
+                            if option in selected_options:
+                                st.warning(f"{option} has already been selected. Please select a different option.")
+                            else:
+                                selected_options.append(option)
+                                file.columns_datatype[column] = option
+                    # Submit the form and initiate view summary
+                    submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
 
 def identify_columns_submit():
