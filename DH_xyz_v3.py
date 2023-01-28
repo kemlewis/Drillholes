@@ -102,7 +102,6 @@ def identify_columns_form(file):
     selected_options = []
     with st.container():
         st.header(f"Select column data types for the " + file.category + " file: " + file.name)
-        
         try:
             col1, col2 = st.columns(2)
         except ValueError as e:
@@ -110,7 +109,6 @@ def identify_columns_form(file):
                 st.error("Error: too many columns selected. Please select only two columns.")
             else:
                 raise e
-
         with col1:
             # Show the dataframe preview for the selected file
             st.dataframe(file.df)
@@ -122,14 +120,7 @@ def identify_columns_form(file):
                     this_col_default = str(this_col_default)
                     this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
-                    col_key=str(column + "_" + i)
-                    option = st.selectbox(label=f"Select the data type for column '{column}':", options=this_col_options, key=col_key)
-                    if option in file.required_columns:
-                        if option in selected_options:
-                            st.warning(f"{option} has already been selected. Please select a different option.")
-                        else:
-                            selected_options.append(option)
-                            file.columns_datatype[column] = option
+                    option = st.selectbox(label=f"Select the data type for column '{column}':", options=this_col_options, key=column)
                 # Submit the form and initiate view summary
                 submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
