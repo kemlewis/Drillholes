@@ -30,9 +30,10 @@ def main():
     try:
         if len(files_list) == 0:
             raise ValueError("No files have been uploaded.")
-        for file in files_list:
-            if file.category is None:
-                raise ValueError(f"File {file.name} has not been categorised.")
+        else:
+            for file in files_list:
+                if file.category is None:
+                    raise ValueError(f"File {file.name} has not been categorised.")
         with st.expander("Identify Columns"):
             for file in files_list:
                 if file.category is not None:
@@ -99,7 +100,8 @@ def identify_columns_form(file):
             with st.form(file.name):
                 for column in file.columns:
                     for column in file.columns:
-                        option = st.selectbox(f"Select the data type for column '{column}':", options, key=column, default=guessed_cols_dtypes.get(column))
+                        default = guessed_cols_dtypes.get(column) if column in guessed_cols_dtypes else None
+                        option = st.selectbox(f"Select the data type for column '{column}':", options, key=column, default=default)
                     if option in file.required_columns:
                         if option in selected_options:
                             st.warning(f"{option} has already been selected. Please select a different option.")
