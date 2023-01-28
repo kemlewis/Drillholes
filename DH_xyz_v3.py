@@ -3,7 +3,7 @@ import pandas as pd
 import traceback
 
 class File:
-    def __init__(self, name, df, category, columns=[]):
+    def __init__(self, name, df, category, columns=[], columns_datatype[], required_columns[]):
         self.name = name
         self.df = df
         self.category = category
