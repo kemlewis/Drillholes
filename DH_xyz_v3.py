@@ -108,7 +108,7 @@ def identify_columns_form(file):
                     this_col_options = list(map(str, this_col_options))
                     #search for the item
                     this_col_index = this_col_options.index(this_col_default)
-                    file.columns_datatype = st.selectbox(label=f"Select the data type for column '{column}':", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
+                    file.columns_datatype = st.selectbox(label=f"Select the data type for column '{column}' with {file.df[column].unique()} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
                 # Submit the form and initiate view summary
                 submit_column_identification = st.form_submit_button("Submit")
                 if submit_column_identification:
