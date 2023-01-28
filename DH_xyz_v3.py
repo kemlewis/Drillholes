@@ -19,18 +19,27 @@ def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     with st.expander("Upload Files"):
         upload_files()
-    with st.expander("Categorise Files"):
-        if files_list:
+    try:
+        if len(files_list) == 0:
+            raise ValueError("No files have been uploaded.")
+        with st.expander("Categorise Files"):
             categorise_files_form()
-    for file in files_list:
-        if file.category is not None:
-            with st.expander("Identify Columns"):
-                identify_columns_form(file)
-        else:
-            st.warning(f"Please select the file category for {file.name}")
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
-        st.debug(traceback.format_exc())
+    except ValueError as e:
+        st.error(e)
+    try:
+        if len(files_list) == 0:
+            raise ValueError("No files have been uploaded.")
+        for file in files_list:
+            if file.category is None:
+                raise ValueError(f"File {file.name} has not been categorised.")
+        with st.expander("Identify Columns"):
+            for file in files_list:
+                if file.category is not None:
+                    identify_columns_form(file)
+    except ValueError as e:
+        st.error(e)
+
+
 
 
 # Create a function to handle file uploads
@@ -73,21 +82,20 @@ def required_columns(file):
         st.write("No file category is assigned to " + file.name)
     
 # Create a function to handle column identification
-def identify_columns_form():
+def identify_columns_form(file):
     # Create a form to select columns for the selected file based on file type
-    for file in files_list:
-        with st.form(file.name):
-            with st.container(file.name):
-                with st.column(1):
-                    # Show the dataframe preview for the selected file
-                    st.dataframe(file.df)
-                with st.column(2):
-                    for column_header in file.columns:
-                        cols = st.columns(2)
-                        cols[0].write(file.columns[i])
-                        column_header = cols[1].write(st.selectbox())
-                # Submit the form and initiate view summary
-                submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
+    with st.form(file.name):
+        with st.container(file.name):
+            with st.column(1):
+                # Show the dataframe preview for the selected file
+                st.dataframe(file.df)
+            with st.column(2):
+                for column_header in file.columns:
+                    cols = st.columns(2)
+                    cols[0].write(file.columns[i])
+                    column_header = cols[1].write(st.selectbox())
+            # Submit the form and initiate view summary
+            submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
 
 def identify_columns_submit():
