@@ -106,17 +106,18 @@ def identify_columns_form(file):
             # Create a form to select columns for the selected file based on file type
             with st.form(file.name):
                 for i, column in enumerate(file.columns):
+                    #get the default dtype of this column in this file
                     this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
-                    this_col_default = str(this_col_default)
+                    #this_col_default = str(this_col_default)
                     this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
-                    this_col_options = list(map(str, this_col_options))
-                    option = st.selectbox(label=f"Select the data type for column '{column}':", options=this_col_options, default=this_col_default, key=file.name + "_" + column)
+                    #this_col_options = list(map(str, this_col_options))
+                    #search for the item
+                    this_col_index = this_col_options.index(this_col_default)
+                    option = st.selectbox(label=f"Select the data type for column '{column}':", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
                 # Submit the form and initiate view summary
-                submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
-
-def identify_columns_submit():
-    # Show a success message
-    st.success("Success")
+                submit_column_identification = st.form_submit_button("Submit")
+                if identify_columns_submit:
+                    st.success("Success")
 
 def view_summary():
     # display summary information for each file
