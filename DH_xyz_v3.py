@@ -73,7 +73,7 @@ def categorise_files_form():
             submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit)
         if submit_file_categories:
             for file in files_list:
-            file.required_columns = required_columns(file)
+                file.required_columns = required_columns(file)
 
             
 def required_columns(file):
