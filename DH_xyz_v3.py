@@ -100,8 +100,9 @@ def identify_columns_form(file):
             with st.form(file.name):
                 for column in file.columns:
                     for column in file.columns:
-                        default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
-                        option = st.selectbox(f"Select the data type for column '{column}':", options=file.required_columns + simplified_dtypes_options + ["Not imported"], key=column, default=default)
+                        this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
+                        this_col_options = file.required_columns += simplified_dtypes_options + "Not imported"
+                        option = st.selectbox(f"Select the data type for column '{column}':", options=this_col_options, key=column, default=this_col_default)
                     if option in file.required_columns:
                         if option in selected_options:
                             st.warning(f"{option} has already been selected. Please select a different option.")
