@@ -20,9 +20,18 @@ def main():
     with st.expander("Upload Files"):
         upload_files()
     with st.expander("Categorise Files"):
-        categorise_files_form()
-    with st.expander("Identify Columns"):
-        identify_columns_form()
+        if files_list:
+            categorise_files_form()
+    for file in files_list:
+        if file.category is not None:
+            with st.expander("Identify Columns"):
+                identify_columns_form(file)
+        else:
+            st.warning(f"Please select the file category for {file.name}")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        st.debug(traceback.format_exc())
+
 
 # Create a function to handle file uploads
 def upload_files():
