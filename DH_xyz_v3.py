@@ -100,7 +100,7 @@ def identify_columns_form(file):
         with col2:
             # Create a form to select columns for the selected file based on file type
             with st.form(file.name):
-                for column in file.columns:
+                for i, column in file.columns:
                     for column in file.columns:
                         this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
                         this_col_default = str(this_col_default)
@@ -108,7 +108,7 @@ def identify_columns_form(file):
                         this_col_options = list(map(str, this_col_options))
                         st.write(this_col_default)
                         st.write(this_col_options)
-                        option = st.selectbox(label=f"Select the data type for column '{column}':", options=["TEST1", "TEST2"])
+                        option = st.selectbox(label=f"Select the data type for column '{column}':", options=["TEST1", "TEST2"], key=column + "_" + str(i))
                     if option in file.required_columns:
                         if option in selected_options:
                             st.warning(f"{option} has already been selected. Please select a different option.")
