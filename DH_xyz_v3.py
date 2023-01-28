@@ -104,7 +104,7 @@ def identify_columns_form(file):
         st.header(f"Select column data types for the " + file.category + " file: " + file.name)
         
         try:
-            col1, col2 = st.columns()
+            col1, col2 = st.columns(2)
         except ValueError as e:
             if "too many values to unpack" in str(e):
                 st.error("Error: too many columns selected. Please select only two columns.")
