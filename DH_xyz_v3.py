@@ -61,7 +61,7 @@ def upload_files():
         
 # Create a function to handle file categorization
 def categorise_files_form():
-    if if len(files_list) == 0:
+    if len(files_list) == 0:
         st.warning("No files found")
     else:
         with st.form("categorise_files_1"):
