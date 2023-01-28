@@ -90,10 +90,15 @@ def identify_columns_form(file):
                 # Show the dataframe preview for the selected file
                 st.dataframe(file.df)
             with st.column(2):
-                for column_header in file.columns:
-                    cols = st.columns(2)
-                    cols[0].write(file.columns[i])
-                    column_header = cols[1].write(st.selectbox())
+                selected_options = []
+                    for column in file.columns:
+                        option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + file.columns_datatype + required_columns)
+                        if option in required_columns:
+                            if option in selected_options:
+                                st.warning(f"{option} has already been selected. Please select a different option.")
+                            else:
+                                selected_options.append(option)
+                                file.columns_datatype[column] = option
             # Submit the form and initiate view summary
             submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
