@@ -93,7 +93,7 @@ def identify_columns_form(file):
     selected_options = []
     with st.container():
         st.header(f"Select column data types for the " + file.category + " file: " + file.name)
-        col1, col2 = st.columns([2,1])
+        col1, col2 = st.columns([1,1])
         with col1:
             # Show the dataframe preview for the selected file
             st.dataframe(file.df)
@@ -105,10 +105,7 @@ def identify_columns_form(file):
                     this_col_default = str(this_col_default)
                     this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
-                    st.write(this_col_default)
-                    st.write(this_col_options)
                     col_key=column + "_" + i
-                    st.write(column)
                     col_key=str(col_key)
                     option = st.selectbox(label=f"Select the data type for column '{column}':", options=this_col_options, key=this_col_default)
                     if option in file.required_columns:
