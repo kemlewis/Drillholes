@@ -18,7 +18,7 @@ files_list = []
 
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
-    with st.expander("Upload Files"):
+    with st.expander("Upload Files", expanded=True):
         upload_files()
     try:
         if len(files_list) == 0:
@@ -39,8 +39,6 @@ def main():
                     identify_columns_form(file)
     except ValueError as e:
         st.error(e)
-
-
 
 
 # Create a function to handle file uploads
