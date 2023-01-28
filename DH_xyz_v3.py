@@ -66,7 +66,7 @@ def upload_files():
 # Create a function to handle file categorization
 def categorise_files_form():
     if files_list:
-        with st.form("categorise_files"):
+        with st.form("categorise_files_1"):
             for i, file in enumerate(files_list):
                 file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
             submit_file_categories = st.form_submit_button("Submit")
