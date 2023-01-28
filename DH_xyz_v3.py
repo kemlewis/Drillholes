@@ -104,6 +104,8 @@ def identify_columns_form(file):
                         this_col_default = str(this_col_default)
                         this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
                         this_col_options = list(map(str, this_col_options))
+                        st.write(this_col_default)
+                        st.write(this_col_options)
                         option = st.selectbox(f"Select the data type for column '{column}':", options=this_col_options, key=column, default=this_col_default)
                     if option in file.required_columns:
                         if option in selected_options:
