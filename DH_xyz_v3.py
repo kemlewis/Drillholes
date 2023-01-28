@@ -12,7 +12,6 @@ class File:
         self.required_columns = required_columns
         self.simplified_dtypes = simplified_dtypes
 
-
 # Create a list to store the files class objects
 files_list = []
 
@@ -49,7 +48,6 @@ def main():
     except ValueError as e:
         st.error(e)
 
-
 # Create a function to handle file uploads
 def upload_files():
     uploaded_files = st.file_uploader("Choose files to upload", type=["csv", "xlsx"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
@@ -60,12 +58,12 @@ def upload_files():
         uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_simplified_dtypes)
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
-    
-
         
 # Create a function to handle file categorization
 def categorise_files_form():
-    if files_list:
+    if if len(files_list) == 0:
+        st.warning("No files found")
+    else:
         with st.form("categorise_files_1"):
             for i, file in enumerate(files_list):
                 file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
@@ -75,8 +73,6 @@ def categorise_files_form():
                 for file in files_list:
                     file.required_columns = required_columns(file)
                     st.write(f'Required columns for {file.name} are {file.required_columns}')
-    else:
-        st.warning("No files found")
             
 def required_columns(file):
     if file.category == "Collar":
@@ -91,7 +87,6 @@ def required_columns(file):
         required_columns = ["Not populated"]
         st.write("No file category is assigned to " + file.name)
     return required_columns
-
 
 # Create a function to handle column identification
 # This didn't update
@@ -113,7 +108,7 @@ def identify_columns_form(file):
         with col2:
             # Create a form to select columns for the selected file based on file type
             with st.form(file.name):
-                for i, column in file.columns:
+                for i, column in enumerate(file.columns):
                     this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
                     this_col_default = str(this_col_default)
                     this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
@@ -122,12 +117,10 @@ def identify_columns_form(file):
                 # Submit the form and initiate view summary
                 submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
-
 def identify_columns_submit():
     # Show a success message
     st.success("Success")
 
-    
 def view_summary():
     # display summary information for each file
     for file in files_list:
@@ -142,7 +135,6 @@ def view_summary():
             if file.category == "Survey":
                 st.write("Number of drillholes missing collar references:", len(file.df["HoleID"].unique().difference(collar_holes)))
                 st.write("List of drillholes missing collar reference:", list(file.df["HoleID"].unique().difference(collar_holes)))
-
 
 def simplify_dtypes(df):
     dtypes = {}
@@ -159,6 +151,5 @@ def simplify_dtypes(df):
             dtypes[col] = "Boolean"
     return dtypes
 
-                
 if __name__ == '__main__':
     main()
