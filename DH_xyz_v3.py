@@ -21,6 +21,10 @@ def main():
     with st.expander("Upload Files", expanded=True):
         upload_files()
         st.write(files_list)
+        for file in files_list:
+            st.write(file.name)
+            st.write(file.category)
+            st.write(file.df)
     try:
         if len(files_list) == 0:
             raise ValueError("No files have been uploaded.")
