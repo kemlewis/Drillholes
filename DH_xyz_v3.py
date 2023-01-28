@@ -58,6 +58,7 @@ def upload_files():
         for uploaded_file in uploaded_files:
             uploaded_file_df = read_file(uploaded_file)
             if uploaded_file_df is None:
+                st.warning(f"{uploaded_file.name} was unable to be loaded.")
                 continue
             existing_file = next((file for file in files_list if file.file_name == uploaded_file.name), None)
             handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
@@ -100,8 +101,6 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
     else:
         files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df
 
-
-        
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
 #   with a select box for each file in the files_list. The user can select a category for 
 #   each file, and when the form is submitted, the function calls the required_columns(file) 
