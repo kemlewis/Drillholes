@@ -59,7 +59,7 @@ def categorise_files_form():
     # Use a form to present the list of files and a dropdown menu for each file
     with st.form("categorise_files"):
         for file in files_list:
-            file.name = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
+            file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit)
 
@@ -67,6 +67,7 @@ def categorise_files_submit():
     for file in files_list:
         file.required_columns = required_columns(file)
     st.write("FORM WAS SUBMITTED")
+
     
 def required_columns(file):
     if file.category == "Collar":
@@ -80,7 +81,8 @@ def required_columns(file):
     else:
         required_columns = None
         st.write("No file category is assigned to " + file.name)
-    
+
+
 # Create a function to handle column identification
 def identify_columns_form(file):
     # Create a form to select columns for the selected file based on file type
