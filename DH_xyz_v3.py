@@ -3,14 +3,14 @@ import pandas as pd
 import traceback
 
 class File:
-    def __init__(self, name, df, category, columns=[], columns_datatype=[], required_columns=[], guessed_cols_dtypes={}):
+    def __init__(self, name, df, category, columns=[], columns_datatype=[], required_columns=[], simplified_dtypes={}):
         self.name = name
         self.df = df
         self.category = category
         self.columns = columns
         self.columns_datatype = columns_datatype
         self.required_columns = required_columns
-        self.guessed_cols_dtypes = guessed_cols_dtypes
+        self.simplified_dtypes = simplified_dtypes
 
 
 # Create a list to store the files
@@ -49,7 +49,7 @@ def upload_files():
     # Create a pandas dataframe for each file and create a File object
     for uploaded_file in uploaded_files:
         uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
-        uploaded_file_guessed_col_dtypes = guess_column_datatypes(uploaded_file_df)
+        simplified_dtypes = simplify_dtypes(uploaded_file_df)
         uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_guessed_col_dtypes)
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
@@ -88,8 +88,7 @@ def required_columns(file):
 
 # Create a function to handle column identification
 def identify_columns_form(file):
-    
-    dtypes = ["int64", "float64", "bool", "datetime64", "timedelta", "category"]
+    simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
     selected_options = []
     with st.container():
         st.header(f"Select column data types for the " + file.category + " file: " + file.name)
@@ -102,7 +101,7 @@ def identify_columns_form(file):
             with st.form(file.name):
                 for column in file.columns:
                     for column in file.columns:
-                        default = file.guessed_cols_dtypes.get(column) if column in file.guessed_cols_dtypes else None
+                        default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
                         option = st.selectbox(f"Select the data type for column '{column}':", options=["Not imported"] + dtypes + file.required_columns, key=column, default=default)
                     if option in file.required_columns:
                         if option in selected_options:
@@ -135,12 +134,20 @@ def view_summary():
                 st.write("List of drillholes missing collar reference:", list(file.df["HoleID"].unique().difference(collar_holes)))
 
 
-def guess_column_datatypes(df):
-    guessed_dtypes = {}
+def simplify_dtypes(df):
+    dtypes = {}
     for col in df.columns:
-        guessed_dtype = pd.api.types.infer_dtype(df[col])
-        guessed_dtypes[col] = guessed_dtype
-    return guessed_dtypes
+        if pd.api.types.is_string_dtype(df[col]):
+            dtypes[col] = "Text"
+        elif pd.api.types.is_categorical_dtype(df[col]):
+            dtypes[col] = "Category"
+        elif pd.api.types.is_numeric_dtype(df[col]):
+            dtypes[col] = "Numeric"
+        elif pd.api.types.is_datetime64_dtype(df[col]):
+            dtypes[col] = "Datetime"
+        elif pd.api.types.is_bool_dtype(df[col]):
+            dtypes[col] = "Boolean"
+    return dtypes
 
                 
 if __name__ == '__main__':
