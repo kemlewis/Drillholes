@@ -86,24 +86,25 @@ def required_columns(file):
 # Create a function to handle column identification
 def identify_columns_form(file):
     # Create a form to select columns for the selected file based on file type
-    with st.form(file.name):
-        with st.container():
-            col1, col2 = st.columns(2)
-            with col1:
-                # Show the dataframe preview for the selected file
-                st.dataframe(file.df)
-            with col2:
+    dtypes = ["int64", "float64", "bool", "datetime64", "timedelta", "category"]
+    with st.container():
+        col1, col2 = st.columns(2)
+        with col1:
+            # Show the dataframe preview for the selected file
+            st.dataframe(file.df)
+        with col2:
+            with st.form(file.name):
                 selected_options = []
                 for column in file.columns:
-                    option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + file.columns_datatype + required_columns)
+                    option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns)
                     if option in required_columns:
                         if option in selected_options:
                             st.warning(f"{option} has already been selected. Please select a different option.")
                         else:
                             selected_options.append(option)
                             file.columns_datatype[column] = option
-            # Submit the form and initiate view summary
-            submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
+                # Submit the form and initiate view summary
+                submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
 
 
 def identify_columns_submit():
