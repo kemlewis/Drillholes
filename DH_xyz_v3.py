@@ -88,10 +88,11 @@ def identify_columns_form(file):
     # Create a form to select columns for the selected file based on file type
     with st.form(file.name):
         with st.container():
-            with st.column():
+            col1, col2 = st.columns(2)
+            with col1:
                 # Show the dataframe preview for the selected file
                 st.dataframe(file.df)
-            with st.column():
+            with col2:
                 selected_options = []
                 for column in file.columns:
                     option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + file.columns_datatype + required_columns)
