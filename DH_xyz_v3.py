@@ -31,6 +31,8 @@ def main():
         with st.expander("Categorise Files"):
             for file in files_list:
                 categorise_files_form(file)
+                st.write(file.name)
+                st.write(file.category)
     except ValueError as e:
         st.error(e)
     try:
