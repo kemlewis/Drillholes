@@ -8,6 +8,8 @@ class File:
         self.df = df
         self.category = category
         self.columns = columns
+        self.columns_datatype = columns_datatype
+        self.required_columns = required_columns
 
 
 # Create a list to store the files
@@ -39,34 +41,40 @@ def categorise_files_form():
     # Use a form to present the list of files and a dropdown menu for each file
     with st.form("categorise_files"):
         for file in files_list:
-            file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
+            file.name = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
         # Submit the form and initiate identifying columns
         submit_file_categories = st.form_submit_button("Submit", on_click=categorise_files_submit)
 
 def categorise_files_submit():
+    for file in files_list:
+        file.required_columns = required_columns(file)
     st.write("FORM WAS SUBMITTED")
+    
+def required_columns(file):
+    if file_category == "Collar" then required_columns = ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"]
+    elif file_category == "Survey" then required_columns = ["HoleID", "Depth", "Dip", "Azimuth"]
+    elif file_category == "Point" then required_columns = ["HoleID", "Depth"]
+    elif file_category == "Point" then required_columns = ["HoleID", "From", "To"]
+    else:
+        file_category == None
+        st.write("No file category is assigned to " + file
     
 # Create a function to handle column identification
 def identify_columns_form():
     # Create a form to select columns for the selected file based on file type
     with st.form("identify_columns"):
-        # Create a dropdown menu to select a file to identify columns for
-        file_select = st.selectbox("Select a file to identify columns for:", [file.name for file in files_list])
+        for file in files_list:
+            with st.container(file.name)
+                with st.column(1):
+                    # Show the dataframe preview for the selected file
+                    st.dataframe(file_select.df)
+                 
+             with st.column(2):
 
-        # Show the dataframe preview for the selected file
-        st.dataframe(file_select.df)
-
-        if selected_file.category == "Collar":
-            column_select = st.multiselect("Select the necessary columns for Collar file:", ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"])
-        elif selected_file.category == "Survey":
-            column_select = st.multiselect("Select the necessary columns for Survey file:", ["HoleID", "Depth", "Dip", "Azimuth"])
-        elif selected_file.category == "Point":
-            column_select = st.multiselect("Select the necessary columns for Point file:", ["HoleID", "Depth"])
-        elif selected_file.category == "Interval":
-            column_select = st.multiselect("Select the necessary columns for Interval file:", ["HoleID", "From", "To"])
-        else:
-            st.warning("Invalid file type")
-            return
+                for i in range(1, 10):
+                    cols = st.columns(2)
+                    cols[0].write(f'{i}')
+                    cols[1].write(f'{i * i}')
 
         # Submit the form and initiate view summary
         submit_column_identification = st.form_submit_button("Submit", on_click=identify_columns_submit)
@@ -97,7 +105,6 @@ def view_summary():
             if file.category == "Survey":
                 st.write("Number of drillholes missing collar references:", len(file.df["HoleID"].unique().difference(collar_holes)))
                 st.write("List of drillholes missing collar reference:", list(file.df["HoleID"].unique().difference(collar_holes)))
-
 
 
 if __name__ == '__main__':
