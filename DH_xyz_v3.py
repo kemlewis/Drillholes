@@ -52,8 +52,8 @@ def main():
 #   The function then appends the File objects to the files_list and displays a success message.
 
 
-def upload_files(files_list):
-    uploaded_files = st.file_uploader("Upload your file", type=["csv", "xls", "xlsx", "xlsm", "ods", "odt"])
+def upload_files():
+    uploaded_files = st.file_uploader("Upload your file", type=["csv", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
     if uploaded_files:
         for uploaded_file in uploaded_files:
             # Detect file encoding using chardet
