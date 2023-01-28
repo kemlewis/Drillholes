@@ -64,9 +64,9 @@ def upload_files():
             handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
 
 def read_file(uploaded_file):
-    with open(uploaded_file.get_path(), 'rb') as f:
-        result = chardet.detect(f.read())
-        encoding = result['encoding']
+    with open(csv,'rb') as f:
+        data = f.read()  # or a chunk, f.read(1000000)
+        encoding=chardet.detect(data).get("encoding")
     try:
         if uploaded_file.name.endswith("csv"):
             uploaded_file_df = pd.read_csv(uploaded_file, encoding=encoding, engine='python', error_bad_lines=False)
