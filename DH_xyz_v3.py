@@ -45,15 +45,14 @@ def main():
 # Create a function to handle file uploads
 def upload_files():
     uploaded_files = st.file_uploader("Choose files to upload", type=["csv", "xlsx"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
-
     # Create a pandas dataframe for each file and create a File object
     for uploaded_file in uploaded_files:
         uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
-        simplified_dtypes = simplify_dtypes(uploaded_file_df)
-        uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_guessed_col_dtypes)
+        uploaded_file_simplified_dtypes = simplify_dtypes(uploaded_file_df)
+        uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_simplified_dtypes)
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
-        st.write(uploaded_file_guessed_col_dtypes)
+        st.write(simplified_dtypes)
         st.write(uploaded_file_df.dtypes)
 
         
