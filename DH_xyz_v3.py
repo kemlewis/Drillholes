@@ -52,7 +52,7 @@ def upload_files():
         uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_simplified_dtypes)
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
-        st.write(simplified_dtypes)
+        st.write(uploaded_file_simplified_dtypes)
         st.write(uploaded_file_df.dtypes)
 
         
