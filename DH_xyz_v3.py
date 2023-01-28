@@ -29,8 +29,6 @@ def main():
             raise ValueError("No files have been uploaded.")
         with st.expander("Categorise Files"):
             categorise_files_form()
-            st.write(file.name)
-            st.write(file.category)
     except ValueError as e:
         st.error(e)
     try:
@@ -71,7 +69,7 @@ def categorise_files_form():
                 st.write("Submitting files...")
                 for file in files_list:
                     file.required_columns = required_columns(file)
-                    st.write(f'Required columns for {file.name} are {file.required_columns}')
+                    st.write(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
             
 def required_columns(file):
     if file.category == "Collar":
