@@ -19,11 +19,6 @@ def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     with st.expander("Upload Files", expanded=True):
         upload_files()
-        st.write(files_list)
-        for file in files_list:
-            st.write(file.name)
-            st.write(file.category)
-            st.write(file.df)
     try:
         if len(files_list) == 0:
             raise ValueError("No files have been uploaded.")
@@ -116,7 +111,7 @@ def identify_columns_form(file):
                     option = st.selectbox(label=f"Select the data type for column '{column}':", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
                 # Submit the form and initiate view summary
                 submit_column_identification = st.form_submit_button("Submit")
-                if identify_columns_submit:
+                if submit_column_identification:
                     st.success("Success")
 
 def view_summary():
