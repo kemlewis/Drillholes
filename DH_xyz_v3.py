@@ -86,6 +86,7 @@ def required_columns(file):
 
 
 # Create a function to handle column identification
+# This didn't update
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
     selected_options = []
