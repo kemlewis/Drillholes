@@ -81,8 +81,9 @@ def required_columns(file):
     elif file.category == "Interval":
         required_columns = ["HoleID", "From", "To"]
     else:
-        required_columns = None
         st.write("No file category is assigned to " + file.name)
+        return []
+    return required_columns
 
 
 # Create a function to handle column identification
