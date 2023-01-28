@@ -52,17 +52,7 @@ def upload_files():
         uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_simplified_dtypes)
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
-        #print_files_list()
-
-def print_files_list():
-    for file in files_list:
-        st.write(file.name)
-        st.write(file.df)
-        st.write(file.category)
-        st.write(file.columns)
-        st.write(file.columns_datatype)
-        st.write(file.required_columns)
-        st.write(file.simplified_dtypes)
+    st.write(files_list)
 
         
 # Create a function to handle file categorization
