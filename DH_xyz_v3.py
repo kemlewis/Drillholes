@@ -3,7 +3,7 @@ import pandas as pd
 import traceback
 
 class File:
-    def __init__(self, name, df, category, columns=[], columns_datatype=[], required_columns=[], simplified_dtypes={}):
+    def __init__(self, name, df, category, columns=[], columns_datatype=[], required_columns=[], simplified_dtypes={}, df_reassigned_dtypes={}):
         self.name = name
         self.df = df
         self.category = category
@@ -11,6 +11,7 @@ class File:
         self.columns_datatype = columns_datatype
         self.required_columns = required_columns
         self.simplified_dtypes = simplified_dtypes
+        self.df_reassigned_dtypes = df_reassigned_dtypes
 
 # Create a list to store the files class objects
 files_list = []
@@ -108,10 +109,11 @@ def identify_columns_form(file):
                     this_col_options = list(map(str, this_col_options))
                     #search for the item
                     this_col_index = this_col_options.index(this_col_default)
-                    file.columns_datatype = st.selectbox(label=f"Select the data type for column '{column}' with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
+                    file.columns_datatype[column] = st.selectbox(label=f"Select the data type for column '{column}' with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
                 # Submit the form and initiate view summary
                 submit_column_identification = st.form_submit_button("Submit")
                 if submit_column_identification:
+                    file.df_reassigned_dtypes = change_dtypes(file.df, file.columns_datatype)
                     st.success("Success")
                     st.success(f'The {file.category} file {file.name} has had its column datatypes processed as follows: {file.columns_datatype}')
 
@@ -144,6 +146,50 @@ def simplify_dtypes(df):
         elif pd.api.types.is_bool_dtype(df[col]):
             dtypes[col] = "Boolean"
     return dtypes
+
+"""
+In the change_dtypes function, df is the input dataframe, and column_types is the input dictionary with 
+column names as keys and their desired datatype as values. The function first creates a copy 
+of the input dataframe, then loops through the dictionary and checks if the column exists in 
+the dataframe. If it does, it tries to convert the column to the specified datatype using pandas' 
+built-in functions. If it fails to convert, it will try similar datatype or will set it to text. 
+Then it returns the new dataframe with changed dtypes.
+"""
+def change_dtypes(df, column_types):
+    df_copy = df.copy()
+    for column, col_type in column_types.items():
+        if column not in df_copy.columns:
+            print(f"{column} not found in the dataframe.")
+            continue
+        if col_type == "Text":
+            df_copy[column] = df_copy[column].astype(str)
+        elif col_type == "Category":
+            df_copy[column] = df_copy[column].astype("category")
+        elif col_type == "Numeric":
+            try:
+                df_copy[column] = df_copy[column].astype(float)
+            except ValueError:
+                try:
+                    df_copy[column] = df_copy[column].astype(int)
+                except ValueError:
+                    df_copy[column] = df_copy[column].astype(str)
+                    print(f"{column} could not be converted to numeric and was set to text type.")
+        elif col_type in ["Datetime", "Boolean"]:
+            try:
+                if col_type == "Datetime":
+                    df_copy[column] = pd.to_datetime(df_copy[column])
+                else:
+                    df_copy[column] = df_copy[column].astype(bool)
+            except ValueError:
+                df_copy[column] = df_copy[column].astype(str)
+                print(f"{column} could not be converted to {col_type} and was set to text type.")
+        elif col_type in ["DH_X", "DH_Y", "DH_Z", "Depth", "Dip", "Azimuth", "From", "To"]:
+            try:
+                df_copy[column] = df_copy[column].astype(float)
+            except ValueError:
+                df_copy[column] = df_copy[column].astype(str)
+                print(f"{column} could not be converted to numeric and was set to text type.")
+    return df_copy
 
 if __name__ == '__main__':
     main()
