@@ -99,7 +99,7 @@ def identify_columns_form(file):
             with st.form(file.name):
                 selected_options = []
                 for column in file.columns:
-                    option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns, label_visibility=collapsed)
+                    option = st.selectbox(f"Select the datatype for column: {column}", ["Not imported"] + dtypes + file.required_columns, label_visibility="collapsed")
                     if option in file.required_columns:
                         if option in selected_options:
                             st.warning(f"{option} has already been selected. Please select a different option.")
