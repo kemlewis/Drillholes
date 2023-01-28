@@ -109,7 +109,7 @@ def identify_columns_form(file):
                         st.write(this_col_default)
                         st.write(this_col_options)
                         col_key=column + "_" + i
-                        st.write(column)
+                        st.write(col_key)
                         col_key=str(col_key)
                         option = st.selectbox(label=f"Select the data type for column '{column}':", options=["TEST1", "TEST2"], key=col_key)
                     if option in file.required_columns:
