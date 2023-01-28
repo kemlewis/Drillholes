@@ -88,7 +88,7 @@ def identify_columns_form(file):
     # Create a form to select columns for the selected file based on file type
     dtypes = ["int64", "float64", "bool", "datetime64", "timedelta", "category"]
     with st.container():
-        st.header(f"Select column data types for the " + file.category + " file: " file.name)
+        st.header(f"Select column data types for the " + file.category + " file: " + file.name)
         col1, col2 = st.columns(2)
         with col1:
             # Show the dataframe preview for the selected file
