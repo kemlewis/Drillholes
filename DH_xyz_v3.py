@@ -52,7 +52,7 @@ def upload_files():
         uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_simplified_dtypes)
         files_list.append(uploaded_file_obj)
         st.success(f"File {uploaded_file.name} was successfully uploaded.")
-        print_files_list()
+        #print_files_list()
 
 def print_files_list():
     for file in files_list:
@@ -102,7 +102,9 @@ def identify_columns_form(file):
     selected_options = []
     with st.container():
         st.header(f"Select column data types for the " + file.category + " file: " + file.name)
-        col1, col2 = st.columns()
+        cols = st.columns()
+        col1 = cols[0]
+        col2 = cols[1]
         with col1:
             # Show the dataframe preview for the selected file
             st.dataframe(file.df)
