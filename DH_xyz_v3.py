@@ -13,7 +13,7 @@ class File:
         self.simplified_dtypes = simplified_dtypes
 
 
-# Create a list to store the files
+# Create a list to store the files class objects
 files_list = []
 
 def main():
