@@ -64,7 +64,7 @@ def categorise_files_form():
                 st.write("Submitting files...")
                 for file in files_list:
                     file.required_columns = required_columns(file)
-                    st.write(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
+                    st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
             
 def required_columns(file):
     if file.category == "Collar":
