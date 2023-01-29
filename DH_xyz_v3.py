@@ -47,6 +47,8 @@ def main():
 def clear_files_list():
     if len(files_list) > 0:
         files_list = []
+    else:
+        pass
 
 #   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget, 
 #   and allows the user to select multiple files of type csv and xlsx.
