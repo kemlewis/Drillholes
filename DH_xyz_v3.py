@@ -6,7 +6,7 @@ import os
 st.set_page_config(page_title="My App")
 
 class File:
-    def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_columns=[], simplified_dtypes={}, df_reassigned_dtypes={}):
+    def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_columns=[], simplified_dtypes={}, user_defined_dtypes={}, df_reassigned_dtypes={}):
         self.name = name
         self.df = df
         self.category = category
@@ -14,6 +14,7 @@ class File:
         self.columns_dtypes = columns_dtypes
         self.required_columns = required_columns
         self.simplified_dtypes = simplified_dtypes
+        self.user_defined_dtypes = user_defined_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
 # Initialize the session state list
@@ -256,11 +257,11 @@ def identify_columns_form(file):
                         this_col_index = this_col_options.index(this_col_default)
                         
                     selected_datatype = st.selectbox(label=f"Select the data type for column '{column}' with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
-                    file.df_reassigned_dtypes[column] = selected_datatype
+                    file.user_defined_dtypes[column] = selected_datatype
                 # Submit the form and initiate view summary
                 submit_column_identification = st.form_submit_button("Submit")
                 if submit_column_identification:
-                    file.df_reassigned_dtypes = change_dtypes(file.df, file.columns_dtypes)
+                    file.df_reassigned_dtypes = change_dtypes(file.df, file.user_defined_dtypes)
                     st.success("Success")
                     st.success(f'The {file.category} file {file.name} has had its column datatypes processed as follows: {file.columns_dtypes}')
 
