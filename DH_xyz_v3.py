@@ -437,19 +437,19 @@ def change_dtypes(df, column_types):
                 )
     return df_copy
 
-
-def refresh_summary():
-    st.write(f"Files in files_list: {len(files_list)}")
-    for file in files_list:
-        st.write(vars(files_list))
-        
+     
         
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
-    with st.expander("Summary", expanded=True):
-        refresh_summary = st.button(
-            "Refresh Summary", on_click=refresh_summary
-        )
+    # Create a container for the uploading files data summary
+    refresh_summary_container = st.empty()
+
+    # Create a button that will update the message container
+    refresh_summary_button = st.button("Refresh Summary")
+
+    if refresh_summary_button:
+        for file in files_list:
+            refresh_summary_container.write(vars(file))
     with st.expander("Upload Files", expanded=True):
         upload_files()
         for file in files_list:
