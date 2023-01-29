@@ -32,12 +32,6 @@ files_list = []
 
 
 
-def refresh_summary():
-    st.write(f"Files in files_list: {len(files_list)}")
-    for file in files_list:
-        st.write(vars(files_list))
-
-
 # def clear_files_list():
 #    files_list.clear()
 
@@ -443,11 +437,18 @@ def change_dtypes(df, column_types):
                 )
     return df_copy
 
+
+def refresh_summary():
+    st.write(f"Files in files_list: {len(files_list)}")
+    for file in files_list:
+        st.write(vars(files_list))
+        
+        
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     with st.expander("Summary", expanded=True):
         refresh_summary = st.button(
-            "Refresh Summary", key="refresh_summary", on_click=refresh_summary()
+            "Refresh Summary", key="refresh_summary", on_click=refresh_summary
         )
     with st.expander("Upload Files", expanded=True):
         upload_files()
