@@ -14,8 +14,12 @@ class File:
         self.simplified_dtypes = simplified_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
-# Create a list to store the files class objects
-files_list = []
+# Initialize the session state list
+file_list = st.empty()
+file_list = st.session_state.get("file_list", [])
+
+# Update the session state with the new list
+
 
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
@@ -25,9 +29,11 @@ def main():
 #        else:
 #            st.button("Clear Files", on_click=clear_files_list, disabled=False)
         upload_files()
+        file_list = st.session_state.get("file_list", [])
         for file in files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
+        st.session_state.file_list = file_list
     with st.expander("Categorise Files"):
         try:
             if len(files_list) == 0:
@@ -41,12 +47,14 @@ def main():
             if len(files_list) == 0:
                 raise ValueError("No files have been uploaded.")
             else:
+                file_list = st.session_state.get("file_list", [])
                 for file in files_list:
                     if file.category is None:
                         raise ValueError(f"File {file.name} has not been categorised.")
                 for file in files_list:
                     if file.category is not None:
                         identify_columns_form(file)
+                st.session_state.file_list = file_list
         except ValueError as e:
             st.error(e)
         
@@ -64,6 +72,7 @@ def main():
 
 
 def upload_files():
+    file_list = st.session_state.get("file_list", [])
     with st.form("upload_files"):
         uploaded_files = st.file_uploader("Upload your file", type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
         submit_uploaded_files = st.form_submit_button("Submit")
@@ -91,6 +100,7 @@ def upload_files():
                             handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
                         else:
                             files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+        st.session_state.set("file_list", file_list)
 
 def read_file_chardet(uploaded_file):
 
@@ -141,6 +151,7 @@ def read_file_codecs_list(uploaded_file):
 
         
 def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
+    st.session_state.file_list = file_list
     if existing_file:
         overwrite_file = st.confirm(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
         if overwrite_file:
@@ -153,6 +164,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
             st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
     else:
         files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+    st.session_state.file_list = file_list
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
 #   with a select box for each file in the files_list. The user can select a category for 
@@ -161,6 +173,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 #   required_columns attribute of the File object. The function then displays a success message for each file.
 
 def categorise_files_form():
+    file_list = st.session_state.get("file_list", [])
     with st.form("categorise_files_1"):
         for i, file in enumerate(files_list):
             file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
@@ -173,6 +186,7 @@ def categorise_files_form():
                     st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
                 else:
                     st.error(f"{file.name} has not been assigned a file category.")
+    st.session_state.file_list = file_list
 
 #   required_columns is a function that takes a File object as an input and returns a list of required 
 #   columns for the file's category. Depending on the category, the function returns a 
