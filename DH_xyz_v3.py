@@ -22,7 +22,7 @@ file_list = st.session_state.get("file_list", [])
 
 
 def main():
-    st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
+    st.set_page_config(page_title="My App")
     with st.expander("Upload Files", expanded=True):
 #        if len(files_list) == 0:
 #            st.button("Clear Files", on_click=clear_files_list, disabled=True)
