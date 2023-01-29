@@ -25,12 +25,13 @@ class File:
         self.simplified_dtypes = simplified_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
+# Create a list to store the files class objects
 @st.cache
 def get_files_list():
     return []
         
-# Create a list to store the files class objects
-files_list = get_files_list()
+
+
 
 # def clear_files_list():
 #    files_list.clear()
@@ -441,10 +442,7 @@ def change_dtypes(df, column_types):
         
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
-    # Create a container for the uploading files data summary
-
-    # Create a button that will update the message container
-
+    files_list = get_files_list()
     with st.expander("Summary", expanded=True):
         refresh_summary_button = st.button("Refresh Summary")
         if refresh_summary_button:
