@@ -29,8 +29,7 @@ def main():
 #        else:
 #            st.button("Clear Files", on_click=clear_files_list, disabled=False)
         upload_files()
-        file_list = st.session_state.get("file_list", [])
-        for file in files_list:
+        for file in st.session_state.get("file_list", []):
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
         st.session_state.file_list = file_list
