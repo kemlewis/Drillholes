@@ -19,6 +19,7 @@ files_list = []
 
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
+    st.button("Clear Files", on_click=clear_files_list)
     with st.expander("Upload Files", expanded=True):
         upload_files()
     try:
@@ -42,6 +43,10 @@ def main():
                     identify_columns_form(file)
     except ValueError as e:
         st.error(e)
+        
+def clear_files_list():
+    if len(files_list) > 0:
+        files_list = []
 
 #   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget, 
 #   and allows the user to select multiple files of type csv and xlsx.
