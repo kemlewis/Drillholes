@@ -19,11 +19,9 @@ files_list = []
 
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
+    with st.expander("Summary", expanded=True):
+        refresh_summary = st.button("Refresh Summary", key="refresh_summary", on_click=refresh_summary)
     with st.expander("Upload Files", expanded=True):
-#        if len(files_list) == 0:
-#            st.button("Clear Files", on_click=clear_files_list, disabled=True)
-#        else:
-#            st.button("Clear Files", on_click=clear_files_list, disabled=False)
         upload_files()
         for file in files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
@@ -49,7 +47,12 @@ def main():
                         identify_columns_form(file)
         except ValueError as e:
             st.error(e)
-        
+
+def refresh_summary():
+    st.write(f"Files in files_list: {len(files_list)}")
+    for file in files_list:
+        st.write(vars(files_list)
+                 
 #def clear_files_list():
 #    files_list.clear()
 
