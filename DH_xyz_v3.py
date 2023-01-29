@@ -28,15 +28,8 @@ def main():
         for file in files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
-           
     with st.expander("Categorise Files"):
-        try:
-            if len(files_list) == 0:
-                pass
-            elif len(files_list) > 0:
-                categorise_files_form()
-        except ValueError as e:
-            st.error(e)
+        categorise_files_form()
     with st.expander("Identify Columns"):
         try:
             if len(files_list) == 0:
