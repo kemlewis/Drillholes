@@ -66,34 +66,27 @@ def upload_files():
                 handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
 
 def read_file(uploaded_file):
-    # List of file encodings sorted by most to least common (according to ChatGPT)
-	codecs = [
-	'utf_8', 'utf_8_sig', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'ascii', 'latin_1', 'iso8859_1', 'utf_32',
-	'utf_32_be', 'utf_32_le', 'mac_roman', 'cp1252', 'cp850', 'iso8859_15', 'windows_1252', 'iso8859_2', 'cp1250',
-	'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', 'cp500', 'cp720', 'cp737', 'cp775', 'cp852', 'cp855',
-	'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864', 'cp865', 'cp866', 'cp869', 'cp874',
-	'cp875', 'cp932', 'cp949', 'cp950', 'cp1006', 'cp1026', 'cp1125', 'cp1140', 'cp1251', 'cp1253', 'cp1254', 'cp1255',
-	'cp1256', 'cp1257', 'cp1258', 'euc_jp', 'euc_jis_2004', 'euc_jisx0213', 'euc_kr', 'gb2312', 'gbk', 'gb18030',
-	'hz', 'iso2022_jp', 'iso2022_jp_1', 'iso2022_jp_2', 'iso2022_jp_2004', 'iso2022_jp_3', 'iso2022_jp_ext',
-	'iso2022_kr', 'iso8859_3', 'iso8859_4', 'iso8859_5', 'iso8859_6', 'iso8859_7', 'iso8859_8', 'iso8859_9',
-	'iso8859_10', 'iso8859_11', 'iso8859_13', 'iso8859_14', 'iso8859_16', 'johab', 'koi8_r', 'koi8_t', 'koi8_u',
-	'kz1048', 'mac_cyrillic', 'mac_greek', 'mac_iceland', 'mac_latin2', 'mac_turkish', 'ptcp154', 'shift_jis',
-	'shift_jis_2004', 'shift_jisx0213'
-	]
+    # List of file encodings sorted by most to least common (at least according to ChatGPT)
+    codecs = ['utf_8', 'utf_8_sig', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'ascii', 'latin_1', 'iso8859_1', 'utf_32',
+    'utf_32_be', 'utf_32_le', 'mac_roman', 'cp1252', 'cp850', 'iso8859_15', 'windows_1252', 'iso8859_2', 'cp1250',
+    'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', 'cp500', 'cp720', 'cp737', 'cp775', 'cp852', 'cp855',
+    'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864', 'cp865', 'cp866', 'cp869', 'cp874',
+    'cp875', 'cp932', 'cp949', 'cp950', 'cp1006', 'cp1026', 'cp1125', 'cp1140', 'cp1251', 'cp1253', 'cp1254', 'cp1255',
+    'cp1256', 'cp1257', 'cp1258', 'euc_jp', 'euc_jis_2004', 'euc_jisx0213', 'euc_kr', 'gb2312', 'gbk', 'gb18030',
+    'hz', 'iso2022_jp', 'iso2022_jp_1', 'iso2022_jp_2', 'iso2022_jp_2004', 'iso2022_jp_3', 'iso2022_jp_ext',
+    'iso2022_kr', 'iso8859_3', 'iso8859_4', 'iso8859_5', 'iso8859_6', 'iso8859_7', 'iso8859_8', 'iso8859_9',
+    'iso8859_10', 'iso8859_11', 'iso8859_13', 'iso8859_14', 'iso8859_16', 'johab', 'koi8_r', 'koi8_t', 'koi8_u',
+    'kz1048', 'mac_cyrillic', 'mac_greek', 'mac_iceland', 'mac_latin2', 'mac_turkish', 'ptcp154', 'shift_jis',
+    'shift_jis_2004', 'shift_jisx0213']
 
     # Use chardet to detect the file encoding
     file_bytes = uploaded_file.read()
     result = chardet.detect(file_bytes)
     encoding = result['encoding']
     confidence = result['confidence']
-    st.write(f"The encoding of the {uploaded_file.name} is {encoding} with a confidence of {confidence}")
-	
+    st.write(f"The encoding of {uploaded_file.name} is {encoding} with a confidence of {confidence}")
     try:
-        if uploaded_file.name.endswith(("csv","txt")):
-			st.write("trying to read with default csv_read")
-            uploaded_file_df = pd.read_csv(uploaded_file)
-        else:
-            uploaded_file_df = pd.read_excel(uploaded_file)
+        uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
     except:
         st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
         try:
@@ -106,18 +99,20 @@ def read_file(uploaded_file):
                 for codec in codecs:
                     try:
                         uploaded_file_df = pd.read_csv(uploaded_file, encoding=codec)
+                        st.warning(f"Failed to read {uploaded_file.name} using {codec} encoding.")
+                        break
                     except:
                         uploaded_file_df = None
-                        st.error(f"Failed to read {uploaded_file.name} by manually looping through codecs list")
-                        break
+                        st.error(f"Failed to read {uploaded_file.name} by manually looping through entire codecs list")
             else:
                 for codec in codecs:
                     try:
                         uploaded_file_df = pd.read_excel(uploaded_file, encoding=codec)
+                        st.warning(f"Failed to read {uploaded_file.name} using {codec} encoding.")
+                        break
                     except:
                         uploaded_file_df = None
                         st.error(f"Failed to read {uploaded_file.name} by manually looping through codecs list")
-                        break
         return uploaded_file_df
 
 def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
