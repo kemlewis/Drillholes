@@ -87,7 +87,7 @@ def read_file(uploaded_file):
     st.write(f"The encoding of the {uploaded_file.name} is {encoding} with a confidence of {confidence}")
     try:
         if uploaded_file.name.endswith(("csv","txt")):
-			st.write("trying to read with default csv_read")
+            st.write("trying to read with default csv_read")
             uploaded_file_df = pd.read_csv(uploaded_file)
         else:
             uploaded_file_df = pd.read_excel(uploaded_file)
