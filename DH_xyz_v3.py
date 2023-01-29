@@ -122,6 +122,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
                 )
             )
             st.success(f"File {uploaded_file.name} was successfully overwritten.")
+            return files_list
         else:
             new_file_name = st.text_input(
                 f"Please enter a new name for {uploaded_file.name}"
@@ -138,6 +139,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
             st.success(
                 f"File {uploaded_file.name} was successfully uploaded as {new_file_name}."
             )
+            return files_list
     else:
         files_list.append(
             File(
@@ -148,7 +150,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
                 uploaded_file_df.dtypes,
             )
         )
-    return files_list
+        return files_list
 
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form
@@ -418,7 +420,7 @@ def upload_files(files_list):
                             ),
                             None,
                         )
-                        files_list = handle_existing_file(
+                        handle_existing_file(
                             files_list, existing_file, uploaded_file, uploaded_file_df
                         )
                         return files_list
@@ -432,7 +434,6 @@ def upload_files(files_list):
                                 uploaded_file_df.dtypes,
                             )
                         )
-                        return files_list
         
 
 
