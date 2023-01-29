@@ -189,9 +189,10 @@ def categorise_files_form():
                 if file.category is not None:
                     file.required_columns = required_columns(file)
                     st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
-                st.session_state.files_list = files_list
                 else:
                     st.error(f"{file.name} has not been assigned a file category.")
+            st.session_state.files_list = files_list
+
                     
 
 #   required_columns is a function that takes a File object as an input and returns a list of required 
