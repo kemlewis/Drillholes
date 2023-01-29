@@ -99,18 +99,20 @@ def read_file(uploaded_file):
                 for codec in codecs:
                     try:
                         uploaded_file_df = pd.read_csv(uploaded_file, encoding=codec)
+                        st.warning(f"Failed to read {uploaded_file.name} using {codec} encoding.")
+                        break
                     except:
                         uploaded_file_df = None
-                        st.error(f"Failed to read {uploaded_file.name} by manually looping through codecs list")
-                        break
+                        st.error(f"Failed to read {uploaded_file.name} by manually looping through entire codecs list")
             else:
                 for codec in codecs:
                     try:
                         uploaded_file_df = pd.read_excel(uploaded_file, encoding=codec)
+                        st.warning(f"Failed to read {uploaded_file.name} using {codec} encoding.")
+                        break
                     except:
                         uploaded_file_df = None
                         st.error(f"Failed to read {uploaded_file.name} by manually looping through codecs list")
-                        break
         return uploaded_file_df
 
 def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
