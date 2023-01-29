@@ -30,9 +30,6 @@ class File:
 def get_files_list():
     return []
         
-
-
-
 # def clear_files_list():
 #    files_list.clear()
 
@@ -46,7 +43,7 @@ def get_files_list():
 #   The function then appends the File objects to the files_list and displays a success message.
 
 
-def upload_files():
+def upload_files(files_list):
     with st.form("upload_files"):
         uploaded_files = st.file_uploader(
             "Upload your file",
@@ -452,7 +449,7 @@ def main():
                 for file in files_list:
                     st.write(vars(file))
     with st.expander("Upload Files", expanded=True):
-        upload_files()
+        upload_files(files_list)
         for file in files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
