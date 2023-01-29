@@ -64,14 +64,12 @@ def upload_files():
             handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
 
 def read_file(uploaded_file):
-    # Get the bytes of the file
+    # Use chardet to detect the file encoding
     file_bytes = uploaded_file.get_bytes()
-    # Detect the encoding of the file
     result = chardet.detect(file_bytes)
     encoding = result['encoding']
     confidence = result['confidence']
-    # Print the detected encoding and confidence level
-    st.write(f"Encoding: {encoding}, Confidence: {confidence}")
+    st.write(f"The encoding of the file is {encoding} with a confidence of {confidence}")
     try:
         if uploaded_file.name.endswith("csv"):
             uploaded_file_df = pd.read_csv(uploaded_file, encoding=encoding, engine='python', error_bad_lines=False)
