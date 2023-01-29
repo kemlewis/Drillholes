@@ -53,15 +53,17 @@ def main():
 
 
 def upload_files():
-    uploaded_files = st.file_uploader("Upload your file", type=["csv", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
-    if uploaded_files:
-        for uploaded_file in uploaded_files:
-            uploaded_file_df = read_file(uploaded_file)
-            if uploaded_file_df is None:
-                st.warning(f"{uploaded_file.name} was unable to be loaded.")
-                continue
-            existing_file = next((file for file in files_list if file.file_name == uploaded_file.name), None)
-            handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
+    with st.form("upload_files"):
+        uploaded_files = st.file_uploader("Upload your file", type=["csv", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
+        submit_uploaded_files = st.form_submit_button("Submit")
+        if submit_file_categories:
+            for uploaded_file in uploaded_files:
+                uploaded_file_df = read_file(uploaded_file)
+                if uploaded_file_df is None:
+                    st.warning(f"{uploaded_file.name} was unable to be loaded.")
+                    continue
+                existing_file = next((file for file in files_list if file.file_name == uploaded_file.name), None)
+                handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
 
 def read_file(uploaded_file):
     # List of file encodings sorted by most to least common (according to ChatGPT)
