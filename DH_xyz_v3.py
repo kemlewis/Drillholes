@@ -34,7 +34,7 @@ def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     with st.expander("Summary", expanded=True):
         refresh_summary = st.button(
-            "Refresh Summary", key="refresh_summary", on_click=refresh_summary
+            "Refresh Summary", key="refresh_summary", on_click=refresh_summary()
         )
     with st.expander("Upload Files", expanded=True):
         upload_files()
