@@ -66,9 +66,8 @@ def upload_files():
                 handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
 
 def read_file(uploaded_file):
-    # List of file encodings sorted by most to least common (at least according to ChatGPT)
-	codecs = [
-	'utf_8', 'utf_8_sig', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'ascii', 'latin_1', 'iso8859_1', 'utf_32',
+	# List of file encodings sorted by most to least common (at least according to ChatGPT)
+	codecs = ['utf_8', 'utf_8_sig', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'ascii', 'latin_1', 'iso8859_1', 'utf_32',
 	'utf_32_be', 'utf_32_le', 'mac_roman', 'cp1252', 'cp850', 'iso8859_15', 'windows_1252', 'iso8859_2', 'cp1250',
 	'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', 'cp500', 'cp720', 'cp737', 'cp775', 'cp852', 'cp855',
 	'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864', 'cp865', 'cp866', 'cp869', 'cp874',
@@ -78,16 +77,14 @@ def read_file(uploaded_file):
 	'iso2022_kr', 'iso8859_3', 'iso8859_4', 'iso8859_5', 'iso8859_6', 'iso8859_7', 'iso8859_8', 'iso8859_9',
 	'iso8859_10', 'iso8859_11', 'iso8859_13', 'iso8859_14', 'iso8859_16', 'johab', 'koi8_r', 'koi8_t', 'koi8_u',
 	'kz1048', 'mac_cyrillic', 'mac_greek', 'mac_iceland', 'mac_latin2', 'mac_turkish', 'ptcp154', 'shift_jis',
-	'shift_jis_2004', 'shift_jisx0213'
-	]
-
+	'shift_jis_2004', 'shift_jisx0213']
+	
     # Use chardet to detect the file encoding
-    file_bytes = uploaded_file.read()
+	file_bytes = uploaded_file.read()
     result = chardet.detect(file_bytes)
     encoding = result['encoding']
     confidence = result['confidence']
     st.write(f"The encoding of the {uploaded_file.name} is {encoding} with a confidence of {confidence}")
-	
     try:
         if uploaded_file.name.endswith(("csv","txt")):
 			st.write("trying to read with default csv_read")
