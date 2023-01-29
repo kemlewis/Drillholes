@@ -25,6 +25,8 @@ def main():
 #        else:
 #            st.button("Clear Files", on_click=clear_files_list, disabled=False)
         upload_files()
+        for file in files_list:
+            st.success(f"Successfully created pandas dataframe from {file.name}.")
     with st.expander("Categorise Files"):
         try:
             if len(files_list) == 0:
