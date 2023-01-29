@@ -3,7 +3,7 @@ import pandas as pd
 import chardet
 import os
 
-st.set_page_config(page_title="My App")
+st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
 
 class File:
     def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_columns=[], simplified_dtypes={}, user_defined_dtypes={}, df_reassigned_dtypes={}):
