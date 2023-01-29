@@ -23,7 +23,7 @@ def main():
         upload_files()
     try:
         if len(files_list) == 0:
-            raise ValueError("No files have been uploaded.")
+            st.Warning("No files have been uploaded.")
         with st.expander("Categorise Files"):
             categorise_files_form()
     except ValueError as e:
@@ -88,8 +88,6 @@ def read_file(uploaded_file):
             uploaded_file_df = create_dataframe_codes(uploaded_file)
         return uploaded_file_df
     
-import pandas as pd
-
 def create_dataframe_codes(uploaded_file):
     file_extension = uploaded_file.name.split(".")[-1]
     codecs = ["utf-8", "utf-16", "utf-32", "ascii"]
