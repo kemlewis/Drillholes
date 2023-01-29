@@ -84,13 +84,9 @@ def read_file(uploaded_file):
     result = chardet.detect(file_bytes)
     encoding = result['encoding']
     confidence = result['confidence']
-    st.write(f"The encoding of the {uploaded_file.name} is {encoding} with a confidence of {confidence}")
+    st.write(f"The encoding of {uploaded_file.name} is {encoding} with a confidence of {confidence}")
     try:
-        if uploaded_file.name.endswith(("csv","txt")):
-            st.write("trying to read with default csv_read")
-            uploaded_file_df = pd.read_csv(uploaded_file)
-        else:
-            uploaded_file_df = pd.read_excel(uploaded_file)
+        uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
     except:
         st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
         try:
