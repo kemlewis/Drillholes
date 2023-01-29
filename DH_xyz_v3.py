@@ -152,7 +152,7 @@ def read_file_codecs_list(uploaded_file):
 
         
 def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
-    st.session_state.file_list = file_list
+    file_list = st.session_state.get("file_list", [])
     if existing_file:
         overwrite_file = st.confirm(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
         if overwrite_file:
