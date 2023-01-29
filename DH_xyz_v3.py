@@ -441,9 +441,9 @@ def main():
         refresh_summary_button = st.button("Refresh Summary")
         if refresh_summary_button:
             st.write("Number of files loaded:")
-            st.write(len(st.session_state.files_list))
-            if len(st.session_state.files_list) > 0:
-                for file in st.session_state.files_list:
+            st.write(len(st.session_state.get("files_list", [])))
+            if len(st.session_state.get("files_list", [])) > 0:
+                for file in st.session_state.get("files_list", []):
                     st.write(vars(file))
     with st.expander("Upload Files", expanded=True):
         upload_files()
