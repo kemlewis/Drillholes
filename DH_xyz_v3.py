@@ -21,8 +21,6 @@ if 'files_list' not in st.session_state:
     files_list = st.empty()
     files_list = st.session_state.get("files_list", [])
 
-# Update the session state with the new list
-
 
 def main():
     #
@@ -179,9 +177,9 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 #   required_columns attribute of the File object. The function then displays a success message for each file.
 
 def categorise_files_form():
-    files_list = st.session_state.get("files_list", [])
     with st.form("categorise_files_1"):
-        for i, file in enumerate(files_list):
+        files_list = st.session_state.get("files_list", [])
+        for file in files_list:
             file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
         submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
