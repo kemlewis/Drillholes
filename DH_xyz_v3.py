@@ -25,11 +25,13 @@ class File:
         self.simplified_dtypes = simplified_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
+
 # Create a list to store the files class objects
-@st.cache
-def get_files_list():
-    return []
-        
+files_list = []
+
+
+
+
 # def clear_files_list():
 #    files_list.clear()
 
@@ -43,7 +45,7 @@ def get_files_list():
 #   The function then appends the File objects to the files_list and displays a success message.
 
 
-def upload_files(files_list):
+def upload_files():
     with st.form("upload_files"):
         uploaded_files = st.file_uploader(
             "Upload your file",
@@ -92,7 +94,7 @@ def upload_files(files_list):
                                 None,
                             )
                             handle_existing_file(
-                                files_list, existing_file, uploaded_file, uploaded_file_df
+                                existing_file, uploaded_file, uploaded_file_df
                             )
                         else:
                             files_list.append(
@@ -171,7 +173,7 @@ def read_file_codecs_list(uploaded_file):
         return None
 
 
-def handle_existing_file(files_list, existing_file, uploaded_file, uploaded_file_df):
+def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
     if existing_file:
         overwrite_file = st.confirm(
             f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?"
@@ -439,7 +441,10 @@ def change_dtypes(df, column_types):
         
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
-    files_list = get_files_list()
+    # Create a container for the uploading files data summary
+
+    # Create a button that will update the message container
+
     with st.expander("Summary", expanded=True):
         refresh_summary_button = st.button("Refresh Summary")
         if refresh_summary_button:
@@ -449,7 +454,7 @@ def main():
                 for file in files_list:
                     st.write(vars(file))
     with st.expander("Upload Files", expanded=True):
-        upload_files(files_list)
+        upload_files()
         for file in files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
