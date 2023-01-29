@@ -447,7 +447,7 @@ def main():
                     st.write(vars(file))
     with st.expander("Upload Files", expanded=True):
         upload_files()
-        for file in st.session_state['files_list']:
+        for file in st.session_state.get("files_list", []):
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
     with st.expander("Categorise Files"):
