@@ -450,6 +450,7 @@ def main():
                     st.write(vars(file))
     with st.expander("Upload Files", expanded=True):
         files_list = upload_files(files_list)
+        st.write(files_list)
         for file in files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
