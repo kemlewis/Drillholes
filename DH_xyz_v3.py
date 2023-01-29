@@ -20,10 +20,10 @@ files_list = []
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     with st.expander("Upload Files", expanded=True):
-        if len(files_list) == 0:
-            st.button("Clear Files", on_click=clear_files_list, disabled=True)
-        else:
-            st.button("Clear Files", on_click=clear_files_list, disabled=False)
+#        if len(files_list) == 0:
+#            st.button("Clear Files", on_click=clear_files_list, disabled=True)
+#        else:
+#            st.button("Clear Files", on_click=clear_files_list, disabled=False)
         upload_files()
     try:
         if len(files_list) == 0:
@@ -47,8 +47,8 @@ def main():
     except ValueError as e:
         st.error(e)
         
-def clear_files_list():
-    files_list.clear()
+#def clear_files_list():
+#    files_list.clear()
 
 #   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget, 
 #   and allows the user to select multiple files of type csv and xlsx.
@@ -66,7 +66,19 @@ def upload_files():
         submit_uploaded_files = st.form_submit_button("Submit")
         if submit_uploaded_files:
             for uploaded_file in uploaded_files:
-                uploaded_file_df = read_file(uploaded_file)
+                try:
+                    uploaded_file_df = read_file_codecs_list(uploaded_file)
+                    try:
+                        uploaded_file_df = read_file_chardet(uploaded_file)
+                        try:
+                            uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
+                            st.success("Success")
+                        except Exception as e:
+                            st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
+                    except Exception as e:
+                        st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
+                except Exception as e:
+                    st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
                 if uploaded_file_df is None:
                     st.warning(f"{uploaded_file.name} was unable to be loaded.")
                 else:
@@ -76,7 +88,7 @@ def upload_files():
                     else:
                         files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
 
-def read_file(uploaded_file):
+def read_file_chardet(uploaded_file):
 
     # Use chardet to detect the file encoding
     file_bytes = uploaded_file.read()
@@ -99,7 +111,7 @@ def read_file(uploaded_file):
             uploaded_file_df = create_dataframe_codes(uploaded_file)
         return uploaded_file_df
     
-def create_dataframe_codes(uploaded_file):
+def read_file_codecs_list(uploaded_file):
     file_extension = uploaded_file.name.split(".")[-1]
     codecs = ["utf-8", "utf-16", "utf-32", "ascii"]
     try:
