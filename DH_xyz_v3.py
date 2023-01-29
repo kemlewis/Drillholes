@@ -445,7 +445,7 @@ def main():
 
     # Create a button that will update the message container
 
-    with st.container("Summary"):
+    with st.expander("Summary", expanded=True):
         refresh_summary_button = st.button("Refresh Summary")
         if refresh_summary_button:
             for file in files_list:
