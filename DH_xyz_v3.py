@@ -159,8 +159,8 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 
 
 def categorise_files_form():
-    with st.form("categorise_files_1"):
-        for i, file in enumerate(files_list):
+    with st.form("user_categorise_files"):
+        for file in files_list:
             file.category = st.selectbox(
                 f"Select file category for {file.name}",
                 ["Collar", "Survey", "Point", "Interval"],
