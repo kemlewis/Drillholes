@@ -444,8 +444,9 @@ def main():
     # Create a container for the uploading files data summary
 
     # Create a button that will update the message container
-    refresh_summary_button = st.button("Refresh Summary")
-    with st.container():
+
+    with st.container("Summary"):
+        refresh_summary_button = st.button("Refresh Summary")
         if refresh_summary_button:
             for file in files_list:
                 st.write(vars(file))
