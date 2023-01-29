@@ -83,7 +83,7 @@ def upload_files():
                     st.warning(f"{uploaded_file.name} was unable to be loaded.")
                 else:
                     if len(files_list) > 0:
-                        existing_file = next((file for file in files_list if file.file_name == uploaded_file.name), None)
+                        existing_file = next((file for file in files_list if file.name == uploaded_file.name), None)
                         handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
                     else:
                         files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
