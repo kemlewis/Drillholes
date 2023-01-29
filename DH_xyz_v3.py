@@ -5,7 +5,8 @@ import os
 
 st.spinner("Loading...")
 
-
+# Create a list to store the files class objects
+files_list = []
 
 # Create File class to store filedata
 class File:
@@ -122,7 +123,6 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
                 )
             )
             st.success(f"File {uploaded_file.name} was successfully overwritten.")
-            return files_list
         else:
             new_file_name = st.text_input(
                 f"Please enter a new name for {uploaded_file.name}"
@@ -139,7 +139,6 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
             st.success(
                 f"File {uploaded_file.name} was successfully uploaded as {new_file_name}."
             )
-            return files_list
     else:
         files_list.append(
             File(
@@ -150,7 +149,6 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
                 uploaded_file_df.dtypes,
             )
         )
-        return files_list
 
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form
@@ -161,24 +159,23 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 
 
 def categorise_files_form():
-    with st.form("user_categorise_files"):
+    for file in files_list:
+        file.category = st.selectbox(
+            f"Select file category for {file.name}",
+            ["Collar", "Survey", "Point", "Interval"],
+            key=file.name
+        )
+    submit_file_categories = st.button("Submit", key="button_submit_file_categories")
+    if submit_file_categories:
+        st.write("Submitting files...")
         for file in files_list:
-            file.category = st.selectbox(
-                f"Select file category for {file.name}",
-                ["Collar", "Survey", "Point", "Interval"],
-                key=file.name
-            )
-        submit_file_categories = st.form_submit_button("Submit", key="button_submit_file_categories")
-        if submit_file_categories:
-            st.write("Submitting files...")
-            for file in files_list:
-                if file.category is not None:
-                    file.required_columns = required_columns(file)
-                    st.success(
-                        f"The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}"
-                    )
-                else:
-                    st.error(f"{file.name} has not been assigned a file category.")
+            if file.category is not None:
+                file.required_columns = required_columns(file)
+                st.success(
+                    f"The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}"
+                )
+            else:
+                st.error(f"{file.name} has not been assigned a file category.")
 
 
 #   required_columns is a function that takes a File object as an input and returns a list of required
@@ -373,7 +370,7 @@ def change_dtypes(df, column_types):
     return df_copy
 
 
-def upload_files(files_list):
+def upload_files():
     uploaded_files = st.file_uploader(
         "Upload your file",
         type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"],
@@ -412,9 +409,17 @@ def upload_files(files_list):
                     st.warning(f"{uploaded_file.name} was unable to be loaded.")
                 else:
                     if len(files_list) > 0:
-                        existing_file = next((file for file in files_list if file.name == uploaded_file.name), None)
-                        files_list.append(handle_existing_file(files_list, existing_file, uploaded_file, uploaded_file_df))
-                        return files_list
+                        existing_file = next(
+                            (
+                                file
+                                for file in files_list
+                                if file.name == uploaded_file.name
+                            ),
+                            None,
+                        )
+                        handle_existing_file(
+                            existing_file, uploaded_file, uploaded_file_df
+                        )
                     else:
                         files_list.append(
                             File(
@@ -425,17 +430,16 @@ def upload_files(files_list):
                                 uploaded_file_df.dtypes,
                             )
                         )
-                        return files_list
-        
 
 
 def main():
-    # Create a list to store the files class objects
-    files_list = st.session_state.get("files_list", [])
-    
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     st.spinner("") # To stop the spinner
     st.success("App loaded!")
+    # Create a container for the uploading files data summary
+
+    # Create a button that will update the message container
+
     with st.expander("Summary", expanded=True):
         refresh_summary_button = st.button("Refresh Summary")
         if refresh_summary_button:
@@ -445,8 +449,7 @@ def main():
                 for file in files_list:
                     st.write(vars(file))
     with st.expander("Upload Files", expanded=True):
-        files_list = upload_files(files_list)
-        st.write(files_list)
+        upload_files()
         for file in files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
