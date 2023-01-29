@@ -92,7 +92,7 @@ def upload_files(files_list):
                                 None,
                             )
                             handle_existing_file(
-                                existing_file, uploaded_file, uploaded_file_df
+                                files_list, existing_file, uploaded_file, uploaded_file_df
                             )
                         else:
                             files_list.append(
@@ -171,7 +171,7 @@ def read_file_codecs_list(uploaded_file):
         return None
 
 
-def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
+def handle_existing_file(files_list, existing_file, uploaded_file, uploaded_file_df):
     if existing_file:
         overwrite_file = st.confirm(
             f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?"
