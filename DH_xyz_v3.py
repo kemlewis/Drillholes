@@ -159,7 +159,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 
 
 def categorise_files_form():
-    with st.form("user_categorise_files"):
+    with st.form("user_categorise_files_2"):
         for file in files_list:
             file.category = st.selectbox(
                 f"Select file category for {file.name}",
