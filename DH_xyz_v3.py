@@ -69,12 +69,12 @@ def read_file(uploaded_file):
     result = chardet.detect(file_bytes)
     encoding = result['encoding']
     confidence = result['confidence']
-    st.write(f"The encoding of the file is {encoding} with a confidence of {confidence}")
+    st.write(f"The encoding of the {uploaded_file.name} is {encoding} with a confidence of {confidence}")
     try:
         if uploaded_file.name.endswith("csv"):
-            uploaded_file_df = pd.read_csv(uploaded_file, encoding=encoding, engine='python', error_bad_lines=False)
+            uploaded_file_df = pd.read_csv(uploaded_file, encoding=encoding)
         else:
-            uploaded_file_df = pd.read_excel(uploaded_file, engine='openpyxl', encoding=encoding)
+            uploaded_file_df = pd.read_excel(uploaded_file, encoding=encoding)
     except:
         if uploaded_file.name.endswith("csv"):
             codecs = ['utf_8','utf_8_sig','utf_16','utf_16_be','utf_16_le','utf_7','ascii','latin_1','iso8859_1']
@@ -85,9 +85,14 @@ def read_file(uploaded_file):
                 except:
                     uploaded_file_df = None
                     st.error(f"Failed to read {uploaded_file.name}")
-                    pass
+                    st.stop()
         else:
-            uploaded_file_df = pd.read_excel(uploaded_file)
+            try:
+                uploaded_file_df = pd.read_excel(uploaded_file)
+            except:
+                uploaded_file_df = None
+                st.error(f"Failed to read {uploaded_file.name}")
+                st.stop()
     return uploaded_file_df
 
 def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
