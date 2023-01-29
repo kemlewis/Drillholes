@@ -2,11 +2,19 @@ import streamlit as st
 import pandas as pd
 import chardet
 import os
+from streamlit import session_state
+from streamlit import ReportSessionState
 
 st.spinner("Loading...")
 
 # Create a list to store the files class objects
 files_list = []
+
+# Create a session state variable to store the list of files
+session_state = ReportSessionState.get(var_name='files_list', default=[])
+
+# Assign the session state variable to the global variable
+files_list = session_state.files_list
 
 # Create File class to store filedata
 class File:
@@ -30,16 +38,19 @@ class File:
         self.simplified_dtypes = simplified_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
-        
-#   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget,
-#   and allows the user to select multiple files of type csv and xlsx.
-#
-#   When files are uploaded, it creates a pandas DataFrame for each file and creates a File object for each file.
-#   The function also calls the function simplify_dtypes() and assigns the returned value as
-#   uploaded_file_simplified_dtypes which is used to create the File object.
-#
-#   The function then appends the File objects to the files_list and displays a success message.
+    def __getstate__(self):
+        return self.__dict__
 
+    def __setstate__(self, state):
+        self.__dict__ = state
+
+# Function to add a File object to the list
+def add_file(file_obj):
+    session_state.files_list.append(file_obj)
+
+# Function to retrieve the list of File objects
+def get_files_list():
+    return session_state.files_list
 
 def read_file_chardet(uploaded_file):
 
@@ -368,6 +379,16 @@ def change_dtypes(df, column_types):
                     f"{column} could not be converted to numeric and was set to text type."
                 )
     return df_copy
+
+
+#   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget,
+#   and allows the user to select multiple files of type csv and xlsx.
+#
+#   When files are uploaded, it creates a pandas DataFrame for each file and creates a File object for each file.
+#   The function also calls the function simplify_dtypes() and assigns the returned value as
+#   uploaded_file_simplified_dtypes which is used to create the File object.
+#
+#   The function then appends the File objects to the files_list and displays a success message.
 
 
 def upload_files():
