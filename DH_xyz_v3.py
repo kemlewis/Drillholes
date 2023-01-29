@@ -23,7 +23,7 @@ def main():
         upload_files()
     try:
         if len(files_list) == 0:
-            st.Warning("No files have been uploaded.")
+            st.warning("No files have been uploaded.")
         with st.expander("Categorise Files"):
             categorise_files_form()
     except ValueError as e:
