@@ -35,7 +35,7 @@ def main():
             st.write(vars(file))
     with st.expander("Categorise Files"):
         try:
-            if len(files_list) == 0:
+            if len(st.session_state.get("files_list", [])) == 0:
                 raise ValueError("No files have been uploaded.")
             else:
                 categorise_files_form()
