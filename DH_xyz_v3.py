@@ -32,7 +32,6 @@ def main():
         for file in st.session_state.get("file_list", []):
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
-        st.session_state.file_list = file_list
     with st.expander("Categorise Files"):
         try:
             if len(files_list) == 0:
