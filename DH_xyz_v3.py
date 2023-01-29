@@ -96,8 +96,9 @@ def upload_files():
                             handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
                             #st.session_state.set("file_list", file_list)
                         else:
-                            st.session_state.set("file_list", []).append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
-        
+                            file_list = st.session_state.get("file_list", [])
+                            file_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+                            st.session_state.set("file_list", file_list)        
 
 def read_file_chardet(uploaded_file):
 
