@@ -45,7 +45,7 @@ def main():
                     if file.category is not None:
                         identify_columns_form(file)
         except ValueError as e:
-        st.error(e)
+            st.error(e)
         
 #def clear_files_list():
 #    files_list.clear()
