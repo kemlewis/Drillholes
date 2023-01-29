@@ -6,12 +6,12 @@ import os
 st.set_page_config(page_title="My App")
 
 class File:
-    def __init__(self, name, df, category, columns=[], columns_datatype=[], required_columns=[], simplified_dtypes={}, df_reassigned_dtypes={}):
+    def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_columns=[], simplified_dtypes={}, df_reassigned_dtypes={}):
         self.name = name
         self.df = df
         self.category = category
         self.columns = columns
-        self.columns_datatype = columns_datatype
+        self.columns_dtypes = columns_dtypes
         self.required_columns = required_columns
         self.simplified_dtypes = simplified_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
@@ -98,7 +98,7 @@ def upload_files():
                             st.session_state.files_list = files_list
                         else:
                             files_list = st.session_state.get("files_list", [])
-                            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+                            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
                             st.session_state.files_list = files_list
 
 
@@ -156,18 +156,18 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
         if overwrite_file:
             files_list = st.session_state.get("files_list", [])
             files_list.remove(existing_file)
-            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
             st.session_state.files_list = files_list
             st.success(f"File {uploaded_file.name} was successfully overwritten.")
         else:
             files_list = st.session_state.get("files_list", [])
             new_file_name = st.text_input(f"Please enter a new name for {uploaded_file.name}")
-            files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+            files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
             st.session_state.files_list = files_list
             st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
     else:
         files_list = st.session_state.get("files_list", [])
-        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
         st.session_state.files_list = files_list
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
@@ -243,7 +243,11 @@ def identify_columns_form(file):
             with st.form(file.name):
                 for i, column in enumerate(file.columns):
                     #get the default dtype of this column in this file
-                    this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
+                    if this_col_default is not None and this_col_default in this_col_options:
+                        this_col_index = this_col_options.index(this_col_default)
+                    else:
+                        this_col_default = "Text"
+                        this_col_index = this_col_options.index(this_col_default)
                     #this_col_default = str(this_col_default)
                     this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
