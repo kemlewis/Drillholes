@@ -56,7 +56,7 @@ def upload_files():
     with st.form("upload_files"):
         uploaded_files = st.file_uploader("Upload your file", type=["csv", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
         submit_uploaded_files = st.form_submit_button("Submit")
-        if submit_file_categories:
+        if submit_uploaded_files:
             for uploaded_file in uploaded_files:
                 uploaded_file_df = read_file(uploaded_file)
                 if uploaded_file_df is None:
