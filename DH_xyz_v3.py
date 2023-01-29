@@ -30,38 +30,6 @@ class File:
 files_list = []
 
 
-def main():
-    st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
-    with st.expander("Summary", expanded=True):
-        refresh_summary = st.button(
-            "Refresh Summary", key="refresh_summary", on_click=refresh_summary()
-        )
-    with st.expander("Upload Files", expanded=True):
-        upload_files()
-        for file in files_list:
-            st.success(f"Successfully created pandas dataframe from {file.name}.")
-            st.write(vars(file))
-    with st.expander("Categorise Files"):
-        try:
-            if len(files_list) == 0:
-                raise ValueError("No files have been uploaded.")
-            else:
-                categorise_files_form()
-        except:
-            st.error(f"files_list is empty")
-    with st.expander("Identify Columns"):
-        try:
-            if len(files_list) == 0:
-                raise ValueError("No files have been uploaded.")
-            else:
-                for file in files_list:
-                    if file.category is None:
-                        raise ValueError(f"File {file.name} has not been categorised.")
-                for file in files_list:
-                    if file.category is not None:
-                        identify_columns_form(file)
-        except ValueError as e:
-            st.error(e)
 
 
 def refresh_summary():
@@ -474,6 +442,39 @@ def change_dtypes(df, column_types):
                     f"{column} could not be converted to numeric and was set to text type."
                 )
     return df_copy
+
+def main():
+    st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
+    with st.expander("Summary", expanded=True):
+        refresh_summary = st.button(
+            "Refresh Summary", key="refresh_summary", on_click=refresh_summary()
+        )
+    with st.expander("Upload Files", expanded=True):
+        upload_files()
+        for file in files_list:
+            st.success(f"Successfully created pandas dataframe from {file.name}.")
+            st.write(vars(file))
+    with st.expander("Categorise Files"):
+        try:
+            if len(files_list) == 0:
+                raise ValueError("No files have been uploaded.")
+            else:
+                categorise_files_form()
+        except:
+            st.error(f"files_list is empty")
+    with st.expander("Identify Columns"):
+        try:
+            if len(files_list) == 0:
+                raise ValueError("No files have been uploaded.")
+            else:
+                for file in files_list:
+                    if file.category is None:
+                        raise ValueError(f"File {file.name} has not been categorised.")
+                for file in files_list:
+                    if file.category is not None:
+                        identify_columns_form(file)
+        except ValueError as e:
+            st.error(e)
 
 
 if __name__ == "__main__":
