@@ -159,24 +159,23 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 
 
 def categorise_files_form():
-    with st.form("user_categorise_files_2"):
+    for file in files_list:
+        file.category = st.selectbox(
+            f"Select file category for {file.name}",
+            ["Collar", "Survey", "Point", "Interval"],
+            key=file.name
+        )
+    submit_file_categories = st.button("Submit", key="button_submit_file_categories")
+    if submit_file_categories:
+        st.write("Submitting files...")
         for file in files_list:
-            file.category = st.selectbox(
-                f"Select file category for {file.name}",
-                ["Collar", "Survey", "Point", "Interval"],
-                key=file.name
-            )
-        submit_file_categories = st.form_submit_button("Submit", key="button_submit_file_categories")
-        if submit_file_categories:
-            st.write("Submitting files...")
-            for file in files_list:
-                if file.category is not None:
-                    file.required_columns = required_columns(file)
-                    st.success(
-                        f"The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}"
-                    )
-                else:
-                    st.error(f"{file.name} has not been assigned a file category.")
+            if file.category is not None:
+                file.required_columns = required_columns(file)
+                st.success(
+                    f"The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}"
+                )
+            else:
+                st.error(f"{file.name} has not been assigned a file category.")
 
 
 #   required_columns is a function that takes a File object as an input and returns a list of required
