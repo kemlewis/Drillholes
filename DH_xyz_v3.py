@@ -23,7 +23,6 @@ if 'files_list' not in st.session_state:
 
 
 def main():
-    #
     with st.expander("Upload Files", expanded=True):
 #        if len(files_list) == 0:
 #            st.button("Clear Files", on_click=clear_files_list, disabled=True)
@@ -243,16 +242,20 @@ def identify_columns_form(file):
             with st.form(file.name):
                 for i, column in enumerate(file.columns):
                     #get the default dtype of this column in this file
+                    this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
+                    this_col_default = str(this_col_default)
+                    this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
+                    #this_col_default = str(this_col_default)
+                    this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
+                    this_col_options = list(map(str, this_col_options))
+                    
+                    #search for the item
                     if this_col_default is not None and this_col_default in this_col_options:
                         this_col_index = this_col_options.index(this_col_default)
                     else:
                         this_col_default = "Text"
                         this_col_index = this_col_options.index(this_col_default)
-                    #this_col_default = str(this_col_default)
-                    this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
-                    this_col_options = list(map(str, this_col_options))
-                    #search for the item
-                    this_col_index = this_col_options.index(this_col_default)
+                        
                     file.columns_datatype[column] = st.selectbox(label=f"Select the data type for column '{column}' with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
                 # Submit the form and initiate view summary
                 submit_column_identification = st.form_submit_button("Submit")
