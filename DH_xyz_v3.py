@@ -148,6 +148,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
                 uploaded_file_df.dtypes,
             )
         )
+    return files_list
 
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form
@@ -370,7 +371,7 @@ def change_dtypes(df, column_types):
     return df_copy
 
 
-def upload_files():
+def upload_files(files_list):
     uploaded_files = st.file_uploader(
         "Upload your file",
         type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"],
@@ -417,8 +418,8 @@ def upload_files():
                             ),
                             None,
                         )
-                        handle_existing_file(
-                            existing_file, uploaded_file, uploaded_file_df
+                        files_list = handle_existing_file(
+                            files_list, existing_file, uploaded_file, uploaded_file_df
                         )
                     else:
                         files_list.append(
@@ -448,7 +449,7 @@ def main():
                 for file in files_list:
                     st.write(vars(file))
     with st.expander("Upload Files", expanded=True):
-        upload_files()
+        files_list = upload_files(files_list)
         for file in files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
