@@ -19,10 +19,10 @@ file_list = st.empty()
 file_list = st.session_state.get("file_list", [])
 
 # Update the session state with the new list
-
+st.set_page_config(page_title="My App")
 
 def main():
-    #st.set_page_config(page_title="My App")
+    #
     with st.expander("Upload Files", expanded=True):
 #        if len(files_list) == 0:
 #            st.button("Clear Files", on_click=clear_files_list, disabled=True)
