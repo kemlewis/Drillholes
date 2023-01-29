@@ -64,7 +64,7 @@ def upload_files():
             handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
 
 def read_file(uploaded_file):
-    with open(uploaded_file.name, 'r') as f:
+    with open(uploaded_file.get_bytes(), 'r') as f:
         data = f.read()  # or a chunk, f.read(1000000)
         encoding=chardet.detect(data).get("encoding")
     try:
