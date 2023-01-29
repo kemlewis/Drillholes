@@ -97,11 +97,12 @@ def upload_files():
                         if len(st.session_state.get("files_list", [])) > 0:
                             existing_file = next((file for file in st.session_state.get("files_list", []) if file.name == uploaded_file.name), None)
                             handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
-                            #st.session_state.set("files_list", files_list)
+                            st.session_state.files_list = files_list
                         else:
                             files_list = st.session_state.get("files_list", [])
                             files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
-                            st.session_state['files_list'] = files_list
+                            st.session_state.files_list = files_list
+
 
 def read_file_chardet(uploaded_file):
 
