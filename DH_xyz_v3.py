@@ -65,7 +65,7 @@ def upload_files():
 
 def read_file(uploaded_file):
     # Use chardet to detect the file encoding
-    file_bytes = uploaded_file.get_bytes()
+    file_bytes = uploaded_file.read()
     result = chardet.detect(file_bytes)
     encoding = result['encoding']
     confidence = result['confidence']
