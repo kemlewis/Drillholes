@@ -29,9 +29,6 @@ class File:
 # Create a list to store the files class objects
 files_list = []
 
-
-
-
 # def clear_files_list():
 #    files_list.clear()
 
@@ -46,14 +43,14 @@ files_list = []
 
 
 def upload_files():
+    uploaded_files = st.file_uploader(
+        "Upload your file",
+        type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"],
+        accept_multiple_files=True,
+        key="dh_file_uploader",
+        help="Upload your drillhole collar, survey, point and interval files in csv or excel format",
+    )
     with st.form("upload_files"):
-        uploaded_files = st.file_uploader(
-            "Upload your file",
-            type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"],
-            accept_multiple_files=True,
-            key="dh_file_uploader",
-            help="Upload your drillhole collar, survey, point and interval files in csv or excel format",
-        )
         submit_uploaded_files = st.form_submit_button("Submit")
         if submit_uploaded_files:
             if len(uploaded_files) > 0:
