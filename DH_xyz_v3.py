@@ -25,26 +25,26 @@ def main():
 #        else:
 #            st.button("Clear Files", on_click=clear_files_list, disabled=False)
         upload_files()
-    try:
-        if len(files_list) == 0:
-            pass
-        elif len(files_list) > 0:
-            with st.expander("Categorise Files"):
+    with st.expander("Categorise Files"):
+        try:
+            if len(files_list) == 0:
+                pass
+            elif len(files_list) > 0:
                 categorise_files_form()
-    except ValueError as e:
-        st.error(e)
-    try:
-        if len(files_list) == 0:
-            raise ValueError("No files have been uploaded.")
-        else:
-            for file in files_list:
-                if file.category is None:
-                    raise ValueError(f"File {file.name} has not been categorised.")
-        with st.expander("Identify Columns"):
-            for file in files_list:
-                if file.category is not None:
-                    identify_columns_form(file)
-    except ValueError as e:
+        except ValueError as e:
+            st.error(e)
+    with st.expander("Identify Columns"):
+        try:
+            if len(files_list) == 0:
+                raise ValueError("No files have been uploaded.")
+            else:
+                for file in files_list:
+                    if file.category is None:
+                        raise ValueError(f"File {file.name} has not been categorised.")
+                for file in files_list:
+                    if file.category is not None:
+                        identify_columns_form(file)
+        except ValueError as e:
         st.error(e)
         
 #def clear_files_list():
