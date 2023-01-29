@@ -391,7 +391,7 @@ def change_dtypes(df, column_types):
 #   The function then appends the File objects to the files_list and displays a success message.
 
 
-def upload_files():
+def upload_files(session_state):
     uploaded_files = st.file_uploader(
         "Upload your file",
         type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"],
@@ -429,11 +429,13 @@ def upload_files():
                 if uploaded_file_df is None:
                     st.warning(f"{uploaded_file.name} was unable to be loaded.")
                 else:
-                    if len(files_list) > 0:
+                    if not hasattr(session_state, "files_list"):
+                        session_state.files_list = []
+                    if len(session_state.files_list) > 0:
                         existing_file = next(
                             (
                                 file
-                                for file in files_list
+                                for file in session_state.files_list
                                 if file.name == uploaded_file.name
                             ),
                             None,
@@ -442,7 +444,7 @@ def upload_files():
                             existing_file, uploaded_file, uploaded_file_df
                         )
                     else:
-                        files_list.append(
+                        session_state.files_list.append(
                             File(
                                 uploaded_file.name,
                                 uploaded_file_df,
@@ -451,6 +453,7 @@ def upload_files():
                                 uploaded_file_df.dtypes,
                             )
                         )
+
 
 
 def main():
