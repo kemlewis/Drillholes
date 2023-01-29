@@ -448,8 +448,11 @@ def main():
     with st.expander("Summary", expanded=True):
         refresh_summary_button = st.button("Refresh Summary")
         if refresh_summary_button:
-            for file in files_list:
-                st.write(vars(file))
+            st.write("Number of files loaded:")
+            st.write(len(files_list))
+            if len(files_list) > 0:
+                for file in files_list:
+                    st.write(vars(file))
     with st.expander("Upload Files", expanded=True):
         upload_files()
         for file in files_list:
