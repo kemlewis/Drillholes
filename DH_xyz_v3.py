@@ -66,7 +66,7 @@ def upload_files():
                 handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
 
 def read_file(uploaded_file):
-    # List of file encodings sorted by most to least common (according to ChatGPT)
+    # List of file encodings sorted by most to least common (at least according to ChatGPT)
 	codecs = [
 	'utf_8', 'utf_8_sig', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'ascii', 'latin_1', 'iso8859_1', 'utf_32',
 	'utf_32_be', 'utf_32_le', 'mac_roman', 'cp1252', 'cp850', 'iso8859_15', 'windows_1252', 'iso8859_2', 'cp1250',
