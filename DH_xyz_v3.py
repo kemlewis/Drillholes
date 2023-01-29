@@ -27,7 +27,7 @@ def main():
         upload_files()
         for file in files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
-            st.write(dir(file))
+            st.write(vars(file))
            
     with st.expander("Categorise Files"):
         try:
