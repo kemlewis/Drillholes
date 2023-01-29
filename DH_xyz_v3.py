@@ -421,6 +421,7 @@ def upload_files(files_list):
                         files_list = handle_existing_file(
                             files_list, existing_file, uploaded_file, uploaded_file_df
                         )
+                        return files_list
                     else:
                         files_list.append(
                             File(
@@ -431,6 +432,8 @@ def upload_files(files_list):
                                 uploaded_file_df.dtypes,
                             )
                         )
+                        return files_list
+        
 
 
 def main():
