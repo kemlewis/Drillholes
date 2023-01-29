@@ -5,8 +5,7 @@ import os
 
 st.spinner("Loading...")
 
-# Create a list to store the files class objects
-files_list = st.session_state.get("files_list", [])
+
 
 # Create File class to store filedata
 class File:
@@ -112,8 +111,8 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
             f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?"
         )
         if overwrite_file:
-            st.session_state.get("files_list", []).remove(existing_file)
-            st.session_state.get("files_list", []).append(
+            st.session_state.files_list.remove(existing_file)
+            st.session_state.files_list.append(
                 File(
                     uploaded_file.name,
                     uploaded_file_df,
@@ -127,7 +126,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
             new_file_name = st.text_input(
                 f"Please enter a new name for {uploaded_file.name}"
             )
-            st.session_state.get("files_list", []).append(
+            st.session_state.files_list.append(
                 File(
                     new_file_name,
                     uploaded_file_df,
@@ -140,7 +139,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
                 f"File {uploaded_file.name} was successfully uploaded as {new_file_name}."
             )
     else:
-        st.session_state.get("files_list", []).append(
+        st.session_state.files_list.append(
             File(
                 uploaded_file.name,
                 uploaded_file_df,
@@ -160,7 +159,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 
 def categorise_files_form():
     with st.form("user_categorise_files"):
-        for file in st.session_state.get("files_list", []):
+        for file in st.session_state.files_list:
             file.category = st.selectbox(
                 f"Select file category for {file.name}",
                 ["Collar", "Survey", "Point", "Interval"],
@@ -169,7 +168,7 @@ def categorise_files_form():
         submit_file_categories = st.form_submit_button("Submit", key="button_submit_file_categories")
         if submit_file_categories:
             st.write("Submitting files...")
-            for file in st.session_state.get("files_list", []):
+            for file in st.session_state.files_list:
                 if file.category is not None:
                     file.required_columns = required_columns(file)
                     st.success(
@@ -269,7 +268,7 @@ def identify_columns_form(file):
 
 def view_summary():
     # display summary information for each file
-    for file in st.session_state.get("files_list", []):
+    for file in st.session_state.files_list:
         st.write("File:", file.name)
         st.write("Category:", file.category)
         if file.category == "Collar":
@@ -413,7 +412,7 @@ def upload_files():
                         existing_file = next(
                             (
                                 file
-                                for file in st.session_state.get("files_list", [])
+                                for file in st.session_state.files_list
                                 if file.name == uploaded_file.name
                             ),
                             None,
@@ -422,7 +421,7 @@ def upload_files():
                             existing_file, uploaded_file, uploaded_file_df
                         )
                     else:
-                        st.session_state.get("files_list", []).append(
+                        st.session_state.files_list.append(
                             File(
                                 uploaded_file.name,
                                 uploaded_file_df,
@@ -434,6 +433,9 @@ def upload_files():
 
 
 def main():
+    # Create a list to store the files class objects
+    files_list = st.session_state.get("files_list", [])
+    
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     st.spinner("") # To stop the spinner
     st.success("App loaded!")
@@ -441,32 +443,32 @@ def main():
         refresh_summary_button = st.button("Refresh Summary")
         if refresh_summary_button:
             st.write("Number of files loaded:")
-            st.write(len(st.session_state.get("files_list", [])))
-            if len(st.session_state.get("files_list", [])) > 0:
-                for file in st.session_state.get("files_list", []):
+            st.write(len(st.session_state.files_list))
+            if len(st.session_state.files_list) > 0:
+                for file in st.session_state.files_list:
                     st.write(vars(file))
     with st.expander("Upload Files", expanded=True):
         upload_files()
-        for file in st.session_state.get("files_list", []):
+        for file in st.session_state.files_list:
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
     with st.expander("Categorise Files"):
         try:
-            if len(st.session_state.get("files_list", [])) == 0:
+            if len(st.session_state.files_list) == 0:
                 raise ValueError("No files have been uploaded.")
             else:
                 categorise_files_form()
         except:
-            st.error(f"st.session_state.get("files_list", []) is empty")
+            st.error(f"st.session_state.files_list is empty")
     with st.expander("Identify Columns"):
         try:
-            if len(st.session_state.get("files_list", [])) == 0:
+            if len(st.session_state.files_list) == 0:
                 raise ValueError("No files have been uploaded.")
             else:
-                for file in st.session_state.get("files_list", []):
+                for file in st.session_state.files_list:
                     if file.category is None:
                         raise ValueError(f"File {file.name} has not been categorised.")
-                for file in st.session_state.get("files_list", []):
+                for file in st.session_state.files_list:
                     if file.category is not None:
                         identify_columns_form(file)
         except ValueError as e:
