@@ -17,8 +17,9 @@ class File:
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
 # Initialize the session state list
-file_list = st.empty()
-file_list = st.session_state.get("file_list", [])
+if 'file_list' not in st.session_state:
+    file_list = st.empty()
+    file_list = st.session_state.get("file_list", [])
 
 # Update the session state with the new list
 
@@ -100,7 +101,7 @@ def upload_files():
                         else:
                             file_list = st.session_state.get("file_list", [])
                             file_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
-                            st.session_state.set("file_list", file_list)        
+                            st.session_state['file_list'] = file_list
 
 def read_file_chardet(uploaded_file):
 
