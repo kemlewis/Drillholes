@@ -49,7 +49,7 @@ def main():
                 for file in st.session_state.get("files_list", []):
                     if file.category is None:
                         raise ValueError(f"File {file.name} has not been categorised.")
-                for file in files_list:
+                for file in st.session_state.get("files_list", []):
                     if file.category is not None:
                         identify_columns_form(file)
         except ValueError as e:
