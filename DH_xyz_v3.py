@@ -62,9 +62,12 @@ def upload_files():
                 uploaded_file_df = read_file(uploaded_file)
                 if uploaded_file_df is None:
                     st.warning(f"{uploaded_file.name} was unable to be loaded.")
-                    continue
-                existing_file = next((file for file in files_list if file.file_name == uploaded_file.name), None)
-                handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
+                else:
+                    if len(files_list) > 0:
+                        existing_file = next((file for file in files_list if file.file_name == uploaded_file.name), None)
+                        handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
+                    else:
+                        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
 
 def read_file(uploaded_file):
 
