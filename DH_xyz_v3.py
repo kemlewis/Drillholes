@@ -92,7 +92,7 @@ def upload_files():
                         st.warning(f"{uploaded_file.name} was unable to be loaded.")
                     else:
                         file_list = st.session_state.get("file_list", [])
-                        if len(files_list) > 0:
+                        if len(st.session_state.get("file_list", [])) > 0:
                             existing_file = next((file for file in files_list if file.name == uploaded_file.name), None)
                             handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
                             st.session_state.set("file_list", file_list)
