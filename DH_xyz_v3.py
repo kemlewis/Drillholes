@@ -5,6 +5,9 @@ import os
 
 st.spinner("Loading...")
 
+# Create a list to store the files class objects
+files_list = []
+
 # Create File class to store filedata
 class File:
     def __init__(
@@ -27,13 +30,7 @@ class File:
         self.simplified_dtypes = simplified_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
-
-# Create a list to store the files class objects
-files_list = []
-
-# def clear_files_list():
-#    files_list.clear()
-
+        
 #   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget,
 #   and allows the user to select multiple files of type csv and xlsx.
 #
@@ -42,68 +39,6 @@ files_list = []
 #   uploaded_file_simplified_dtypes which is used to create the File object.
 #
 #   The function then appends the File objects to the files_list and displays a success message.
-
-
-def upload_files():
-    uploaded_files = st.file_uploader(
-        "Upload your file",
-        type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"],
-        accept_multiple_files=True,
-        key="dh_file_uploader",
-        help="Upload your drillhole collar, survey, point and interval files in csv or excel format",
-    )
-    submit_uploaded_files = st.button("Submit")
-    if submit_uploaded_files:
-        if len(uploaded_files) > 0:
-            for uploaded_file in uploaded_files:
-                try:
-                    uploaded_file_df = read_file_codecs_list(uploaded_file)
-                    try:
-                        uploaded_file_df = read_file_chardet(uploaded_file)
-                        try:
-                            uploaded_file_df = (
-                                pd.read_csv(uploaded_file)
-                                if uploaded_file.name.endswith("csv")
-                                else pd.read_excel(uploaded_file)
-                            )
-                            st.success("Success")
-                        except Exception as e:
-                            st.warning(
-                                f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}"
-                            )
-                    except Exception as e:
-                        st.warning(
-                            f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}"
-                        )
-                except Exception as e:
-                    st.warning(
-                        f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}"
-                    )
-                if uploaded_file_df is None:
-                    st.warning(f"{uploaded_file.name} was unable to be loaded.")
-                else:
-                    if len(files_list) > 0:
-                        existing_file = next(
-                            (
-                                file
-                                for file in files_list
-                                if file.name == uploaded_file.name
-                            ),
-                            None,
-                        )
-                        handle_existing_file(
-                            existing_file, uploaded_file, uploaded_file_df
-                        )
-                    else:
-                        files_list.append(
-                            File(
-                                uploaded_file.name,
-                                uploaded_file_df,
-                                None,
-                                uploaded_file_df.columns,
-                                uploaded_file_df.dtypes,
-                            )
-                        )
 
 
 def read_file_chardet(uploaded_file):
@@ -231,7 +166,7 @@ def categorise_files_form():
                 ["Collar", "Survey", "Point", "Interval"],
                 key=file.name,
             )
-        submit_file_categories = st.form_submit_button("Submit")
+        submit_file_categories = st.form_submit_button("Submit", key="button_submit_file_categories")
         if submit_file_categories:
             st.write("Submitting files...")
             for file in files_list:
@@ -435,8 +370,69 @@ def change_dtypes(df, column_types):
                 )
     return df_copy
 
-     
-        
+
+def upload_files():
+    uploaded_files = st.file_uploader(
+        "Upload your file",
+        type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"],
+        accept_multiple_files=True,
+        key="dh_file_uploader",
+        help="Upload your drillhole collar, survey, point and interval files in csv or excel format",
+    )
+    submit_uploaded_files = st.button("Submit")
+    if submit_uploaded_files:
+        if len(uploaded_files) > 0:
+            for uploaded_file in uploaded_files:
+                try:
+                    uploaded_file_df = read_file_codecs_list(uploaded_file)
+                    try:
+                        uploaded_file_df = read_file_chardet(uploaded_file)
+                        try:
+                            uploaded_file_df = (
+                                pd.read_csv(uploaded_file)
+                                if uploaded_file.name.endswith("csv")
+                                else pd.read_excel(uploaded_file)
+                            )
+                            st.success("Success")
+                        except Exception as e:
+                            st.warning(
+                                f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}"
+                            )
+                    except Exception as e:
+                        st.warning(
+                            f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}"
+                        )
+                except Exception as e:
+                    st.warning(
+                        f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}"
+                    )
+                if uploaded_file_df is None:
+                    st.warning(f"{uploaded_file.name} was unable to be loaded.")
+                else:
+                    if len(files_list) > 0:
+                        existing_file = next(
+                            (
+                                file
+                                for file in files_list
+                                if file.name == uploaded_file.name
+                            ),
+                            None,
+                        )
+                        handle_existing_file(
+                            existing_file, uploaded_file, uploaded_file_df
+                        )
+                    else:
+                        files_list.append(
+                            File(
+                                uploaded_file.name,
+                                uploaded_file_df,
+                                None,
+                                uploaded_file_df.columns,
+                                uploaded_file_df.dtypes,
+                            )
+                        )
+
+
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     st.spinner("") # To stop the spinner
