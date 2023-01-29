@@ -3,6 +3,8 @@ import pandas as pd
 import chardet
 import os
 
+st.set_page_config(page_title="My App")
+
 class File:
     def __init__(self, name, df, category, columns=[], columns_datatype=[], required_columns=[], simplified_dtypes={}, df_reassigned_dtypes={}):
         self.name = name
@@ -19,7 +21,7 @@ file_list = st.empty()
 file_list = st.session_state.get("file_list", [])
 
 # Update the session state with the new list
-st.set_page_config(page_title="My App")
+
 
 def main():
     #
