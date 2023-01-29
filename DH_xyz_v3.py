@@ -29,7 +29,13 @@ def main():
             st.success(f"Successfully created pandas dataframe from {file.name}.")
             st.write(vars(file))
     with st.expander("Categorise Files"):
-        categorise_files_form()
+        try:
+            if len(files_list) == 0:
+                raise ValueError("No files have been uploaded.")
+            else:
+                categorise_files_form()
+        except:
+            st.error(f"files_list is empty")
     with st.expander("Identify Columns"):
         try:
             if len(files_list) == 0:
@@ -154,18 +160,15 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 #   required_columns attribute of the File object. The function then displays a success message for each file.
 
 def categorise_files_form():
-    if len(files_list) == 0:
-        st.warning("No files found")
-    else:
-        with st.form("categorise_files_1"):
-            for i, file in enumerate(files_list):
-                file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
-            submit_file_categories = st.form_submit_button("Submit")
-            if submit_file_categories:
-                st.write("Submitting files...")
-                for file in files_list:
-                    file.required_columns = required_columns(file)
-                    st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
+    with st.form("categorise_files_1"):
+        for i, file in enumerate(files_list):
+            file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
+        submit_file_categories = st.form_submit_button("Submit")
+        if submit_file_categories:
+            st.write("Submitting files...")
+            for file in files_list:
+                file.required_columns = required_columns(file)
+                st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
 
 #   required_columns is a function that takes a File object as an input and returns a list of required 
 #   columns for the file's category. Depending on the category, the function returns a 
