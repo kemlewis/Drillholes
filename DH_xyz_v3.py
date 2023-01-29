@@ -42,17 +42,15 @@ def main():
             st.error(f"files_list is empty")
     with st.expander("Identify Columns"):
         try:
-            if len(files_list) == 0:
+            if len(st.session_state.get("file_list", [])) == 0:
                 raise ValueError("No files have been uploaded.")
             else:
-                file_list = st.session_state.get("file_list", [])
-                for file in files_list:
+                for file in st.session_state.get("file_list", []):
                     if file.category is None:
                         raise ValueError(f"File {file.name} has not been categorised.")
                 for file in files_list:
                     if file.category is not None:
                         identify_columns_form(file)
-                st.session_state.file_list = file_list
         except ValueError as e:
             st.error(e)
         
