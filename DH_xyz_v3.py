@@ -77,7 +77,6 @@ def read_file(uploaded_file):
     try:
         uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
         st.success("Success")
-        break
     except:
         st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
         try:
