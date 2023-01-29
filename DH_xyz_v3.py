@@ -2,19 +2,11 @@ import streamlit as st
 import pandas as pd
 import chardet
 import os
-from streamlit import session_state
-from streamlit import ReportSessionState
 
 st.spinner("Loading...")
 
 # Create a list to store the files class objects
-files_list = []
-
-# Create a session state variable to store the list of files
-session_state = ReportSessionState.get(var_name='files_list', default=[])
-
-# Assign the session state variable to the global variable
-files_list = session_state.files_list
+files_list = st.session_state.get("files_list", [])
 
 # Create File class to store filedata
 class File:
@@ -38,19 +30,16 @@ class File:
         self.simplified_dtypes = simplified_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
-    def __getstate__(self):
-        return self.__dict__
+        
+#   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget,
+#   and allows the user to select multiple files of type csv and xlsx.
+#
+#   When files are uploaded, it creates a pandas DataFrame for each file and creates a File object for each file.
+#   The function also calls the function simplify_dtypes() and assigns the returned value as
+#   uploaded_file_simplified_dtypes which is used to create the File object.
+#
+#   The function then appends the File objects to the files_list and displays a success message.
 
-    def __setstate__(self, state):
-        self.__dict__ = state
-
-# Function to add a File object to the list
-def add_file(file_obj):
-    session_state.files_list.append(file_obj)
-
-# Function to retrieve the list of File objects
-def get_files_list():
-    return session_state.files_list
 
 def read_file_chardet(uploaded_file):
 
@@ -170,23 +159,24 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 
 
 def categorise_files_form():
-    for file in files_list:
-        file.category = st.selectbox(
-            f"Select file category for {file.name}",
-            ["Collar", "Survey", "Point", "Interval"],
-            key=file.name
-        )
-    submit_file_categories = st.button("Submit", key="button_submit_file_categories")
-    if submit_file_categories:
-        st.write("Submitting files...")
+    with st.form("user_categorise_files"):
         for file in files_list:
-            if file.category is not None:
-                file.required_columns = required_columns(file)
-                st.success(
-                    f"The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}"
-                )
-            else:
-                st.error(f"{file.name} has not been assigned a file category.")
+            file.category = st.selectbox(
+                f"Select file category for {file.name}",
+                ["Collar", "Survey", "Point", "Interval"],
+                key=file.name
+            )
+        submit_file_categories = st.form_submit_button("Submit", key="button_submit_file_categories")
+        if submit_file_categories:
+            st.write("Submitting files...")
+            for file in files_list:
+                if file.category is not None:
+                    file.required_columns = required_columns(file)
+                    st.success(
+                        f"The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}"
+                    )
+                else:
+                    st.error(f"{file.name} has not been assigned a file category.")
 
 
 #   required_columns is a function that takes a File object as an input and returns a list of required
@@ -381,17 +371,7 @@ def change_dtypes(df, column_types):
     return df_copy
 
 
-#   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget,
-#   and allows the user to select multiple files of type csv and xlsx.
-#
-#   When files are uploaded, it creates a pandas DataFrame for each file and creates a File object for each file.
-#   The function also calls the function simplify_dtypes() and assigns the returned value as
-#   uploaded_file_simplified_dtypes which is used to create the File object.
-#
-#   The function then appends the File objects to the files_list and displays a success message.
-
-
-def upload_files(session_state):
+def upload_files():
     uploaded_files = st.file_uploader(
         "Upload your file",
         type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"],
@@ -429,13 +409,11 @@ def upload_files(session_state):
                 if uploaded_file_df is None:
                     st.warning(f"{uploaded_file.name} was unable to be loaded.")
                 else:
-                    if not hasattr(session_state, "files_list"):
-                        session_state.files_list = []
-                    if len(session_state.files_list) > 0:
+                    if len(files_list) > 0:
                         existing_file = next(
                             (
                                 file
-                                for file in session_state.files_list
+                                for file in files_list
                                 if file.name == uploaded_file.name
                             ),
                             None,
@@ -444,7 +422,7 @@ def upload_files(session_state):
                             existing_file, uploaded_file, uploaded_file_df
                         )
                     else:
-                        session_state.files_list.append(
+                        files_list.append(
                             File(
                                 uploaded_file.name,
                                 uploaded_file_df,
@@ -455,15 +433,10 @@ def upload_files(session_state):
                         )
 
 
-
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
     st.spinner("") # To stop the spinner
     st.success("App loaded!")
-    # Create a container for the uploading files data summary
-
-    # Create a button that will update the message container
-
     with st.expander("Summary", expanded=True):
         refresh_summary_button = st.button("Refresh Summary")
         if refresh_summary_button:
