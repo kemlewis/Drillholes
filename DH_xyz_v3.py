@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-import traceback
+import chardet
+import os
 
 class File:
     def __init__(self, name, df, category, columns=[], columns_datatype=[], required_columns=[], simplified_dtypes={}, df_reassigned_dtypes={}):
@@ -15,6 +16,90 @@ class File:
 
 # Create a list to store the files class objects
 files_list = []
+
+def main():
+    st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
+    with st.expander("Upload Files", expanded=True):
+        upload_files()
+    try:
+        if len(files_list) == 0:
+            raise ValueError("No files have been uploaded.")
+        with st.expander("Categorise Files"):
+            categorise_files_form()
+    except ValueError as e:
+        st.error(e)
+    try:
+        if len(files_list) == 0:
+            raise ValueError("No files have been uploaded.")
+        else:
+            for file in files_list:
+                if file.category is None:
+                    raise ValueError(f"File {file.name} has not been categorised.")
+        with st.expander("Identify Columns"):
+            for file in files_list:
+                if file.category is not None:
+                    identify_columns_form(file)
+    except ValueError as e:
+        st.error(e)
+
+#   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget, 
+#   and allows the user to select multiple files of type csv and xlsx.
+#   
+#   When files are uploaded, it creates a pandas DataFrame for each file and creates a File object for each file.
+#   The function also calls the function simplify_dtypes() and assigns the returned value as 
+#   uploaded_file_simplified_dtypes which is used to create the File object.
+#   
+#   The function then appends the File objects to the files_list and displays a success message.
+
+
+def upload_files():
+    uploaded_files = st.file_uploader("Upload your file", type=["csv", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
+    if uploaded_files:
+        for uploaded_file in uploaded_files:
+            uploaded_file_df = read_file(uploaded_file)
+            if uploaded_file_df is None:
+                st.warning(f"{uploaded_file.name} was unable to be loaded.")
+                continue
+            existing_file = next((file for file in files_list if file.file_name == uploaded_file.name), None)
+            handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
+
+def read_file(uploaded_file):
+    with open(uploaded_file.name, 'r') as f:
+        data = f.read()  # or a chunk, f.read(1000000)
+        encoding=chardet.detect(data).get("encoding")
+    try:
+        if uploaded_file.name.endswith("csv"):
+            uploaded_file_df = pd.read_csv(uploaded_file, encoding=encoding, engine='python', error_bad_lines=False)
+        else:
+            uploaded_file_df = pd.read_excel(uploaded_file, engine='openpyxl', encoding=encoding)
+    except:
+        if uploaded_file.name.endswith("csv"):
+            codecs = ['utf_8','utf_8_sig','utf_16','utf_16_be','utf_16_le','utf_7','ascii','latin_1','iso8859_1']
+            for codec in codecs:
+                try:
+                    uploaded_file_df = pd.read_csv(uploaded_file, encoding=codec)
+                    break
+                except:
+                    uploaded_file_df = None
+                    st.error(f"Failed to read {uploaded_file.name}")
+                    pass
+        else:
+            uploaded_file_df = pd.read_excel(uploaded_file)
+    return uploaded_file_df
+
+def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
+    if existing_file:
+        overwrite_file = st.confirm(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
+        if overwrite_file:
+            files_list.remove(existing_file)
+            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+            st.success(f"File {uploaded_file.name} was successfully overwritten.")
+        else:
+            new_file_name = st.text_input(f"Please enter a new name for {uploaded_file.name}")
+            files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+            st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
+    else:
+        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
 #   with a select box for each file in the files_list. The user can select a category for 
@@ -86,14 +171,12 @@ def identify_columns_form(file):
                 for i, column in enumerate(file.columns):
                     #get the default dtype of this column in this file
                     this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
-                    this_col_default = str(this_col_default)
+                    #this_col_default = str(this_col_default)
                     this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
                     #search for the item
                     this_col_index = this_col_options.index(this_col_default)
-                    this_col_key = [file.name] + ["_"] + [column]
-                    this_col_key = list(map(str, this_col_key))
-                    file.columns_datatype[column] = st.selectbox(label=f"Select the data type for column {column} with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=this_col_key)
+                    file.columns_datatype[column] = st.selectbox(label=f"Select the data type for column '{column}' with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
                 # Submit the form and initiate view summary
                 submit_column_identification = st.form_submit_button("Submit")
                 if submit_column_identification:
@@ -173,53 +256,6 @@ def change_dtypes(df, column_types):
                 df_copy[column] = df_copy[column].astype(str)
                 print(f"{column} could not be converted to numeric and was set to text type.")
     return df_copy
-
-
-#   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget, 
-#   and allows the user to select multiple files of type csv and xlsx.
-#   
-#   When files are uploaded, it creates a pandas DataFrame for each file and creates a File object for each file.
-#   The function also calls the function simplify_dtypes() and assigns the returned value as 
-#   uploaded_file_simplified_dtypes which is used to create the File object.
-#   
-#   The function then appends the File objects to the files_list and displays a success message.
-
-def upload_files():
-    uploaded_files = st.file_uploader("Choose files to upload", type=["csv", "xlsx"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
-    # Create a pandas dataframe for each file and create a File object
-    for uploaded_file in uploaded_files:
-        uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
-        uploaded_file_simplified_dtypes = simplify_dtypes(uploaded_file_df)
-        uploaded_file_obj = File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, [], [], uploaded_file_simplified_dtypes)
-        files_list.append(uploaded_file_obj)
-        st.success(f"File {uploaded_file.name} was successfully uploaded.")
-
-
-def main():
-    st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
-    with st.expander("Upload Files", expanded=True):
-        upload_files()
-    try:
-        if len(files_list) == 0:
-            raise ValueError("No files have been uploaded.")
-        with st.expander("Categorise Files"):
-            categorise_files_form()
-    except ValueError as e:
-        st.error(e)
-    try:
-        if len(files_list) == 0:
-            raise ValueError("No files have been uploaded.")
-        else:
-            for file in files_list:
-                if file.category is None:
-                    raise ValueError(f"File {file.name} has not been categorised.")
-        with st.expander("Identify Columns"):
-            for file in files_list:
-                if file.category is not None:
-                    identify_columns_form(file)
-    except ValueError as e:
-        st.error(e)
-
 
 if __name__ == '__main__':
     main()
