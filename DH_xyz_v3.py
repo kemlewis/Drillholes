@@ -25,12 +25,12 @@ class File:
         self.simplified_dtypes = simplified_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
-
+@st.cache
+def get_files_list():
+    return []
+        
 # Create a list to store the files class objects
-files_list = []
-
-
-
+files_list = get_files_list()
 
 # def clear_files_list():
 #    files_list.clear()
