@@ -188,7 +188,7 @@ def categorise_files_form():
                     st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
                 else:
                     st.error(f"{file.name} has not been assigned a file category.")
-        st.session_state.files_list = files_list
+            st.session_state.files_list = files_list
 
                     
 
