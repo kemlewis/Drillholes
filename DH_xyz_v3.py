@@ -164,7 +164,7 @@ def categorise_files_form():
             file.category = st.selectbox(
                 f"Select file category for {file.name}",
                 ["Collar", "Survey", "Point", "Interval"],
-                key=file.name,
+                key=file.name
             )
         submit_file_categories = st.form_submit_button("Submit", key="button_submit_file_categories")
         if submit_file_categories:
