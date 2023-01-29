@@ -3,6 +3,8 @@ import pandas as pd
 import chardet
 import os
 
+st.spinner("Loading...")
+
 # Create File class to store filedata
 class File:
     def __init__(
@@ -437,6 +439,8 @@ def change_dtypes(df, column_types):
         
 def main():
     st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
+    st.spinner("") # To stop the spinner
+    st.success("App loaded!")
     # Create a container for the uploading files data summary
 
     # Create a button that will update the message container
