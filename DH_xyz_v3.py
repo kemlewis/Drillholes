@@ -66,31 +66,31 @@ def main():
 def upload_files():
     with st.form("upload_files"):
         uploaded_files = st.file_uploader("Upload your file", type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
-            submit_uploaded_files = st.form_submit_button("Submit")
-            if submit_uploaded_files:
-                if len(uploaded_files) > 0:
-                    for uploaded_file in uploaded_files:
+        submit_uploaded_files = st.form_submit_button("Submit")
+        if submit_uploaded_files:
+            if len(uploaded_files) > 0:
+                for uploaded_file in uploaded_files:
+                    try:
+                        uploaded_file_df = read_file_codecs_list(uploaded_file)
                         try:
-                            uploaded_file_df = read_file_codecs_list(uploaded_file)
+                            uploaded_file_df = read_file_chardet(uploaded_file)
                             try:
-                                uploaded_file_df = read_file_chardet(uploaded_file)
-                                try:
-                                    uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
-                                    st.success("Success")
-                                except Exception as e:
-                                    st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
+                                uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
+                                st.success("Success")
                             except Exception as e:
                                 st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
                         except Exception as e:
                             st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
-                        if uploaded_file_df is None:
-                            st.warning(f"{uploaded_file.name} was unable to be loaded.")
+                    except Exception as e:
+                        st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
+                    if uploaded_file_df is None:
+                        st.warning(f"{uploaded_file.name} was unable to be loaded.")
+                    else:
+                        if len(files_list) > 0:
+                            existing_file = next((file for file in files_list if file.name == uploaded_file.name), None)
+                            handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
                         else:
-                            if len(files_list) > 0:
-                                existing_file = next((file for file in files_list if file.name == uploaded_file.name), None)
-                                handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
-                            else:
-                                files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
+                            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes))
 
 def read_file_chardet(uploaded_file):
 
