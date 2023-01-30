@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import chardet
 import os
+import drillhole_calcs
 
 st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
 
@@ -23,37 +24,7 @@ if 'files_list' not in st.session_state:
     files_list = st.session_state.get("files_list", [])
 
 
-def main():
-    with st.expander("Upload Files", expanded=True):
-#        if len(files_list) == 0:
-#            st.button("Clear Files", on_click=clear_files_list, disabled=True)
-#        else:
-#            st.button("Clear Files", on_click=clear_files_list, disabled=False)
-        upload_files()
-        for file in st.session_state.get("files_list", []):
-            st.success(f"Successfully created pandas dataframe from {file.name}.")
-            st.write(vars(file))
-    with st.expander("Categorise Files"):
-        try:
-            if len(st.session_state.get("files_list", [])) == 0:
-                raise ValueError("No files have been uploaded.")
-            else:
-                categorise_files_form()
-        except:
-            st.error(f"files_list is empty")
-    with st.expander("Identify Columns"):
-        try:
-            if len(st.session_state.get("files_list", [])) == 0:
-                raise ValueError("No files have been uploaded.")
-            else:
-                for file in st.session_state.get("files_list", []):
-                    if file.category is None:
-                        raise ValueError(f"File {file.name} has not been categorised.")
-                for file in st.session_state.get("files_list", []):
-                    if file.category is not None:
-                        identify_columns_form(file)
-        except ValueError as e:
-            st.error(e)
+
         
 #def clear_files_list():
 #    files_list.clear()
@@ -337,6 +308,46 @@ def change_dtypes(df, column_types):
                 df_copy[column] = df_copy[column].astype(str)
                 print(f"{column} could not be converted to numeric and was set to text type.")
     return df_copy
+
+def main():
+    with st.expander("Upload Files", expanded=True):
+#        if len(files_list) == 0:
+#            st.button("Clear Files", on_click=clear_files_list, disabled=True)
+#        else:
+#            st.button("Clear Files", on_click=clear_files_list, disabled=False)
+        upload_files()
+        for file in st.session_state.get("files_list", []):
+            st.success(f"Successfully created pandas dataframe from {file.name}.")
+            st.write(vars(file))
+    with st.expander("Categorise Files"):
+        try:
+            if len(st.session_state.get("files_list", [])) == 0:
+                raise ValueError("No files have been uploaded.")
+            else:
+                categorise_files_form()
+        except:
+            st.error(f"files_list is empty")
+    with st.expander("Identify Columns"):
+        try:
+            if len(st.session_state.get("files_list", [])) == 0:
+                raise ValueError("No files have been uploaded.")
+            else:
+                for file in st.session_state.get("files_list", []):
+                    if file.category is None:
+                        raise ValueError(f"File {file.name} has not been categorised.")
+                for file in st.session_state.get("files_list", []):
+                    if file.category is not None:
+                        identify_columns_form(file)
+        except ValueError as e:
+            st.error(e)
+    with st.expander("Calculate Drilltraces"):
+        try:
+            collar_file = [file for file_list in file_dict.values() for file in file_list if file.category == "Collar"]
+            survey_file = [file for file_list in file_dict.values() for file in file_list if file.category == "Survey"]
+            df_dh_traces = dh_calcs.calc_drilltraces(collar_file.df, survey_file.df, collar_file.required_columns, survey_file.required_columns)
+            st.write(df_dh_traces)
+        except:
+            st.error(f"files_list is empty")
 
 if __name__ == '__main__':
     main()
