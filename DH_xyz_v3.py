@@ -342,13 +342,18 @@ def main():
             st.error(e)
     with st.expander("Calculate Drilltraces"):
         try:
-            #files_list = st.session_state.get("files_list", [])
-            collar_file = [file for file in st.session_state.get("files_list", []) if file.category == "Collar"]
-            survey_file = [file for file in st.session_state.get("files_list", []) if file.category == "Survey"]
-            df_dh_traces = dh_calcs.calc_drilltraces(collar_file.df, survey_file.df, collar_file.required_columns, survey_file.required_columns)
+            files_list = st.session_state.get("files_list", [])
+            collar_file = [file for file in files_list if file.category == "Collar"]
+            survey_file = [file for file in files_list if file.category == "Survey"]
+            if len(collar_file) == 0 or len(survey_file) == 0:
+                raise IndexError("One of the required files is missing")
+            df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_columns, survey_file[0].required_columns)
             st.write(df_dh_traces)
-        except:
-            st.error(f"files_list is empty")
+        except IndexError as e:
+            st.error(f"Error: {e}")
+        except AttributeError as e:
+            st.error(f"Error: {e}")
 
+            
 if __name__ == '__main__':
     main()
