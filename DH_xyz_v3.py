@@ -227,43 +227,43 @@ def identify_columns_form(file):
     selected_options = []
     with st.container(file.name):
         st.header(f"Select column data types for the " + file.category + " file: " + file.name)
-            try:
-                col1, col2 = st.columns(2)
-            except ValueError as e:
-                if "too many values to unpack" in str(e):
-                    st.error("Error: too many columns selected. Please select only two columns.")
-                else:
-                    raise e
-            with col1:
-                # Show the dataframe preview for the selected file
-                st.dataframe(file.df)
-            with col2:
-                # Create a form to select columns for the selected file based on file type
-                with st.form(file.name):
-                    for i, column in enumerate(file.columns):
-                        #get the default dtype of this column in this file
-                        this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
-                        this_col_default = str(this_col_default)
-                        this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
-                        #this_col_default = str(this_col_default)
-                        this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
-                        this_col_options = list(map(str, this_col_options))
+        try:
+            col1, col2 = st.columns(2)
+        except ValueError as e:
+            if "too many values to unpack" in str(e):
+                st.error("Error: too many columns selected. Please select only two columns.")
+            else:
+                raise e
+        with col1:
+            # Show the dataframe preview for the selected file
+            st.dataframe(file.df)
+        with col2:
+            # Create a form to select columns for the selected file based on file type
+            with st.form(file.name):
+                for i, column in enumerate(file.columns):
+                    #get the default dtype of this column in this file
+                    this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
+                    this_col_default = str(this_col_default)
+                    this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
+                    #this_col_default = str(this_col_default)
+                    this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
+                    this_col_options = list(map(str, this_col_options))
 
-                        #search for the item
-                        if this_col_default is not None and this_col_default in this_col_options:
-                            this_col_index = this_col_options.index(this_col_default)
-                        else:
-                            this_col_default = "Text"
-                            this_col_index = this_col_options.index(this_col_default)
+                    #search for the item
+                    if this_col_default is not None and this_col_default in this_col_options:
+                        this_col_index = this_col_options.index(this_col_default)
+                    else:
+                        this_col_default = "Text"
+                        this_col_index = this_col_options.index(this_col_default)
 
-                        selected_datatype = st.selectbox(label=f"Select the data type for column '{column}' with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
-                        file.user_defined_dtypes[column] = selected_datatype
-                    # Submit the form and initiate view summary
-                    submit_column_identification = st.form_submit_button("Submit")
-                    if submit_column_identification:
-                        file.df_reassigned_dtypes = change_dtypes(file.df, file.user_defined_dtypes)
-                        st.success("Success")
-                        st.success(f'The {file.category} file {file.name} has had its column datatypes processed as follows: {file.columns_dtypes}')
+                    selected_datatype = st.selectbox(label=f"Select the data type for column '{column}' with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
+                    file.user_defined_dtypes[column] = selected_datatype
+                # Submit the form and initiate view summary
+                submit_column_identification = st.form_submit_button("Submit")
+                if submit_column_identification:
+                    file.df_reassigned_dtypes = change_dtypes(file.df, file.user_defined_dtypes)
+                    st.success("Success")
+                    st.success(f'The {file.category} file {file.name} has had its column datatypes processed as follows: {file.columns_dtypes}')
 
 def view_summary():
     # display summary information for each file
