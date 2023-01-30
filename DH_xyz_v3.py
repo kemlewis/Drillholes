@@ -225,7 +225,7 @@ def required_columns(file):
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
     selected_options = []
-    with st.container(file.name):
+    with st.container():
         st.header(f"Select column data types for the " + file.category + " file: " + file.name)
         try:
             col1, col2 = st.columns(2)
@@ -248,14 +248,14 @@ def identify_columns_form(file):
                     #this_col_default = str(this_col_default)
                     this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
-
+                    
                     #search for the item
                     if this_col_default is not None and this_col_default in this_col_options:
                         this_col_index = this_col_options.index(this_col_default)
                     else:
                         this_col_default = "Text"
                         this_col_index = this_col_options.index(this_col_default)
-
+                        
                     selected_datatype = st.selectbox(label=f"Select the data type for column '{column}' with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
                     file.user_defined_dtypes[column] = selected_datatype
                 # Submit the form and initiate view summary
