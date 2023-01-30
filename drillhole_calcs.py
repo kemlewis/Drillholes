@@ -31,7 +31,7 @@ def calculate_xyz(depth_1, dip_1, azi_1, depth_2, dip_2, azi_2):
         return(MD, 0, 0, 0, MD)
 
 # Looping through dataframe for each hole and calculating drill trace from the collar down
-def calc _drilltraces(df_collar, df_survey, required_cols_df_collar, required_cols_df_survey):
+def calc_drilltraces(df_collar, df_survey, required_cols_df_collar, required_cols_df_survey):
     
     df_collar.rename(columns = required_cols_df_collar)
     df_survey.rename(columns = required_cols_df_survey)
