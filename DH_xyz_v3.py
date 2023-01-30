@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import chardet
 import os
-import drillhole_calcs
+import drillhole_calcs as dh_calcs
 
 st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
 
