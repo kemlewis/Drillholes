@@ -225,7 +225,7 @@ def required_columns(file):
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
     selected_options = []
-    with st.container():
+    with st.expander(f"Identify columns for file: {file.name}", expanded=True):
         st.header(f"Select column data types for the " + file.category + " file: " + file.name)
         try:
             col1, col2 = st.columns(2)
