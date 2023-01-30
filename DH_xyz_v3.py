@@ -342,9 +342,9 @@ def main():
             st.error(e)
     with st.expander("Calculate Drilltraces"):
         try:
-            files_list = st.session_state.get("files_list", [])
-            collar_file = [file for file in files_list if file.category == "Collar"]
-            survey_file = [file for file in files_list if file.category == "Survey"]
+            #files_list = st.session_state.get("files_list", [])
+            collar_file = [file for file in st.session_state.get("files_list", []) if file.category == "Collar"]
+            survey_file = [file for file in st.session_state.get("files_list", []) if file.category == "Survey"]
             df_dh_traces = dh_calcs.calc_drilltraces(collar_file.df, survey_file.df, collar_file.required_columns, survey_file.required_columns)
             st.write(df_dh_traces)
         except:
