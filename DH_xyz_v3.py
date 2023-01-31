@@ -392,7 +392,8 @@ def main():
             df = pd.DataFrame({"x": x, "y":y, "z":z})
 
             fig = px.line_3d(df, x="x", y="y", z="z")
-            fig.show()
+            # Plot!
+            st.plotly_chart(fig, use_container_width=True)
 
             
 if __name__ == '__main__':
