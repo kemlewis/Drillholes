@@ -16,6 +16,9 @@ if 'files_list' not in st.session_state:
 if "log" not in st.session_state:
     st.session_state["log"] = []
     
+if "df_drilltraces" not in st.session_state:
+    st.session_state["df_drilltraces"] = st.empty()
+    
 st.session_state["log"].append({"timestamp": datetime.now(), "action": "App started", "username": "user1"})
 
 class File:
@@ -276,6 +279,10 @@ def change_dtypes(df, column_types):
     return df_copy
 
 
+def plot3d_drilltraces(df, df_x, df_y, df_z, df_color):
+    fig = px.line_3d(df, x=df_x, y=df_y, z=df_z, color=df_color)
+    fig.show()
+
 def generate_drilltraces():
     
     files_list = st.session_state.get("files_list", [])
@@ -286,7 +293,8 @@ def generate_drilltraces():
         raise IndexError("One of the required files is missing")
     else:
         df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_cols, survey_file[0].required_cols)
-        st.write(df_dh_traces)
+        return df_dh_traces
+    
 
 #   upload_files is a function that handles streamlit file uploads. It uses the st module to create a file uploader widget, 
 #   and allows the user to select multiple files of type csv and xlsx.
@@ -325,7 +333,10 @@ def upload_files():
                     else:
                         files_list = st.session_state.get("files_list", [])
                         files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-                        st.session_state.files_list = files_list    
+                        st.session_state.files_list = files_list
+                        
+                        
+                        
 def main():
     
     container_log = st.empty()
@@ -335,6 +346,7 @@ def main():
     container_categorise_files = st.empty()
     container_identify_columns = st.empty()
     container_generate_drilltraces = st.empty()
+    plot3d_drilltraces = st.empty()
 
     with container_log.container():
         st.write(st.session_state.log)
@@ -356,12 +368,17 @@ def main():
                     identify_columns_form(file)
                 
     with container_generate_drilltraces.container():
-        st.write("This feature is under construction...")
+        st.write("Generating drilltrace coordinates using minimum curvature method...")
         button_generate_drilltraces = st.button("Generate Drilltraces", key="button_generate_drilltraces")
         if button_generate_drilltraces:
-            generate_drilltraces()
+            df_drilltraces = generate_drilltraces()
+            st.session_state.df_drilltraces = df_drilltraces
             
-        
+    with plot3d_drilltraces.container():
+        st.write("This feature is under construction...")
+        plot3d_drilltraces = st.button("Plot 3D Drilltraces", key="plot3d_drilltraces")
+        if plot3d_drilltraces:
+            plot3d_drilltraces(drilltraces_df)
             
 if __name__ == '__main__':
     main()
