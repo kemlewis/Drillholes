@@ -29,42 +29,8 @@ class File:
         self.user_defined_dtypes = user_defined_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
 
-#   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget, 
-#   and allows the user to select multiple files of type csv and xlsx.
-#   
-#   When files are uploaded, it creates a pandas DataFrame for each file and creates a File object for each file.
-#   The function also calls the function simplify_dtypes() and assigns the returned value as 
-#   uploaded_file_simplified_dtypes which is used to create the File object.
-#   
-#   The function then appends the File objects to the files_list and displays a success message.
 
-def upload_files():
-    files_list = st.session_state.get("files_list", [])
-    with st.form("upload_files"):
-        uploaded_files = st.file_uploader("Upload your file", type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
-        submit_uploaded_files = st.form_submit_button("Submit")
-        if submit_uploaded_files:
-            if len(uploaded_files) > 0:
-                for uploaded_file in uploaded_files:
-                    try:
-                        uploaded_file_df = read_file_codecs_list(uploaded_file)
-                        try:
-                            uploaded_file_df = read_file_chardet(uploaded_file)
-                            try:
-                                uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
-                                st.success("Success")
-                            except Exception as e:
-                                st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
-                        except Exception as e:
-                            st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
-                    except Exception as e:
-                        st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
-                    if uploaded_file_df is None:
-                        st.warning(f"{uploaded_file.name} was unable to be loaded.")
-                    else:
-                        files_list = st.session_state.get("files_list", [])
-                        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-                        st.session_state.files_list = files_list
+
 
 def read_file_chardet(uploaded_file):
 
@@ -304,44 +270,6 @@ def change_dtypes(df, column_types):
                 print(f"{column} could not be converted to numeric and was set to text type.")
     return df_copy
 
-def button_cat_files():
-    categorise_files_form()
-    
-def main_old():
-    container_upload_files = st.container()
-    container_categorise_files = st.container()
-    container_identify_columns = st.container()
-    container_generate_drilltraces = st.container()
-    
-    with container_upload_files:
-        upload_files()
-        for file in st.session_state.get("files_list", []):
-            st.success(f"Successfully created pandas dataframe from {file.name}.")
-            #st.write(vars(file))
-    with st.container("Categorise Files"):
-        button_cat_files = st.button("Load files for Categorisation", on_click=categorise_files_form)
-#        try:
-#            if len(st.session_state.get("files_list", [])) == 0:
-#                raise ValueError("No files have been uploaded.")
-#            else:
-#                categorise_files_form()
-#        except:
-#            st.error(f"files_list is empty")
-    with st.container("Identify Columns"):
-        try:
-            if len(st.session_state.get("files_list", [])) == 0:
-                raise ValueError("No files have been uploaded.")
-            else:
-                for file in st.session_state.get("files_list", []):
-                    if file.category is None:
-                        raise ValueError(f"File {file.name} has not been categorised.")
-                for file in st.session_state.get("files_list", []):
-                    if file.category is not None:
-                        identify_columns_form(file)
-        except ValueError as e:
-            st.error(e)
-    with st.container("Calculate Drilltraces"):
-        try:
 
 def generate_drilltraces():
     
@@ -354,8 +282,45 @@ def generate_drilltraces():
     else:
         df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_cols, survey_file[0].required_cols)
         st.write(df_dh_traces)
-    
-    
+
+#   upload_files is a function that handles streamlit file uploads. It uses the st module to create a file uploader widget, 
+#   and allows the user to select multiple files of type csv and xlsx.
+#   
+#   When files are uploaded, it creates a pandas DataFrame for each file, and stores it in a File Class object for each file (along with other metadata).
+#   The File objects are then stored in a global st.session_state list called "files_list".
+#
+#   The function also calls simplify_dtypes() and assigns the returned value as 
+#   uploaded_file_simplified_dtypes which is used to create the File object.
+#   
+#   The function then appends the File objects to the files_list and displays a success message.
+
+def upload_files():
+    files_list = st.session_state.get("files_list", [])
+    with st.form("upload_files"):
+        uploaded_files = st.file_uploader("Upload your file", type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
+        submit_uploaded_files = st.form_submit_button("Submit")
+        if submit_uploaded_files:
+            if len(uploaded_files) > 0:
+                for uploaded_file in uploaded_files:
+                    try:
+                        uploaded_file_df = read_file_codecs_list(uploaded_file)
+                        try:
+                            uploaded_file_df = read_file_chardet(uploaded_file)
+                            try:
+                                uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
+                                st.success("Success")
+                            except Exception as e:
+                                st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
+                        except Exception as e:
+                            st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
+                    except Exception as e:
+                        st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
+                    if uploaded_file_df is None:
+                        st.warning(f"{uploaded_file.name} was unable to be loaded.")
+                    else:
+                        files_list = st.session_state.get("files_list", [])
+                        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
+                        st.session_state.files_list = files_list    
 def main():
     
     container_log = st.empty()
