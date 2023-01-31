@@ -113,36 +113,21 @@ def read_file_codecs_list(uploaded_file):
         return None
 
         
-def handle_existing_file():
+def uploaded_files_list():
     
     files_list = st.session_state.get("files_list", [])
     file_names = [file.name for file in files_list]
-    if len(set(file_names)) != len(files_list):
-        
-        # There are duplicates
-        duplicates = [name for name in file_names if file_names.count(name) > 1]
-        
-        for duplicate in duplicates:
-           
-            with st.container():
-                st.write(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
-                button_overwrite_confirm = st.button("Yes", key="overwrite_yes")
-                button_overwrite_cancel = st.button("Cancel", key="overwrite_cancel")
-
-                if button_overwrite_confirm:
-                    files_list = st.session_state.get("files_list", [])
-                    files_list.remove(existing_file)
-                    files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-                    st.session_state.files_list = files_list
-                    st.success(f"File {uploaded_file.name} was successfully overwritten.")
-                if button_overwrite_cancel:
-                    files_list = st.session_state.get("files_list", [])
-                    new_file_name = st.text_input(f"Please enter a new name for {uploaded_file.name}")
-                    files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-                    st.session_state.files_list = files_list
-                    st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
-    else:
-
+    
+    for file in files_list:
+        col1, col2 = st.cols(2)
+        with col1:
+            st.write(file.name)
+        with col2:
+            file_to_delete = file.name
+            delete_file = st.button()
+            if delete_file:
+                files_list = [file for file in files_list if file.name != file_to_delete]
+                st.session_state.files_list = files_list
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
 #   with a select box for each file in the files_list. The user can select a category for 
@@ -365,11 +350,15 @@ def main_old():
 def main():
     
     container_log = st.container()
+    container_uploaded_files_list = st.container()
     container_upload_files = st.container()
     container_overwrite_file = st.container()
     container_categorise_files = st.container()
     container_identify_columns = st.container()
     container_generate_drilltraces = st.container()
+    
+    with container_uploaded_files_list:
+        uploaded_files_list()
     
     with container_upload_files:
         upload_files()
