@@ -376,7 +376,7 @@ def main():
             st.session_state.df_drilltraces = df_drilltraces
             
     with plot3d_drilltraces.container():
-        st.write("This feature is under construction...")
+        st.write("There's supposed to be a 3d plot here")
         plot3d_drilltraces = st.button("Plot 3D Drilltraces", key="plot3d_drilltraces")
         if plot3d_drilltraces:
             plot3d_drilltraces(drilltraces_df)
