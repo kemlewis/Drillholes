@@ -383,8 +383,16 @@ def main():
         st.write("There's supposed to be a 3d plot here")
         plot3d_drilltraces = st.button("Plot 3D Drilltraces", key="plot3d_drilltraces")
         if plot3d_drilltraces:
-            df_dh_traces = st.session_state.get("df_drilltraces")
-            plot3d_dhtraces(df_dh_traces)
+            #df_dh_traces = st.session_state.get("df_drilltraces")
+            #plot3d_dhtraces(df_dh_traces)
+            
+            x = np.array([0,1])
+            y = np.array([1,1])
+            z = np.array([1,1])
+            df = pd.DataFrame({"x": x, "y":y, "z":z})
+
+            fig = px.line_3d(df, x="x", y="y", z="z")
+            fig.show()
 
             
 if __name__ == '__main__':
