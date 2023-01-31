@@ -121,9 +121,12 @@ def handle_existing_file():
         
         # There are duplicates
         duplicates = [name for name in file_names if file_names.count(name) > 1]
+        
         for duplicate in duplicates:
-            "container_" + duplicate = st.container()
-            with duplicate:
+            container_name = "container_" + duplicate
+            container_name = st.container()
+            
+            with container_name:
                 st.write(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
                 button_overwrite_confirm = st.button("Yes", key="overwrite_yes")
                 button_overwrite_cancel = st.button("Cancel", key="overwrite_cancel")
