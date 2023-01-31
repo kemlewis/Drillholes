@@ -366,7 +366,7 @@ def main():
 
     with container_categorise_files:
         if len(st.session_state.get("files_list", [])) > 0:
-            categorise_files()
+            categorise_files_form()
             
 if __name__ == '__main__':
     main()
