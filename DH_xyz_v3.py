@@ -280,8 +280,8 @@ def change_dtypes(df, column_types):
     return df_copy
 
 
-def plot3d_drilltraces(df, df_x, df_y, df_z, df_color):
-    fig = px.line_3d(df, x=df_x, y=df_y, z=df_z, color=df_color)
+def plot3d_drilltraces(df_drilltraces):
+    fig = px.line_3d(df_drilltraces, x="DH_X", y="DH_Y", z="DH_RL", color="HOLEID")
     fig.show()
 
 def generate_drilltraces():
