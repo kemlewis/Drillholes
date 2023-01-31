@@ -18,7 +18,7 @@ if "log" not in st.session_state:
 st.session_state["log"].append({"timestamp": datetime.now(), "action": "App started", "username": "user1"})
 
 class File:
-    def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_cols=[], simplified_dtypes={}, user_defined_dtypes={}, df_reassigned_dtypes={}):
+    def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_cols={}, simplified_dtypes={}, user_defined_dtypes={}, df_reassigned_dtypes={}):
         self.name = name
         self.df = df
         self.category = category
