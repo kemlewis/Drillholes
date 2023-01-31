@@ -354,6 +354,8 @@ def main_old():
             st.error(f"Error: {e}")
             
 def main():
+    files_list = st.session_state.files_list
+    
     container_upload_files = st.container()
     container_categorise_files = st.container()
     container_identify_columns = st.container()
