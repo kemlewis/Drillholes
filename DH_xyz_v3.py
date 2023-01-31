@@ -359,6 +359,9 @@ def main():
     container_categorise_files = st.container()
     container_identify_columns = st.container()
     container_generate_drilltraces = st.container()
+
+    with container_log:
+        st.write(st.session_state.log)
     
     with container_uploaded_files_list:
         uploaded_files_list()
@@ -366,8 +369,7 @@ def main():
     with container_upload_files:
         upload_files()
         for file in st.session_state.get("files_list", []):
-            with container_log:
-                st.success(f"Successfully created pandas dataframe from {file.name}.")
+
                 
     with container_categorise_files:
         if len(st.session_state.get("files_list", [])) > 0:
