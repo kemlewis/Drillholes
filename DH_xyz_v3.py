@@ -368,8 +368,6 @@ def main():
     
     with container_upload_files:
         upload_files()
-        for file in st.session_state.get("files_list", []):
-
                 
     with container_categorise_files:
         if len(st.session_state.get("files_list", [])) > 0:
