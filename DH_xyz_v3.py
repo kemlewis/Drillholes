@@ -10,6 +10,11 @@ st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
 if 'files_list' not in st.session_state:
     files_list = st.empty()
     files_list = st.session_state.get("files_list", [])
+    
+if "log" not in st.session_state:
+    st.session_state["log"] = []
+    
+st.session_state["log"].append({"timestamp": datetime.now(), "action": "App started", "username": "user1"})
 
 class File:
     def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_cols=[], simplified_dtypes={}, user_defined_dtypes={}, df_reassigned_dtypes={}):
@@ -56,14 +61,9 @@ def upload_files():
                     if uploaded_file_df is None:
                         st.warning(f"{uploaded_file.name} was unable to be loaded.")
                     else:
-                        if len(st.session_state.get("files_list", [])) > 0:
-                            existing_file = next((file for file in st.session_state.get("files_list", []) if file.name == uploaded_file.name), None)
-                            handle_existing_file(existing_file, uploaded_file, uploaded_file_df)
-                            st.session_state.files_list = files_list
-                        else:
-                            files_list = st.session_state.get("files_list", [])
-                            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-                            st.session_state.files_list = files_list
+                        files_list = st.session_state.get("files_list", [])
+                        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
+                        st.session_state.files_list = files_list
 
 def read_file_chardet(uploaded_file):
 
@@ -113,15 +113,22 @@ def read_file_codecs_list(uploaded_file):
         return None
 
         
-def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
-    with container_overwrite_file:
-        existing_files_popup = st.container()
-        with existing_files_popup:
-            if existing_file:
+def handle_existing_file():
+    
+    files_list = st.session_state.get("files_list", [])
+    file_names = [file.name for file in files_list]
+    if len(set(file_names)) != len(files_list):
+        
+        # There are duplicates
+        duplicates = [name for name in file_names if file_names.count(name) > 1]
+        for duplicate in duplicates:
+            "container_" + duplicate = st.container()
+            with duplicate:
                 st.write(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
                 button_overwrite_confirm = st.button("Yes", key="overwrite_yes")
                 button_overwrite_cancel = st.button("Cancel", key="overwrite_cancel")
-                if overwrite_file:
+
+                if button_overwrite_confirm:
                     files_list = st.session_state.get("files_list", [])
                     files_list.remove(existing_file)
                     files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
@@ -133,10 +140,8 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
                     files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
                     st.session_state.files_list = files_list
                     st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
-            else:
-                files_list = st.session_state.get("files_list", [])
-                files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-                st.session_state.files_list = files_list
+    else:
+
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
 #   with a select box for each file in the files_list. The user can select a category for 
@@ -370,6 +375,9 @@ def main():
         for file in st.session_state.get("files_list", []):
             with container_log:
                 st.success(f"Successfully created pandas dataframe from {file.name}.")
+                
+    with container_overwrite_file:
+        handle_existing_file()
 
     with container_categorise_files:
         if len(st.session_state.get("files_list", [])) > 0:
