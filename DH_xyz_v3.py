@@ -208,9 +208,7 @@ def identify_columns_form(file):
                     #get the default dtype of this column in this file
                     this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
                     this_col_default = str(this_col_default)
-                    this_col_options = file.required_cols + simplified_dtypes_options + ["Not imported"]
-                    #this_col_default = str(this_col_default)
-                    this_col_options = list(d.df_required_cols()) + simplified_dtypes_options + ["Not imported"]
+                    this_col_options = file.required_cols.keys() + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
                     #search for the item
                     if this_col_default is not None and this_col_default in this_col_options:
