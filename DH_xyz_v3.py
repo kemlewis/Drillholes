@@ -6,6 +6,11 @@ import drillhole_calcs as dh_calcs
 
 st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
 
+# Initialize the session state list
+if 'files_list' not in st.session_state:
+    files_list = st.empty()
+    files_list = st.session_state.get("files_list", [])
+
 class File:
     def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_cols=[], simplified_dtypes={}, user_defined_dtypes={}, df_reassigned_dtypes={}):
         self.name = name
@@ -17,14 +22,6 @@ class File:
         self.simplified_dtypes = simplified_dtypes
         self.user_defined_dtypes = user_defined_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
-
-# Initialize the session state list
-if 'files_list' not in st.session_state:
-    files_list = st.empty()
-    files_list = st.session_state.get("files_list", [])
-
-#def clear_files_list():
-#    files_list.clear()
 
 #   upload_files is a function that handles file uploads. It uses the st module to create a file uploader widget, 
 #   and allows the user to select multiple files of type csv and xlsx.
@@ -143,6 +140,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 #   required_cols attribute of the File object. The function then displays a success message for each file.
 
 def categorise_files_form():
+    files_list = st.session_state.files_list
     with st.form("categorise_files_1"):
         for file in st.session_state.get("files_list", []):
             file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
@@ -354,8 +352,7 @@ def main_old():
             st.error(f"Error: {e}")
             
 def main():
-    files_list = st.session_state.files_list
-    
+
     container_upload_files = st.container()
     container_categorise_files = st.container()
     container_identify_columns = st.container()
