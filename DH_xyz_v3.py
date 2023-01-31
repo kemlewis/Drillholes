@@ -375,7 +375,7 @@ def main():
 
     with container_identify_columns.container():
         if len(st.session_state.get("files_list", [])) > 0:
-            for file in len(st.session_state.get("files_list", [])):
+            for file in st.session_state.get("files_list", []):
                 identify_columns()
             
 if __name__ == '__main__':
