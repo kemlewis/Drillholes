@@ -23,9 +23,6 @@ if 'files_list' not in st.session_state:
     files_list = st.empty()
     files_list = st.session_state.get("files_list", [])
 
-
-
-        
 #def clear_files_list():
 #    files_list.clear()
 
@@ -37,7 +34,6 @@ if 'files_list' not in st.session_state:
 #   uploaded_file_simplified_dtypes which is used to create the File object.
 #   
 #   The function then appends the File objects to the files_list and displays a success message.
-
 
 def upload_files():
     files_list = st.session_state.get("files_list", [])
@@ -71,7 +67,6 @@ def upload_files():
                             files_list = st.session_state.get("files_list", [])
                             files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
                             st.session_state.files_list = files_list
-
 
 def read_file_chardet(uploaded_file):
 
@@ -310,13 +305,61 @@ def change_dtypes(df, column_types):
 
 def button_cat_files():
     categorise_files_form()
-
+    
+def main_old():
+    container_upload_files = st.container()
+    container_categorise_files = st.container()
+    container_identify_columns = st.container()
+    container_generate_drilltraces = st.container()
+    
+    with container_upload_files:
+        upload_files()
+        for file in st.session_state.get("files_list", []):
+            st.success(f"Successfully created pandas dataframe from {file.name}.")
+            #st.write(vars(file))
+    with st.container("Categorise Files"):
+        button_cat_files = st.button("Load files for Categorisation", on_click=categorise_files_form)
+#        try:
+#            if len(st.session_state.get("files_list", [])) == 0:
+#                raise ValueError("No files have been uploaded.")
+#            else:
+#                categorise_files_form()
+#        except:
+#            st.error(f"files_list is empty")
+    with st.container("Identify Columns"):
+        try:
+            if len(st.session_state.get("files_list", [])) == 0:
+                raise ValueError("No files have been uploaded.")
+            else:
+                for file in st.session_state.get("files_list", []):
+                    if file.category is None:
+                        raise ValueError(f"File {file.name} has not been categorised.")
+                for file in st.session_state.get("files_list", []):
+                    if file.category is not None:
+                        identify_columns_form(file)
+        except ValueError as e:
+            st.error(e)
+    with st.container("Calculate Drilltraces"):
+        try:
+            files_list = st.session_state.get("files_list", [])
+            collar_file = [file for file in files_list if file.category == "Collar"]
+            survey_file = [file for file in files_list if file.category == "Survey"]
+            if len(collar_file) == 0 or len(survey_file) == 0:
+                raise IndexError("One of the required files is missing")
+            df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_cols, survey_file[0].required_cols)
+            st.write(df_dh_traces)
+        except IndexError as e:
+            st.error(f"Error: {e}")
+        except AttributeError as e:
+            st.error(f"Error: {e}")
+            
 def main():
-    with st.container("Upload Files"):
-#        if len(files_list) == 0:
-#            st.button("Clear Files", on_click=clear_files_list, disabled=True)
-#        else:
-#            st.button("Clear Files", on_click=clear_files_list, disabled=False)
+    container_upload_files = st.container()
+    container_categorise_files = st.container()
+    container_identify_columns = st.container()
+    container_generate_drilltraces = st.container()
+    
+    with container_upload_files:
         upload_files()
         for file in st.session_state.get("files_list", []):
             st.success(f"Successfully created pandas dataframe from {file.name}.")
