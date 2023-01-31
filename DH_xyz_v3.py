@@ -125,7 +125,7 @@ def uploaded_files_list():
                 st.write(file.name)
             with col2:
                 file_to_delete = file.name
-                delete_file = st.button()
+                delete_file = st.button("Delete")
                 if delete_file:
                     files_list = [file for file in files_list if file.name != file_to_delete]
                     st.session_state.files_list = files_list
