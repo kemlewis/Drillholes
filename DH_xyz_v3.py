@@ -189,8 +189,8 @@ def required_cols(file):
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
     selected_options = []
-    with st.container():
-        st.header(f"Select column data types for the " + file.category + " file: " + file.name)
+    with st.expander(file.name):
+        st.write(f"Select column data types for the " + file.category + " file: " + file.name)
         try:
             col1, col2 = st.columns(2)
         except ValueError as e:
@@ -352,26 +352,31 @@ def main_old():
             
 def main():
     
-    container_log = st.container()
-    container_uploaded_files_list = st.container()
-    container_upload_files = st.container()
-    container_overwrite_file = st.container()
-    container_categorise_files = st.container()
-    container_identify_columns = st.container()
-    container_generate_drilltraces = st.container()
+    container_log = st.empty()
+    container_uploaded_files_list = st.empty()
+    container_upload_files = st.empty()
+    container_overwrite_file = st.empty()
+    container_categorise_files = st.empty()
+    container_identify_columns = st.empty()
+    container_generate_drilltraces = st.empty()
 
-    with container_log:
+    with container_log.container:
         st.write(st.session_state.log)
     
-    with container_uploaded_files_list:
+    with container_uploaded_files_list.container:
         uploaded_files_list()
     
-    with container_upload_files:
+    with container_upload_files.container:
         upload_files()
                 
-    with container_categorise_files:
+    with container_categorise_files.container:
         if len(st.session_state.get("files_list", [])) > 0:
             categorise_files_form()
+
+    with container_identify_columns.container:
+        if len(st.session_state.get("files_list", [])) > 0:
+            for file in len(st.session_state.get("files_list", [])):
+                identify_columns()
             
 if __name__ == '__main__':
     main()
