@@ -374,6 +374,7 @@ def main():
         if button_generate_drilltraces:
             df_drilltraces = generate_drilltraces()
             st.session_state.df_drilltraces = df_drilltraces
+            st.dataframe(df_drilltraces)
             
     with plot3d_drilltraces.container():
         st.write("There's supposed to be a 3d plot here")
