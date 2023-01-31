@@ -352,7 +352,7 @@ def main_old():
             st.error(f"Error: {e}")
             
 def main():
-
+    container_log = st.container()
     container_upload_files = st.container()
     container_categorise_files = st.container()
     container_identify_columns = st.container()
@@ -361,7 +361,8 @@ def main():
     with container_upload_files:
         upload_files()
         for file in st.session_state.get("files_list", []):
-            st.success(f"Successfully created pandas dataframe from {file.name}.")
+            with container_log:
+                st.success(f"Successfully created pandas dataframe from {file.name}.")
 
     with container_categorise_files:
         if len(st.session_state.get("files_list", [])) > 0:
