@@ -141,17 +141,23 @@ def uploaded_files_list():
 def categorise_files_form():
     files_list = st.session_state.files_list
     with st.form("categorise_files_1"):
-        for file in st.session_state.get("files_list", []):
+        for file in files_list:
             file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"],key=file.name)
         submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
             st.write("Submitting files...")
-            for file in st.session_state.get("files_list", []):
-                if file.category is not None:
-                    file.required_cols = required_cols(file)
-                    st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_cols}')
-                else:
-                    st.error(f"{file.name} has not been assigned a file category.")
+            num_collars = sum(1 for file in files_list if file.category == "Collar")
+            num_surveys = sum(1 for file in files_list if file.category == "Survey")
+            if num_collars == 1 and num_surveys == 1:
+                # Only one file with category "Collar" and one file with category "Survey"
+                for file in st.session_state.get("files_list", []):
+                    if file.category is not None:
+                        file.required_cols = required_cols(file)
+                        st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_cols}')
+                    else:
+                        st.error(f"{file.name} has not been assigned a file category.")
+            else:
+                # Either more than one file with category "Collar" or more than one file with category "Survey"
             st.session_state.files_list = files_list
 
                     
@@ -374,7 +380,11 @@ def main():
     with container_identify_columns.container():
         if len(st.session_state.get("files_list", [])) > 0:
             for file in st.session_state.get("files_list", []):
-                identify_columns_form(file)
+                if file.category is not None:
+                    identify_columns_form(file)
+                
+    with container_generate_drilltraces.container():
+        
             
 if __name__ == '__main__':
     main()
