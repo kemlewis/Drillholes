@@ -4,6 +4,7 @@ import plotly.express as px
 import chardet
 import os
 import drillhole_calcs as dh_calcs
+from fuzzwuzzy import fuzz
 from datetime import datetime
 
 st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
