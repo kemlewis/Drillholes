@@ -18,7 +18,7 @@ if "log" not in st.session_state:
     st.session_state["log"] = []
     
 if "df_drilltraces" not in st.session_state:
-    st.session_state["df_drilltraces"] = st.empty()
+    st.session_state["df_drilltraces"] = []
     
 st.session_state["log"].append({"timestamp": datetime.now(), "action": "App started", "username": "user1"})
 
