@@ -114,24 +114,29 @@ def read_file_codecs_list(uploaded_file):
 
         
 def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
-    if existing_file:
-        overwrite_file = st.confirm(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
-        if overwrite_file:
-            files_list = st.session_state.get("files_list", [])
-            files_list.remove(existing_file)
-            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-            st.session_state.files_list = files_list
-            st.success(f"File {uploaded_file.name} was successfully overwritten.")
-        else:
-            files_list = st.session_state.get("files_list", [])
-            new_file_name = st.text_input(f"Please enter a new name for {uploaded_file.name}")
-            files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-            st.session_state.files_list = files_list
-            st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
-    else:
-        files_list = st.session_state.get("files_list", [])
-        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-        st.session_state.files_list = files_list
+    existing_files_popup = st.container
+    with container_upload_files:
+        with existing_files_popup:
+            if existing_file:
+                st.write("f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
+                button_overwrite_confirm = st.button("Yes", key="overwrite_yes")
+                button_overwrite_cancel = st.button("Cancel", key="overwrite_cancel")
+                if overwrite_file:
+                    files_list = st.session_state.get("files_list", [])
+                    files_list.remove(existing_file)
+                    files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
+                    st.session_state.files_list = files_list
+                    st.success(f"File {uploaded_file.name} was successfully overwritten.")
+                if button_overwrite_cancel:
+                    files_list = st.session_state.get("files_list", [])
+                    new_file_name = st.text_input(f"Please enter a new name for {uploaded_file.name}")
+                    files_list.append(File(new_file_name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
+                    st.session_state.files_list = files_list
+                    st.success(f"File {uploaded_file.name} was successfully uploaded as {new_file_name}.")
+            else:
+                files_list = st.session_state.get("files_list", [])
+                files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
+                st.session_state.files_list = files_list
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
 #   with a select box for each file in the files_list. The user can select a category for 
