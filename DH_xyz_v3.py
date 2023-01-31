@@ -280,9 +280,12 @@ def change_dtypes(df, column_types):
     return df_copy
 
 
-def plot3d_dhtraces(df_drilltraces):
-    fig = px.line_3d(df_drilltraces, x="DH_X", y="DH_Y", z="DH_RL", color="HOLEID")
-    fig.show()
+def plot3d_dhtraces(df_dh_traces):
+    try:
+        fig = px.line_3d(df_dh_traces, x="DH_X", y="DH_Y", z="DH_RL", color="HOLEID")
+        fig.show()
+    except:
+        st.error("Plot failing to load")
 
 def generate_drilltraces():
     
@@ -380,8 +383,8 @@ def main():
         st.write("There's supposed to be a 3d plot here")
         plot3d_drilltraces = st.button("Plot 3D Drilltraces", key="plot3d_drilltraces")
         if plot3d_drilltraces:
-            df_drilltraces = st.session_state.get("df_drilltraces")
-            plot3d_dhtraces(df_drilltraces)
+            df_dh_traces = st.session_state.get("df_drilltraces")
+            plot3d_dhtraces(df_dh_traces)
 
             
 if __name__ == '__main__':
