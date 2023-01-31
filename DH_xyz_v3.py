@@ -7,13 +7,13 @@ import drillhole_calcs as dh_calcs
 st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
 
 class File:
-    def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_columns=[], simplified_dtypes={}, user_defined_dtypes={}, df_reassigned_dtypes={}):
+    def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_cols=[], simplified_dtypes={}, user_defined_dtypes={}, df_reassigned_dtypes={}):
         self.name = name
         self.df = df
         self.category = category
         self.columns = columns
         self.columns_dtypes = columns_dtypes
-        self.required_columns = required_columns
+        self.required_cols = required_cols
         self.simplified_dtypes = simplified_dtypes
         self.user_defined_dtypes = user_defined_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
@@ -143,9 +143,9 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
 #   with a select box for each file in the files_list. The user can select a category for 
-#   each file, and when the form is submitted, the function calls the required_columns(file) 
+#   each file, and when the form is submitted, the function calls the required_cols(file) 
 #   function to get the required columns for each file's category and assigns it to the 
-#   required_columns attribute of the File object. The function then displays a success message for each file.
+#   required_cols attribute of the File object. The function then displays a success message for each file.
 
 def categorise_files_form():
     with st.form("categorise_files_1"):
@@ -156,32 +156,33 @@ def categorise_files_form():
             st.write("Submitting files...")
             for file in st.session_state.get("files_list", []):
                 if file.category is not None:
-                    file.required_columns = required_columns(file)
-                    st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_columns}')
+                    file.required_cols = required_cols(file)
+                    st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_cols}')
                 else:
                     st.error(f"{file.name} has not been assigned a file category.")
             st.session_state.files_list = files_list
 
                     
 
-#   required_columns is a function that takes a File object as an input and returns a list of required 
+#   required_cols is a function that takes a File object as an input and returns a list of required 
 #   columns for the file's category. Depending on the category, the function returns a 
 #   list of required columns. If the category is not one of the four options (Collar, Survey, 
 #   Point, Interval) it assigns "Not populated" and displays an error message.
 
-def required_columns(file):
+def required_cols(file):
     if file.category == "Collar":
-        required_columns = ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"]
+        required_cols = ["HoleID", "DH_X", "DH_Y", "DH_Z", "Depth"]
     elif file.category == "Survey":
-        required_columns = ["HoleID", "Depth", "Dip", "Azimuth"]
+        required_cols = ["HoleID", "Depth", "Dip", "Azimuth"]
     elif file.category == "Point":
-        required_columns = ["HoleID", "Depth"]
+        required_cols = ["HoleID", "Depth"]
     elif file.category == "Interval":
-        required_columns = ["HoleID", "From", "To"]
+        required_cols = ["HoleID", "From", "To"]
     else:
-        required_columns = ["Not populated"]
+        required_cols = ["Not populated"]
         st.write("No file category is assigned to " + file.name)
-    return required_columns
+    df_required_cols = {col: None for col in required_cols}
+    return df_required_cols
 
 #   identify_columns_form is a function that allows the user to define data types of all the columns in 
 #   for the pandas dataframes that were created for each file they uploaded. Each file has a separate st.form, 
@@ -215,18 +216,16 @@ def identify_columns_form(file):
                     #get the default dtype of this column in this file
                     this_col_default = file.simplified_dtypes.get(column) if column in file.simplified_dtypes else None
                     this_col_default = str(this_col_default)
-                    this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
+                    this_col_options = file.required_cols + simplified_dtypes_options + ["Not imported"]
                     #this_col_default = str(this_col_default)
-                    this_col_options = file.required_columns + simplified_dtypes_options + ["Not imported"]
+                    this_col_options = list(d.df_required_cols()) + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
-                    
                     #search for the item
                     if this_col_default is not None and this_col_default in this_col_options:
                         this_col_index = this_col_options.index(this_col_default)
                     else:
                         this_col_default = "Text"
                         this_col_index = this_col_options.index(this_col_default)
-                        
                     selected_datatype = st.selectbox(label=f"Select the data type for column '{column}' with {len(file.df[column].unique())} unique values:", options=this_col_options, index=this_col_index, key=file.name + "_" + column)
                     file.user_defined_dtypes[column] = selected_datatype
                 # Submit the form and initiate view summary
@@ -309,8 +308,11 @@ def change_dtypes(df, column_types):
                 print(f"{column} could not be converted to numeric and was set to text type.")
     return df_copy
 
+def button_cat_files():
+    categorise_files_form()
+
 def main():
-    with st.expander("Upload Files", expanded=True):
+    with st.container("Upload Files"):
 #        if len(files_list) == 0:
 #            st.button("Clear Files", on_click=clear_files_list, disabled=True)
 #        else:
@@ -318,16 +320,17 @@ def main():
         upload_files()
         for file in st.session_state.get("files_list", []):
             st.success(f"Successfully created pandas dataframe from {file.name}.")
-            st.write(vars(file))
-    with st.expander("Categorise Files"):
-        try:
-            if len(st.session_state.get("files_list", [])) == 0:
-                raise ValueError("No files have been uploaded.")
-            else:
-                categorise_files_form()
-        except:
-            st.error(f"files_list is empty")
-    with st.expander("Identify Columns"):
+            #st.write(vars(file))
+    with st.container("Categorise Files"):
+        button_cat_files = st.button("Load files for Categorisation", on_click=categorise_files_form)
+#        try:
+#            if len(st.session_state.get("files_list", [])) == 0:
+#                raise ValueError("No files have been uploaded.")
+#            else:
+#                categorise_files_form()
+#        except:
+#            st.error(f"files_list is empty")
+    with st.container("Identify Columns"):
         try:
             if len(st.session_state.get("files_list", [])) == 0:
                 raise ValueError("No files have been uploaded.")
@@ -340,14 +343,14 @@ def main():
                         identify_columns_form(file)
         except ValueError as e:
             st.error(e)
-    with st.expander("Calculate Drilltraces"):
+    with st.container("Calculate Drilltraces"):
         try:
             files_list = st.session_state.get("files_list", [])
             collar_file = [file for file in files_list if file.category == "Collar"]
             survey_file = [file for file in files_list if file.category == "Survey"]
             if len(collar_file) == 0 or len(survey_file) == 0:
                 raise IndexError("One of the required files is missing")
-            df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_columns, survey_file[0].required_columns)
+            df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_cols, survey_file[0].required_cols)
             st.write(df_dh_traces)
         except IndexError as e:
             st.error(f"Error: {e}")
