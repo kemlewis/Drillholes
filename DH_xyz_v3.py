@@ -114,7 +114,7 @@ def read_file_codecs_list(uploaded_file):
 
         
 def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
-    existing_files_popup = st.container
+    existing_files_popup = st.container()
     with existing_files_popup:
         if existing_file:
             st.write(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
