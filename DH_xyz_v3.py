@@ -118,7 +118,7 @@ def handle_existing_file(existing_file, uploaded_file, uploaded_file_df):
     with container_upload_files:
         with existing_files_popup:
             if existing_file:
-                st.write("f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
+                st.write(f"A file with the name {uploaded_file.name} already exists. Do you want to overwrite it?")
                 button_overwrite_confirm = st.button("Yes", key="overwrite_yes")
                 button_overwrite_cancel = st.button("Cancel", key="overwrite_cancel")
                 if overwrite_file:
