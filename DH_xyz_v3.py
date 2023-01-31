@@ -342,18 +342,20 @@ def main_old():
             st.error(e)
     with st.container("Calculate Drilltraces"):
         try:
-            files_list = st.session_state.get("files_list", [])
-            collar_file = [file for file in files_list if file.category == "Collar"]
-            survey_file = [file for file in files_list if file.category == "Survey"]
-            if len(collar_file) == 0 or len(survey_file) == 0:
-                raise IndexError("One of the required files is missing")
-            df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_cols, survey_file[0].required_cols)
-            st.write(df_dh_traces)
-        except IndexError as e:
-            st.error(f"Error: {e}")
-        except AttributeError as e:
-            st.error(f"Error: {e}")
-            
+
+def generate_drilltraces():
+    
+    files_list = st.session_state.get("files_list", [])
+    collar_file = [file for file in files_list if file.category == "Collar"]
+    survey_file = [file for file in files_list if file.category == "Survey"]
+    
+    if len(collar_file) == 0 or len(survey_file) == 0:
+        raise IndexError("One of the required files is missing")
+    else:
+        df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_cols, survey_file[0].required_cols)
+        st.write(df_dh_traces)
+    
+    
 def main():
     
     container_log = st.empty()
@@ -385,6 +387,10 @@ def main():
                 
     with container_generate_drilltraces.container():
         st.write("This feature is under construction...")
+        button_generate_drilltraces = st.button("Generate Drilltraces", key="button_generate_drilltraces")
+        if button_generate_drilltraces:
+            generate_drilltraces()
+            
         
             
 if __name__ == '__main__':
