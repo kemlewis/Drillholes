@@ -117,18 +117,20 @@ def read_file_codecs_list(uploaded_file):
 def uploaded_files_list():
     
     files_list = st.session_state.get("files_list", [])
-    file_names = [file.name for file in files_list]
     
-    for file in files_list:
-        col1, col2 = st.cols(2)
-        with col1:
-            st.write(file.name)
-        with col2:
-            file_to_delete = file.name
-            delete_file = st.button()
-            if delete_file:
-                files_list = [file for file in files_list if file.name != file_to_delete]
-                st.session_state.files_list = files_list
+    if len(files_list) > 0:
+        for file in files_list:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write(file.name)
+            with col2:
+                file_to_delete = file.name
+                delete_file = st.button()
+                if delete_file:
+                    files_list = [file for file in files_list if file.name != file_to_delete]
+                    st.session_state.files_list = files_list
+    else:
+        st.write("No files are uploaded")
 
 #   categorise_files_form is a function that handles file categorization. It uses the st module to create a form 
 #   with a select box for each file in the files_list. The user can select a category for 
