@@ -360,20 +360,20 @@ def main():
     container_identify_columns = st.empty()
     container_generate_drilltraces = st.empty()
 
-    with container_log.container:
+    with container_log.container():
         st.write(st.session_state.log)
     
-    with container_uploaded_files_list.container:
+    with container_uploaded_files_list.container():
         uploaded_files_list()
     
-    with container_upload_files.container:
+    with container_upload_files.container():
         upload_files()
                 
-    with container_categorise_files.container:
+    with container_categorise_files.container():
         if len(st.session_state.get("files_list", [])) > 0:
             categorise_files_form()
 
-    with container_identify_columns.container:
+    with container_identify_columns.container():
         if len(st.session_state.get("files_list", [])) > 0:
             for file in len(st.session_state.get("files_list", [])):
                 identify_columns()
