@@ -380,7 +380,8 @@ def main():
         st.write("There's supposed to be a 3d plot here")
         plot3d_drilltraces = st.button("Plot 3D Drilltraces", key="plot3d_drilltraces")
         if plot3d_drilltraces:
-            plot3d_drilltraces(st.session_state.df_drilltraces)
+            df_drilltraces = st.session_state.get("df_drilltraces")
+            plot3d_drilltraces(df_drilltraces)
 
             
 if __name__ == '__main__':
