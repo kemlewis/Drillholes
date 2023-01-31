@@ -153,12 +153,12 @@ def categorise_files_form():
                 for file in st.session_state.get("files_list", []):
                     if file.category is not None:
                         file.required_cols = required_cols(file)
+                        st.session_state.files_list = files_list
                         st.success(f'The file {file.name} has been categorised as a {file.category} file, and its required columns are {file.required_cols}')
                     else:
                         st.error(f"{file.name} has not been assigned a file category.")
             else:
                 # Either more than one file with category "Collar" or more than one file with category "Survey"
-            st.session_state.files_list = files_list
 
                     
 
