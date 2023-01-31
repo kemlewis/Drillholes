@@ -284,7 +284,7 @@ def change_dtypes(df, column_types):
 def plot3d_dhtraces(df_dh_traces):
     try:
         fig = px.line_3d(df_dh_traces, x="DH_X", y="DH_Y", z="DH_RL", color="HOLEID")
-        fig.show()
+        st.plotly_chart(fig, use_container_width=True)
     except:
         st.error("Plot failing to load")
 
@@ -384,17 +384,10 @@ def main():
         st.write("There's supposed to be a 3d plot here")
         plot3d_drilltraces = st.button("Plot 3D Drilltraces", key="plot3d_drilltraces")
         if plot3d_drilltraces:
-            #df_dh_traces = st.session_state.get("df_drilltraces")
-            #plot3d_dhtraces(df_dh_traces)
-            
-            x = np.array([0,1])
-            y = np.array([1,1])
-            z = np.array([1,1])
-            df = pd.DataFrame({"x": x, "y":y, "z":z})
+            if st.session_state.get("df_drilltraces") is not None:
+                df_dh_traces = st.session_state.get("df_drilltraces")
+                plot3d_dhtraces(df_dh_traces)
 
-            fig = px.line_3d(df, x="x", y="y", z="z")
-            # Plot!
-            st.plotly_chart(fig, use_container_width=True)
 
             
 if __name__ == '__main__':
