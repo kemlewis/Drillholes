@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 import chardet
 import os
 import drillhole_calcs as dh_calcs
@@ -28,8 +29,6 @@ class File:
         self.simplified_dtypes = simplified_dtypes
         self.user_defined_dtypes = user_defined_dtypes
         self.df_reassigned_dtypes = df_reassigned_dtypes
-
-
 
 
 def read_file_chardet(uploaded_file):
@@ -127,11 +126,11 @@ def categorise_files_form():
             st.session_state.files_list = files_list
 
                     
-
 #   required_cols is a function that takes a File object as an input and returns a list of required 
 #   columns for the file's category. Depending on the category, the function returns a 
 #   list of required columns. If the category is not one of the four options (Collar, Survey, 
 #   Point, Interval) it assigns "Not populated" and displays an error message.
+
 
 def required_cols(file):
     if file.category == "Collar":
@@ -148,6 +147,7 @@ def required_cols(file):
     df_required_cols = {col: None for col in required_cols}
     return df_required_cols
 
+
 #   identify_columns_form is a function that allows the user to define data types of all the columns in 
 #   for the pandas dataframes that were created for each file they uploaded. Each file has a separate st.form, 
 #   all the select boxes for the data type choices are run when the "submit" button is clicked by the user. 
@@ -157,6 +157,7 @@ def required_cols(file):
 #   These required columns will be used later for data processing and analysis.
 #   When the user submits the form, it runs the df_reassigned_dtypes function which creates a new pandas dataframe and 
 #   assigns dtypes based on the users selections.
+
 
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
@@ -197,6 +198,7 @@ def identify_columns_form(file):
                     st.success("Success")
                     st.success(f'The {file.category} file {file.name} has had its column datatypes processed as follows: {file.columns_dtypes}')
 
+                    
 def view_summary():
     # display summary information for each file
     for file in files_list:
@@ -211,6 +213,7 @@ def view_summary():
             if file.category == "Survey":
                 st.write("Number of drillholes missing collar references:", len(file.df["HoleID"].unique().difference(collar_holes)))
                 st.write("List of drillholes missing collar reference:", list(file.df["HoleID"].unique().difference(collar_holes)))
+
 
 def simplify_dtypes(df):
     dtypes = {}
@@ -227,12 +230,14 @@ def simplify_dtypes(df):
             dtypes[col] = "Boolean"
     return dtypes
 
+
 #   In the change_dtypes function, df is the input dataframe, and column_types is the input dictionary with 
 #   column names as keys and their desired datatype as values. The function first creates a copy 
 #   of the input dataframe, then loops through the dictionary and checks if the column exists in 
 #   the dataframe. If it does, it tries to convert the column to the specified datatype using pandas' 
 #   built-in functions. If it fails to convert, it will try similar datatype or will set it to text. 
 #   Then it returns the new dataframe with changed dtypes.
+
 
 def change_dtypes(df, column_types):
     df_copy = df.copy()
