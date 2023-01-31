@@ -158,7 +158,7 @@ def categorise_files_form():
                         st.error(f"{file.name} has not been assigned a file category.")
             else:
                 # Either more than one file with category "Collar" or more than one file with category "Survey"
-    st.session_state.files_list = files_list
+        st.session_state.files_list = files_list
 
                     
 
