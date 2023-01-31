@@ -367,9 +367,6 @@ def main():
             with container_log:
                 st.success(f"Successfully created pandas dataframe from {file.name}.")
                 
-    with container_overwrite_file:
-        handle_existing_file()
-
     with container_categorise_files:
         if len(st.session_state.get("files_list", [])) > 0:
             categorise_files_form()
