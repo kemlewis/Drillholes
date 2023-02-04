@@ -322,6 +322,7 @@ def generate_drilltraces():
 
 def upload_files():
     files_list = st.session_state.get("files_list", [])
+    delimiters = [',', '\t', ';', '|']
     with st.form("upload_files"):
         uploaded_files = st.file_uploader("Upload your file", type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
         submit_uploaded_files = st.form_submit_button("Submit")
@@ -333,22 +334,29 @@ def upload_files():
                         st.success("Success")
                     except Exception as e:
                         st.warning(f"Pandas failed to load {uploaded_file.name}")
-                        try:
-                            uploaded_file_df = read_file_chardet(uploaded_file)
-                            st.success("Success")
-                        except Exception as e:
-                            st.warning(f"Chardet failed to correctly read encoding for {uploaded_file.name}")
+                        for delimiter in delimiters:
                             try:
-                                uploaded_file_df = read_file_codecs_list(uploaded_file)
+                                uploaded_file_df = pd.read_csv(uploaded_file, delimiter=delimiter) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
                                 st.success("Success")
-                            except Exception as e:
-                                st.warning(f"Pandas failed to read file using list of codecs {uploaded_file.name}")
-                    if uploaded_file_df is None:
-                        st.warning(f"{uploaded_file.name} was unable to be loaded.")
-                    else:
-                        files_list = st.session_state.get("files_list", [])
-                        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-                        st.session_state.files_list = files_list
+                            except pd.errors.ParserError:
+                                st.warning("Pd failed to parse file.")
+                                try:
+                                    uploaded_file_df = read_file_chardet(uploaded_file)
+                                    st.success("Success")
+                                except Exception as e:
+                                    st.warning(f"Chardet failed to correctly read encoding for {uploaded_file.name}")
+                                    try:
+                                        uploaded_file_df = read_file_codecs_list(uploaded_file)
+                                        st.success("Success")
+                                    except Exception as e:
+                                        st.warning(f"Pandas failed to read file using list of codecs {uploaded_file.name}")
+                    finally:
+                        if uploaded_file_df is None:
+                            st.warning(f"{uploaded_file.name} was unable to be loaded.")
+                        else:
+                            files_list = st.session_state.get("files_list", [])
+                            files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
+                            st.session_state.files_list = files_list
                         
                         
 def main():
