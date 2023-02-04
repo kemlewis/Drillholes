@@ -329,7 +329,9 @@ def upload_files():
             if len(uploaded_files) > 0:
                 for uploaded_file in uploaded_files:
                     try:
-                        uploaded_file_df = read_file_codecs_list(uploaded_file)
+                        uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
+                        st.success("Success")
+                    except Exception as e:
                         try:
                             uploaded_file_df = read_file_chardet(uploaded_file)
                             try:
@@ -339,15 +341,16 @@ def upload_files():
                                 st.warning(f"Pandas default pd.read_csv and pd.read_excel failed to read {uploaded_file.name}")
                         except Exception as e:
                             st.warning(f"Chardet failed to read encoding for {uploaded_file.name}")
-                    except Exception as e:
-                        st.warning(f"Pandas failed to read file using list of codecs {uploaded_file.name}")
+                        try:
+                            uploaded_file_df = read_file_codecs_list(uploaded_file)
+                        except Exception as e:
+                            st.warning(f"Pandas failed to read file using list of codecs {uploaded_file.name}")
                 if uploaded_file_df is None:
                     st.warning(f"{uploaded_file.name} was unable to be loaded.")
                 else:
                     files_list = st.session_state.get("files_list", [])
                     files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
                     st.session_state.files_list = files_list
-
                         
                         
 def main():
