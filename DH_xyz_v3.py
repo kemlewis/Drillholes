@@ -329,6 +329,7 @@ def upload_files():
         if submit_uploaded_files:
             if len(uploaded_files) > 0:
                 for uploaded_file in uploaded_files:
+                    uploaded_file_df = None
                     try:
                         uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
                         st.success("Success")
