@@ -341,13 +341,13 @@ def upload_files():
                             st.warning(f"Chardet failed to read encoding for {uploaded_file.name}")
                     except Exception as e:
                         st.warning(f"Pandas failed to read file using list of codecs {uploaded_file.name}")
-                    if uploaded_file_df is None:
-                        st.warning(f"{uploaded_file.name} was unable to be loaded.")
-                    else:
-                        files_list = st.session_state.get("files_list", [])
-                        files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
-                        st.session_state.files_list = files_list
-                        
+                if uploaded_file_df is None:
+                    st.warning(f"{uploaded_file.name} was unable to be loaded.")
+                else:
+                    files_list = st.session_state.get("files_list", [])
+                    files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
+                    st.session_state.files_list = files_list
+
                         
                         
 def main():
