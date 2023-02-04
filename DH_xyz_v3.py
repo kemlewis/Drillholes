@@ -61,6 +61,7 @@ def read_file_chardet(uploaded_file):
     
 def read_file_codecs_list(uploaded_file):
     file_extension = uploaded_file.name.split(".")[-1]
+    delimiters = [',', '\t', ';', '|']
     codecs = ['utf-8', 'utf-16', 'utf-32', 'ascii','big5','big5hkscs','cp037','cp273','cp424','cp437','cp500','cp720','cp737','cp775','cp850','cp852','cp855',
             'cp856','cp857','cp858','cp860','cp861','cp862','cp863','cp864','cp865','cp866','cp869','cp874','cp875','cp932','cp949',
             'cp950','cp1006','cp1026','cp1125','cp1140','cp1250','cp1251','cp1252','cp1253','cp1254','cp1255','cp1256','cp1257','cp1258',
@@ -70,25 +71,24 @@ def read_file_codecs_list(uploaded_file):
             'koi8_u','kz1048','mac_cyrillic','mac_greek','mac_iceland','mac_latin2','mac_roman','mac_turkish','ptcp154','shift_jis','shift_jis_2004',
             'shift_jisx0213','utf_32','utf_32_be','utf_32_le','utf_16','utf_16_be','utf_16_le','utf_7','utf_8','utf_8_sig']
     
-    try:
-        if file_extension in ["csv", "txt"]:
+    if file_extension in ["csv", "txt"]:
             for codec in codecs:
+                for delimiter in delimiters:
+                    try:
+                        df = pd.read_csv(uploaded_file, delimiter=delimiter, encoding=codec)
+                        return df
+                    except Exception as e:
+                        print(f"Failed to read {uploaded_file.name} using {codec} encoding. Error: {e}")
+    elif file_extension in ["xls", "xlsx", "xlsm", "ods", "odt"]:
+        for codec in codecs:
+            for delimiter in delimiters:
                 try:
-                    df = pd.read_csv(uploaded_file, encoding=codec)
+                    df = pd.read_excel(uploaded_file, delimiter=delimiters, encoding=codec)
                     return df
                 except Exception as e:
                     print(f"Failed to read {uploaded_file.name} using {codec} encoding. Error: {e}")
-        elif file_extension in ["xls", "xlsx", "xlsm", "ods", "odt"]:
-            for codec in codecs:
-                try:
-                    df = pd.read_excel(uploaded_file, encoding=codec)
-                    return df
-                except Exception as e:
-                    print(f"Failed to read {uploaded_file.name} using {codec} encoding. Error: {e}")
-        else:
-            raise ValueError(f"Invalid file type: {file_extension}. Please upload a file of type csv, txt, xls, xlsx, xlsm, ods, or odt.")
-    except Exception as e:
-        print(f"Failed to read {uploaded_file.name} by manually looping through codecs list. Error: {e}")
+    else:
+        raise ValueError(f"Invalid file type: {file_extension}. Please upload a file of type csv, txt, xls, xlsx, xlsm, ods, or odt.")
         return None
 
         
@@ -322,7 +322,7 @@ def generate_drilltraces():
 
 def upload_files():
     files_list = st.session_state.get("files_list", [])
-    delimiters = [',', '\t', ';', '|']
+    
     with st.form("upload_files"):
         uploaded_files = st.file_uploader("Upload your file", type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
         submit_uploaded_files = st.form_submit_button("Submit")
@@ -335,22 +335,16 @@ def upload_files():
                         st.success("Success")
                     except Exception as e:
                         st.warning(f"Pandas failed to load {uploaded_file.name}")
-                        for delimiter in delimiters:
+                        try:
+                            uploaded_file_df = read_file_chardet(uploaded_file)
+                            st.success("Success")
+                        except Exception as e:
+                            st.warning(f"Chardet failed to correctly read encoding for {uploaded_file.name}")
                             try:
-                                uploaded_file_df = pd.read_csv(uploaded_file, delimiter=delimiter) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
+                                uploaded_file_df = read_file_codecs_list(uploaded_file)
                                 st.success("Success")
-                            except pd.errors.ParserError:
-                                st.warning("Pd failed to parse file.")
-                                try:
-                                    uploaded_file_df = read_file_chardet(uploaded_file)
-                                    st.success("Success")
-                                except Exception as e:
-                                    st.warning(f"Chardet failed to correctly read encoding for {uploaded_file.name}")
-                                    try:
-                                        uploaded_file_df = read_file_codecs_list(uploaded_file)
-                                        st.success("Success")
-                                    except Exception as e:
-                                        st.warning(f"Pandas failed to read file using list of codecs {uploaded_file.name}")
+                            except Exception as e:
+                                st.warning(f"Pandas failed to read file using list of codecs {uploaded_file.name}")
                     finally:
                         if uploaded_file_df is None:
                             st.warning(f"{uploaded_file.name} was unable to be loaded.")
