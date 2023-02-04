@@ -4,6 +4,7 @@ import math
 
 # Fomula reference https://www.drillingformulas.com/minimum-curvature-method/
 # Minimum curvature formula for calcuating change in xyz from distance, dip and azi
+
 def calculate_xyz(depth_1, dip_1, azi_1, depth_2, dip_2, azi_2):
     MD = depth_2 - depth_1
     if abs(dip_1) != 90:
@@ -33,8 +34,11 @@ def calculate_xyz(depth_1, dip_1, azi_1, depth_2, dip_2, azi_2):
 # Looping through dataframe for each hole and calculating drill trace from the collar down
 def calc_drilltraces(df_collar, df_survey, required_cols_df_collar, required_cols_df_survey):
     
+    df_collar_switch_columns = {v:k for (k, v) in required_cols_df_collar.items()}
+    df_survey_switch_columns = {v:k for (k, v) in required_cols_df_survey.items()}
     df_collar.rename(columns = required_cols_df_collar)
     df_survey.rename(columns = required_cols_df_survey)
+    
     df_collar_xyz = df_collar[['HOLEID', 'DH_X', 'DH_Y', 'DH_RL']]
     df_collar_xyz=df_collar_xyz.merge(df_survey[['HOLEID','DEPTH','AZIMUTH','DIP']],how='left',on='HOLEID')
     df_collar_xyz.loc[df_collar_xyz['DEPTH'] != 0, ['DH_X', 'DH_Y', 'DH_RL']] = np.nan
