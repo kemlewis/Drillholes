@@ -331,21 +331,18 @@ def upload_files():
                     try:
                         uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
                         st.success("Success")
-                        return uploaded_file_df
                     except Exception as e:
                         st.warning(f"Pandas failed to load {uploaded_file.name}")
-                    try:
-                        uploaded_file_df = read_file_chardet(uploaded_file)
-                        st.success("Success")
-                        return uploaded_file_df
-                    except Exception as e:
-                        st.warning(f"Chardet failed to correctly read encoding for {uploaded_file.name}")
-                    try:
-                        uploaded_file_df = read_file_codecs_list(uploaded_file)
-                        st.success("Success")
-                        return uploaded_file_df
-                    except Exception as e:
-                        st.warning(f"Pandas failed to read file using list of codecs {uploaded_file.name}")
+                        try:
+                            uploaded_file_df = read_file_chardet(uploaded_file)
+                            st.success("Success")
+                        except Exception as e:
+                            st.warning(f"Chardet failed to correctly read encoding for {uploaded_file.name}")
+                            try:
+                                uploaded_file_df = read_file_codecs_list(uploaded_file)
+                                st.success("Success")
+                            except Exception as e:
+                                st.warning(f"Pandas failed to read file using list of codecs {uploaded_file.name}")
                     if uploaded_file_df is None:
                         st.warning(f"{uploaded_file.name} was unable to be loaded.")
                     else:
