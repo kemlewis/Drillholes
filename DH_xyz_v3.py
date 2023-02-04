@@ -212,6 +212,7 @@ def identify_columns_form(file):
                     st.success(f'The {file.category} file {file.name} has had its column datatypes processed as follows: {file.columns_dtypes}')
 
                     
+                    
 def view_summary():
     # display summary information for each file
     for file in files_list:
@@ -226,7 +227,8 @@ def view_summary():
             if file.category == "Survey":
                 st.write("Number of drillholes missing collar references:", len(file.df["HoleID"].unique().difference(collar_holes)))
                 st.write("List of drillholes missing collar reference:", list(file.df["HoleID"].unique().difference(collar_holes)))
-
+                
+                
 
 def simplify_dtypes(df):
     dtypes = {}
@@ -243,14 +245,12 @@ def simplify_dtypes(df):
             dtypes[col] = "Boolean"
     return dtypes
 
-
 #   In the change_dtypes function, df is the input dataframe, and column_types is the input dictionary with 
 #   column names as keys and their desired datatype as values. The function first creates a copy 
 #   of the input dataframe, then loops through the dictionary and checks if the column exists in 
 #   the dataframe. If it does, it tries to convert the column to the specified datatype using pandas' 
 #   built-in functions. If it fails to convert, it will try similar datatype or will set it to text. 
 #   Then it returns the new dataframe with changed dtypes.
-
 
 def change_dtypes(df, column_types):
     df_copy = df.copy()
@@ -289,6 +289,7 @@ def change_dtypes(df, column_types):
     return df_copy
 
 
+
 def plot3d_dhtraces(df_dh_traces):
     try:
         fig = px.line_3d(df_dh_traces, x="DH_X", y="DH_Y", z="DH_RL", color="HOLEID")
@@ -307,7 +308,6 @@ def generate_drilltraces():
     else:
         df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_cols, survey_file[0].required_cols)
         return df_dh_traces
-    
 
 #   upload_files is a function that handles streamlit file uploads. It uses the st module to create a file uploader widget, 
 #   and allows the user to select multiple files of type csv and xlsx.
@@ -322,7 +322,6 @@ def generate_drilltraces():
 
 def upload_files():
     files_list = st.session_state.get("files_list", [])
-    
     with st.form("upload_files"):
         uploaded_files = st.file_uploader("Upload your file", type=["csv", "txt", "xls", "xlsx", "xlsm", "ods", "odt"], accept_multiple_files=True, key="dh_file_uploader", help="Upload your drillhole collar, survey, point and interval files in csv or excel format")
         submit_uploaded_files = st.form_submit_button("Submit")
