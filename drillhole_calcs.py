@@ -12,7 +12,6 @@ def calculate_xyz(depth_1, dip_1, azi_1, depth_2, dip_2, azi_2):
         dip_2 = math.radians(90+dip_2)
         azi_1 = math.radians(azi_1)
         azi_2 = math.radians(azi_2)
-
         
         B_rad = math.acos (math.cos(dip_2-dip_1)-(math.sin(dip_1)*math.sin(dip_2)*(1-math.cos(azi_2-azi_1))))
         B_deg = math.degrees (B_rad)
@@ -36,6 +35,7 @@ def calc_drilltraces(df_collar, df_survey, required_cols_df_collar, required_col
     
     required_cols_df_collar = {k: collar_df_reassigned_dtypes[v] for k, v in required_cols_df_collar.items()}
     required_cols_df_survey = {k: survey_df_reassigned_dtypes[v] for k, v in required_cols_df_survey.items()}
+    st.write(required_cols_df_collar)
     df_collar.rename(columns = required_cols_df_collar)
     df_survey.rename(columns = required_cols_df_survey)
     
@@ -52,6 +52,7 @@ def calc_drilltraces(df_collar, df_survey, required_cols_df_collar, required_col
                 df_collar_xyz.at[index, 'DH_dX'] = 0
                 df_collar_xyz.at[index, 'DH_dY'] = 0
                 df_collar_xyz.at[index, 'DH_dRL'] = 0
+
             if row[4] > 0:
                 results = calculate_xyz(row_previous[4], row_previous[6], row_previous[5], row[4], row[6], row[5])
 
