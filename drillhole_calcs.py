@@ -32,12 +32,12 @@ def calculate_xyz(depth_1, dip_1, azi_1, depth_2, dip_2, azi_2):
         return(MD, 0, 0, 0, MD)
 
 # Looping through dataframe for each hole and calculating drill trace from the collar down
-def calc_drilltraces(df_collar, df_survey, required_cols_df_collar, required_cols_df_survey):
+def calc_drilltraces(df_collar, df_survey, required_cols_df_collar, required_cols_df_survey, collar_df_reassigned_dtypes, survey_df_reassigned_dtypes):
     
-    df_collar_switch_columns = {v:k for (k, v) in required_cols_df_collar.items()}
-    df_survey_switch_columns = {v:k for (k, v) in required_cols_df_survey.items()}
-    df_collar.rename(columns = df_collar_switch_columns)
-    df_survey.rename(columns = df_survey_switch_columns)
+    required_cols_df_collar = {k: collar_df_reassigned_dtypes[v] for k, v in required_cols_df_collar.items()}
+    required_cols_df_survey = {k: survey_df_reassigned_dtypes[v] for k, v in required_cols_df_survey.items()}
+    df_collar.rename(columns = required_cols_df_collar)
+    df_survey.rename(columns = required_cols_df_survey)
     
     df_collar_xyz = df_collar[['HOLEID', 'DH_X', 'DH_Y', 'DH_RL']]
     df_collar_xyz=df_collar_xyz.merge(df_survey[['HOLEID','DEPTH','AZIMUTH','DIP']],how='left',on='HOLEID')
