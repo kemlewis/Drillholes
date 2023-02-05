@@ -36,8 +36,8 @@ def calc_drilltraces(df_collar, df_survey, required_cols_df_collar, required_col
     
     df_collar_switch_columns = {v:k for (k, v) in required_cols_df_collar.items()}
     df_survey_switch_columns = {v:k for (k, v) in required_cols_df_survey.items()}
-    df_collar.rename(columns = required_cols_df_collar)
-    df_survey.rename(columns = required_cols_df_survey)
+    df_collar.rename(columns = df_collar_switch_columns)
+    df_survey.rename(columns = df_survey_switch_columns)
     
     df_collar_xyz = df_collar[['HOLEID', 'DH_X', 'DH_Y', 'DH_RL']]
     df_collar_xyz=df_collar_xyz.merge(df_survey[['HOLEID','DEPTH','AZIMUTH','DIP']],how='left',on='HOLEID')
