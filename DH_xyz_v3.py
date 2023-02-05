@@ -14,13 +14,13 @@ st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
 if 'files_list' not in st.session_state:
     files_list = st.empty()
     files_list = st.session_state.get("files_list", [])
-    
+
 if "log" not in st.session_state:
     st.session_state["log"] = []
-    
+
 if "df_drilltraces" not in st.session_state:
     st.session_state["df_drilltraces"] = pd.DataFrame()
-    
+
 st.session_state["log"].append({"timestamp": datetime.now(), "action": "App started", "username": "user1"})
 
 class File:
@@ -58,7 +58,8 @@ def read_file_chardet(uploaded_file):
         except:
             uploaded_file_df = create_dataframe_codes(uploaded_file)
         return uploaded_file_df
-    
+
+
 def read_file_codecs_list(uploaded_file):
     file_extension = uploaded_file.name.split(".")[-1]
     delimiters = [',', '\t', ';', '|']
@@ -91,11 +92,9 @@ def read_file_codecs_list(uploaded_file):
         raise ValueError(f"Invalid file type: {file_extension}. Please upload a file of type csv, txt, xls, xlsx, xlsm, ods, or odt.")
         return None
 
-        
+
 def uploaded_files_list():
-    
     files_list = st.session_state.get("files_list", [])
-    
     if len(files_list) > 0:
         for file in files_list:
             col1, col2 = st.columns(2)
@@ -138,7 +137,7 @@ def categorise_files_form():
                 st.error(f'Either more than one file with category "Collar" or more than one file with category "Survey".')
             st.session_state.files_list = files_list
 
-                    
+
 #   required_cols is a function that takes a File object as an input and returns a list of required 
 #   columns for the file's category. Depending on the category, the function returns a 
 #   list of required columns. If the category is not one of the four options (Collar, Survey, 
@@ -160,7 +159,6 @@ def required_cols(file):
     df_required_cols = {col: None for col in required_cols}
     return df_required_cols
 
-
 #   identify_columns_form is a function that allows the user to define data types of all the columns in 
 #   for the pandas dataframes that were created for each file they uploaded. Each file has a separate st.form, 
 #   all the select boxes for the data type choices are run when the "submit" button is clicked by the user. 
@@ -170,7 +168,6 @@ def required_cols(file):
 #   These required columns will be used later for data processing and analysis.
 #   When the user submits the form, it runs the df_reassigned_dtypes function which creates a new pandas dataframe and 
 #   assigns dtypes based on the users selections.
-
 
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
@@ -211,8 +208,8 @@ def identify_columns_form(file):
                     st.success("Success")
                     st.success(f'The {file.category} file {file.name} has had its column datatypes processed as follows: {file.columns_dtypes}')
 
-                    
-                    
+
+
 def view_summary():
     # display summary information for each file
     for file in files_list:
@@ -289,13 +286,13 @@ def change_dtypes(df, column_types):
     return df_copy
 
 
-
 def plot3d_dhtraces(df_dh_traces):
     try:
         fig = px.line_3d(df_dh_traces, x="DH_X", y="DH_Y", z="DH_RL", color="HOLEID")
         st.plotly_chart(fig, use_container_width=True)
     except:
         st.error("Plot failing to load")
+
 
 def generate_drilltraces():
     
@@ -357,8 +354,8 @@ def upload_files():
                             files_list = st.session_state.get("files_list", [])
                             files_list.append(File(uploaded_file.name, uploaded_file_df, None, uploaded_file_df.columns, uploaded_file_df.dtypes, None, simplify_dtypes(uploaded_file_df)))
                             st.session_state.files_list = files_list
-                        
-                        
+
+
 def main():
     
     container_log = st.empty()
@@ -406,6 +403,6 @@ def main():
                 plot3d_dhtraces(df_dh_traces)
 
 
-            
+
 if __name__ == '__main__':
     main()
