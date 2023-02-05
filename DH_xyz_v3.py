@@ -9,7 +9,6 @@ from fuzzywuzzy import fuzz
 from datetime import datetime
 
 st.set_page_config(page_title="My App", page_icon=":guardsman:", layout="wide")
-print("TEST")
 
 # Initialize the session state list
 if 'files_list' not in st.session_state:
