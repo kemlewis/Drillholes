@@ -307,7 +307,13 @@ def generate_drilltraces():
     if len(collar_file) == 0 or len(survey_file) == 0:
         raise IndexError("One of the required files is missing")
     else:
-        df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, survey_file[0].df, collar_file[0].required_cols, survey_file[0].required_cols)
+        df_dh_traces = dh_calcs.calc_drilltraces(collar_file[0].df, 
+                                                 survey_file[0].df, 
+                                                 collar_file[0].required_cols, 
+                                                 survey_file[0].required_cols, 
+                                                 collar_file[0].user_defined_dtypes, 
+                                                 survey_file[0].user_defined_dtypes
+                                                )
         return df_dh_traces
 
 #   upload_files is a function that handles streamlit file uploads. It uses the st module to create a file uploader widget, 
