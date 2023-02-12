@@ -333,7 +333,7 @@ def upload_files():
                 for uploaded_file in uploaded_files:
                     uploaded_file_df = None
                     try:
-                        uploaded_file_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
+                        uploaded_file_df = pd.read_csv(uploaded_file, error_bad_lines=False) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
                         st.success("Success")
                     except Exception as e:
                         st.warning(f"Pandas failed to load {uploaded_file.name}")
