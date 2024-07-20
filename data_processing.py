@@ -68,7 +68,7 @@ def identify_columns_form(file):
                 for i, column in enumerate(file.columns):
                     this_col_default = file.user_defined_dtypes.get(column, "Text")
                     this_col_options = list(file.required_cols.keys()) + simplified_dtypes_options + ["Not imported"]
-                    this_col_options = list(map(str, this_col_options))
+                    this_col_options are list(map(str, this_col_options))
                     
                     if this_col_default not in this_col_options:
                         this_col_default = "Text"
@@ -109,7 +109,6 @@ def change_dtypes(df, column_types):
         except Exception as e:
             df_copy[column] = df_copy[column].astype(str)
     return df_copy
-
 
 def map_columns(file):
     st.write(f"Map columns for {file.name}")

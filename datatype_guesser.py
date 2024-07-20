@@ -55,11 +55,12 @@ def guess_column_type(file_type, column_name, column_data):
 
     if best_guess in all_mandatory_variations:
         return next((field for field in mandatory_fields if best_guess in MANDATORY_FIELD_VARIATIONS.get(field, [])), 'Text')
-    
-    # Additional logic for non-mandatory columns
+
+    # Prioritize recognizing datetime columns when the column name contains 'Date'
     if 'date' in column_name.lower():
         return 'Datetime'
     
+    # Additional logic for non-mandatory columns
     unique_values = column_data.nunique()
     total_values = column_data.size
     
