@@ -30,6 +30,7 @@ def process_file_categories(files_list):
         st.error(f'Either more than one file with category "Collar" or more than one file with category "Survey".')
     st.session_state.files_list = files_list
 
+
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
     with st.expander(file.name):
@@ -43,24 +44,22 @@ def identify_columns_form(file):
             if auto_guess:
                 # Initialize a set to keep track of assigned mandatory fields
                 assigned_mandatory_fields = set()
+                column_assignments = {}
 
                 # First, assign best guesses for mandatory fields
                 for column in file.columns:
-                    if column in file.user_defined_dtypes:
-                        continue  # Skip already defined types
-
                     guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
-                    
                     if guessed_datatype in file.required_cols and guessed_datatype not in assigned_mandatory_fields:
-                        file.user_defined_dtypes[column] = guessed_datatype
+                        column_assignments[column] = guessed_datatype
                         assigned_mandatory_fields.add(guessed_datatype)
-                
+
                 # Second, assign data types for remaining columns
                 for column in file.columns:
-                    if column not in file.user_defined_dtypes:
+                    if column not in column_assignments:
                         guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
-                        file.user_defined_dtypes[column] = guessed_datatype
+                        column_assignments[column] = guessed_datatype
 
+                file.user_defined_dtypes.update(column_assignments)
                 st.success(f"Auto guessed data types for {file.name}")
 
             with st.form(file.name):
@@ -108,6 +107,7 @@ def change_dtypes(df, column_types):
         except Exception as e:
             df_copy[column] = df_copy[column].astype(str)
     return df_copy
+
 
 def map_columns(file):
     st.write(f"Map columns for {file.name}")
