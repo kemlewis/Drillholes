@@ -31,6 +31,9 @@ def process_file_categories(files_list):
     st.session_state.files_list = files_list
 
 
+import streamlit as st
+import datatype_guesser
+
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
     with st.expander(file.name):
@@ -57,6 +60,9 @@ def identify_columns_form(file):
                 for column in file.columns:
                     if column not in column_assignments:
                         guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
+                        # Ensure remaining columns don't get assigned already assigned mandatory fields
+                        while guessed_datatype in assigned_mandatory_fields:
+                            guessed_datatype = 'Text'
                         column_assignments[column] = guessed_datatype
 
                 file.user_defined_dtypes.update(column_assignments)
@@ -107,7 +113,6 @@ def change_dtypes(df, column_types):
         except Exception as e:
             df_copy[column] = df_copy[column].astype(str)
     return df_copy
-
 
 def map_columns(file):
     st.write(f"Map columns for {file.name}")
