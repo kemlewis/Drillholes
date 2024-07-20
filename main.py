@@ -78,6 +78,9 @@ with tab2:
     st.header("3D Visualization")
 
     if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
-        plot3d_dhtraces(st.session_state["df_drilltraces"])
+        # Use columns to center the plot and make it wider
+        col1, col2, col3 = st.columns([1,10,1])
+        with col2:
+            plot3d_dhtraces(st.session_state["df_drilltraces"])
     else:
         st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
