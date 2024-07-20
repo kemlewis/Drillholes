@@ -5,3 +5,4 @@ scipy
 chardet
 plotly
 fuzzywuzzy
+openpyxl
