@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import logging
+import plotly.graph_objects as go
 
 logger = logging.getLogger(__name__)
 
@@ -99,8 +100,41 @@ def generate_drilltraces():
 
 def plot3d_dhtraces(df_dh_traces):
     try:
-        fig = px.line_3d(df_dh_traces, x="DH_X", y="DH_Y", z="DH_Z", color="HoleID")
+        # Create a list to store traces for each hole
+        traces = []
+
+        # Create a trace for each hole
+        for hole_id in df_dh_traces['HoleID'].unique():
+            hole_data = df_dh_traces[df_dh_traces['HoleID'] == hole_id]
+            trace = go.Scatter3d(
+                x=hole_data['DH_X'],
+                y=hole_data['DH_Y'],
+                z=hole_data['DH_Z'],
+                mode='lines',
+                name=hole_id,
+                line=dict(width=4),
+                hoverinfo='text',
+                text=[f'HoleID: {hole_id}<br>Depth: {depth:.2f}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
+                      for depth, x, y, z in zip(hole_data['Depth'], hole_data['DH_X'], hole_data['DH_Y'], hole_data['DH_Z'])]
+            )
+            traces.append(trace)
+
+        # Create the layout
+        layout = go.Layout(
+            scene=dict(
+                xaxis_title='X',
+                yaxis_title='Y',
+                zaxis_title='Z',
+                aspectmode='data'
+            ),
+            title='3D Drill Traces',
+            hovermode='closest'
+        )
+
+        # Create the figure and plot
+        fig = go.Figure(data=traces, layout=layout)
         st.plotly_chart(fig, use_container_width=True)
+
     except Exception as e:
         st.error(f"Failed to plot 3D drill traces: {str(e)}")
         logger.error(f"3D plotting error: {str(e)}", exc_info=True)
