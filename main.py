@@ -32,38 +32,52 @@ if len(st.session_state["log"]) == 0:
 # Main app
 st.title(APP_TITLE)
 
-# File upload
-uploaded_files = st.file_uploader("Upload your files", type=ALLOWED_EXTENSIONS, accept_multiple_files=True)
+# Create two tabs
+tab1, tab2 = st.tabs(["Data Input", "3D Visualization"])
 
-if uploaded_files:
-    for file in uploaded_files:
-        if file.name not in [f.name for f in st.session_state.files_list]:
-            st.session_state["log"].append({"timestamp": datetime.now(), "action": f"File {file.name} uploaded", "username": "user1"})
-            df = read_file_chardet(file)
-            if df is not None:
-                simplified_dtypes = simplify_dtypes(df)
-                file_instance = File(name=file.name, df=df, category=None, columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
-                st.session_state.files_list.append(file_instance)
+with tab1:
+    st.header("Data Input")
 
-# Display uploaded files
-uploaded_files_list()
+    # File upload
+    uploaded_files = st.file_uploader("Upload your files", type=ALLOWED_EXTENSIONS, accept_multiple_files=True)
 
-# Categorize files
-categorise_files_form()
+    if uploaded_files:
+        for file in uploaded_files:
+            if file.name not in [f.name for f in st.session_state.files_list]:
+                st.session_state["log"].append({"timestamp": datetime.now(), "action": f"File {file.name} uploaded", "username": "user1"})
+                df = read_file_chardet(file)
+                if df is not None:
+                    simplified_dtypes = simplify_dtypes(df)
+                    file_instance = File(name=file.name, df=df, category=None, columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
+                    st.session_state.files_list.append(file_instance)
 
-# Guess and identify columns for each file after categorization
-for file in st.session_state.files_list:
-    if file.category is not None:  # Ensure the file has been categorized
-        identify_columns_form(file)
+    # Display uploaded files
+    uploaded_files_list()
 
-# Generate drill traces
-if st.button("Generate Drill Traces"):
-    generate_drilltraces()
+    # Categorize files
+    categorise_files_form()
+
+    # Guess and identify columns for each file after categorization
+    for file in st.session_state.files_list:
+        if file.category is not None:  # Ensure the file has been categorized
+            identify_columns_form(file)
+
+    # Generate drill traces
+    if st.button("Generate Drill Traces"):
+        generate_drilltraces()
+        if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
+            st.success("Drill traces generated successfully. Switch to the '3D Visualization' tab to view the plot.")
+
+    # Display log
+    if st.checkbox("Show Log"):
+        st.write("Application Log:")
+        for log_entry in st.session_state["log"]:
+            st.write(f"{log_entry['timestamp']} - {log_entry['action']} (User: {log_entry['username']})")
+
+with tab2:
+    st.header("3D Visualization")
+
     if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
         plot3d_dhtraces(st.session_state["df_drilltraces"])
-
-# Display log
-if st.checkbox("Show Log"):
-    st.write("Application Log:")
-    for log_entry in st.session_state["log"]:
-        st.write(f"{log_entry['timestamp']} - {log_entry['action']} (User: {log_entry['username']})")
+    else:
+        st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
