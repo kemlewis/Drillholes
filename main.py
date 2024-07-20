@@ -32,8 +32,8 @@ if len(st.session_state["log"]) == 0:
 # Main app
 st.title(APP_TITLE)
 
-# Create three main tabs
-tab1, tab2, tab3 = st.tabs(["Data Input", "3D Visualization", "Log"])
+# Create four main tabs
+tab1, tab2, tab3, tab4 = st.tabs(["Data Input", "Data Viewer", "3D Visualization", "Log"])
 
 with tab1:
     # Create sub-tabs for different data types
@@ -96,12 +96,49 @@ with tab1:
         st.info("Surfaces data input functionality to be implemented.")
 
 with tab2:
+    st.header("Data Viewer")
+    
+    # Create two columns
+    col1, col2 = st.columns([1, 3])
+    
+    with col1:
+        st.subheader("Available Data")
+        
+        # Create an interactive list of dataframes
+        dataframe_options = []
+        
+        # Add uploaded files
+        for file in st.session_state.files_list:
+            dataframe_options.append(f"{file.category}: {file.name}")
+        
+        # Add generated drill traces if available
+        if not st.session_state["df_drilltraces"].empty:
+            dataframe_options.append("Generated: Drill Traces")
+        
+        # Create a radio button for selecting the dataframe to view
+        selected_df = st.radio("Select data to view:", dataframe_options)
+    
+    with col2:
+        st.subheader("Data Preview")
+        
+        # Display the selected dataframe
+        if selected_df.startswith("Generated: Drill Traces"):
+            st.dataframe(st.session_state["df_drilltraces"])
+        else:
+            category, name = selected_df.split(": ", 1)
+            selected_file = next((file for file in st.session_state.files_list if file.name == name), None)
+            if selected_file:
+                st.dataframe(selected_file.df)
+            else:
+                st.write("No data available for the selected option.")
+
+with tab3:
     if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
         plot3d_dhtraces(st.session_state["df_drilltraces"])
     else:
         st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
 
-with tab3:
+with tab4:
     st.header("Application Log")
     # Create a container for the log entries
     log_container = st.container()
