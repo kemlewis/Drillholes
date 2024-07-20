@@ -40,7 +40,7 @@ def identify_columns_form(file):
         with col2:
             with st.form(file.name):
                 for i, column in enumerate(file.columns):
-                    guessed_datatype = datatype_guesser.guess_type('datacolumn', column)
+                    guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
                     this_col_default = file.simplified_dtypes.get(column, guessed_datatype)
                     this_col_options = list(file.required_cols.keys()) + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
