@@ -38,10 +38,17 @@ def identify_columns_form(file):
         with col1:
             st.dataframe(file.df)
         with col2:
+            auto_guess = st.button("Auto Guess", key=f"{file.name}_auto_guess")
+
+            if auto_guess:
+                for column in file.columns:
+                    guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
+                    file.user_defined_dtypes[column] = guessed_datatype
+                st.success(f"Auto guessed data types for {file.name}")
+
             with st.form(file.name):
                 for i, column in enumerate(file.columns):
-                    guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
-                    this_col_default = file.simplified_dtypes.get(column, guessed_datatype)
+                    this_col_default = file.user_defined_dtypes.get(column, "Text")
                     this_col_options = list(file.required_cols.keys()) + simplified_dtypes_options + ["Not imported"]
                     this_col_options = list(map(str, this_col_options))
                     
