@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import logging
 from utils import required_cols
+import datatype_guesser
 
 logger = logging.getLogger(__name__)
 
@@ -9,7 +10,8 @@ def categorise_files_form():
     files_list = st.session_state.files_list
     with st.form("categorise_files_1"):
         for idx, file in enumerate(files_list):
-            file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"], key=f"{file.name}_{idx}")
+            guessed_category = datatype_guesser.guess_type('file', file.name)
+            file.category = st.selectbox(f"Select file category for {file.name}", ["Collar", "Survey", "Point", "Interval"], index=["Collar", "Survey", "Point", "Interval"].index(guessed_category), key=f"{file.name}_{idx}")
         submit_file_categories = st.form_submit_button("Submit")
         if submit_file_categories:
             process_file_categories(files_list)
