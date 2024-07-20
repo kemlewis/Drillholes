@@ -30,10 +30,6 @@ def process_file_categories(files_list):
         st.error(f'Either more than one file with category "Collar" or more than one file with category "Survey".')
     st.session_state.files_list = files_list
 
-
-import streamlit as st
-import datatype_guesser
-
 def identify_columns_form(file):
     simplified_dtypes_options = ["Text", "Category", "Numeric", "Datetime", "Boolean"]
     with st.expander(file.name):
@@ -113,6 +109,7 @@ def change_dtypes(df, column_types):
         except Exception as e:
             df_copy[column] = df_copy[column].astype(str)
     return df_copy
+
 
 def map_columns(file):
     st.write(f"Map columns for {file.name}")
