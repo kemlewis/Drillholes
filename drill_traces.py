@@ -128,7 +128,8 @@ def plot3d_dhtraces(df_dh_traces):
                 aspectmode='data'
             ),
             title='3D Drill Traces',
-            hovermode='closest'
+            hovermode='closest',
+            height=800  # Increase the height of the plot
         )
 
         # Create the figure and plot
