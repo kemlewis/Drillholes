@@ -41,9 +41,26 @@ def identify_columns_form(file):
             auto_guess = st.button("Auto Guess", key=f"{file.name}_auto_guess")
 
             if auto_guess:
+                # Initialize a set to keep track of assigned mandatory fields
+                assigned_mandatory_fields = set()
+
+                # First, assign best guesses for mandatory fields
                 for column in file.columns:
+                    if column in file.user_defined_dtypes:
+                        continue  # Skip already defined types
+
                     guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
-                    file.user_defined_dtypes[column] = guessed_datatype
+                    
+                    if guessed_datatype in file.required_cols and guessed_datatype not in assigned_mandatory_fields:
+                        file.user_defined_dtypes[column] = guessed_datatype
+                        assigned_mandatory_fields.add(guessed_datatype)
+                
+                # Second, assign data types for remaining columns
+                for column in file.columns:
+                    if column not in file.user_defined_dtypes:
+                        guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
+                        file.user_defined_dtypes[column] = guessed_datatype
+
                 st.success(f"Auto guessed data types for {file.name}")
 
             with st.form(file.name):
@@ -71,7 +88,6 @@ def change_dtypes(df, column_types):
     df_copy = df.copy()
     for column, col_type in column_types.items():
         if column not in df_copy.columns:
-            logger.warning(f"{column} not found in the dataframe.")
             continue
         try:
             if col_type == "Text":
@@ -90,7 +106,6 @@ def change_dtypes(df, column_types):
                 else:
                     df_copy[column] = pd.to_numeric(df_copy[column], errors='coerce')
         except Exception as e:
-            logger.error(f"Error converting {column} to {col_type}: {str(e)}")
             df_copy[column] = df_copy[column].astype(str)
     return df_copy
 
