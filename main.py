@@ -51,9 +51,10 @@ uploaded_files_list()
 # Categorize files
 categorise_files_form()
 
-# Identify columns for each file
+# Guess and identify columns for each file after categorization
 for file in st.session_state.files_list:
-    identify_columns_form(file)
+    if file.category is not None:  # Ensure the file has been categorized
+        identify_columns_form(file)
 
 # Generate drill traces
 if st.button("Generate Drill Traces"):
