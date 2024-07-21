@@ -4,7 +4,7 @@ from datetime import datetime
 import logging
 
 # Import functions from other modules
-from file_handling import read_file_chardet
+from file_handling import read_file_chardet, process_uploaded_file
 from data_processing import categorise_files_form, identify_columns_form, process_file_categories, change_dtypes
 from drill_traces import generate_drilltraces, plot3d_dhtraces
 from utils import File, simplify_dtypes, required_cols
@@ -46,47 +46,16 @@ with tab1:
         with dh_tabs[0]:  # DH Survey/Collar tab
             st.header("DH Survey/Collar Data Input")
 
-            col1, col2 = st.columns(2)
+            # File upload in an expander
+            with st.expander("Upload Collar and Survey Files", expanded=True):
+                collar_file = st.file_uploader("Upload Collar File", type=ALLOWED_EXTENSIONS, key="collar_uploader")
+                survey_file = st.file_uploader("Upload Survey File", type=ALLOWED_EXTENSIONS, key="survey_uploader")
 
-            with col1:
-                # Collar file upload
-                with st.expander("Upload Collar File", expanded=True):
-                    collar_file = st.file_uploader("Upload Collar File", type=ALLOWED_EXTENSIONS, key="collar_uploader")
-                    if collar_file:
-                        if collar_file.name not in [f.name for f in st.session_state.files_list]:
-                            st.session_state["log"].append({"timestamp": datetime.now(), "action": f"Collar file {collar_file.name} uploaded", "username": "user1"})
-                            df = read_file_chardet(collar_file)
-                            if df is not None:
-                                simplified_dtypes = simplify_dtypes(df)
-                                file_instance = File(name=collar_file.name, df=df, category="Collar", columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
-                                # Remove any existing Collar file
-                                st.session_state.files_list = [f for f in st.session_state.files_list if f.category != "Collar"]
-                                st.session_state.files_list.append(file_instance)
-                                st.success(f"Collar file {collar_file.name} uploaded successfully.")
-                            else:
-                                st.error(f"Failed to read {collar_file.name}.")
-                        else:
-                            st.warning(f"File {collar_file.name} already uploaded.")
+                if collar_file:
+                    process_uploaded_file(collar_file, "Collar")
 
-            with col2:
-                # Survey file upload
-                with st.expander("Upload Survey File", expanded=True):
-                    survey_file = st.file_uploader("Upload Survey File", type=ALLOWED_EXTENSIONS, key="survey_uploader")
-                    if survey_file:
-                        if survey_file.name not in [f.name for f in st.session_state.files_list]:
-                            st.session_state["log"].append({"timestamp": datetime.now(), "action": f"Survey file {survey_file.name} uploaded", "username": "user1"})
-                            df = read_file_chardet(survey_file)
-                            if df is not None:
-                                simplified_dtypes = simplify_dtypes(df)
-                                file_instance = File(name=survey_file.name, df=df, category="Survey", columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
-                                # Remove any existing Survey file
-                                st.session_state.files_list = [f for f in st.session_state.files_list if f.category != "Survey"]
-                                st.session_state.files_list.append(file_instance)
-                                st.success(f"Survey file {survey_file.name} uploaded successfully.")
-                            else:
-                                st.error(f"Failed to read {survey_file.name}.")
-                        else:
-                            st.warning(f"File {survey_file.name} already uploaded.")
+                if survey_file:
+                    process_uploaded_file(survey_file, "Survey")
 
             # Display currently uploaded files
             st.subheader("Uploaded Files")
@@ -105,7 +74,29 @@ with tab1:
                 if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
                     st.success("Drill traces generated successfully. Switch to the '3D Visualization' tab to view the plot.")
 
+        with dh_tabs[1]:  # DH Points tab
+            st.header("DH Points Data Input")
+            st.info("DH Points data input functionality to be implemented.")
+
+        with dh_tabs[2]:  # DH Intervals tab
+            st.header("DH Intervals Data Input")
+            st.info("DH Intervals data input functionality to be implemented.")
+
+    with data_tabs[1]:  # Points tab
+        st.header("Points Data Input")
+        st.info("Points data input functionality to be implemented.")
+
+    with data_tabs[2]:  # Lines tab
+        st.header("Lines Data Input")
+        st.info("Lines data input functionality to be implemented.")
+
+    with data_tabs[3]:  # Surfaces tab
+        st.header("Surfaces Data Input")
+        st.info("Surfaces data input functionality to be implemented.")
+
 with tab2:
+    st.header("Data Viewer")
+    
     # Create two columns
     col1, col2 = st.columns([1, 3])
     
@@ -172,10 +163,14 @@ with tab2:
                     st.dataframe(selected_file.df)
                 else:
                     st.write("No data available for the selected option.")
+            
+            # Display additional information about the selected dataset
+            st.write(f"Selected Dataset: {st.session_state['selected_data']['name']}")
+            st.write(f"Type: {st.session_state['selected_data']['type']}")
+            st.write(f"Source: {st.session_state['selected_data']['source']}")
         else:
             st.write("No data selected")
 
-# 3D Visualization tab
 with tab3:
     st.header("3D Visualization")
     if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
@@ -183,7 +178,6 @@ with tab3:
     else:
         st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
 
-# Log tab
 with tab4:
     st.header("Application Log")
     # Create a container for the log entries

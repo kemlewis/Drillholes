@@ -3,6 +3,8 @@ import pandas as pd
 import io
 import chardet
 import logging
+from datetime import datetime
+from utils import File, simplify_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,22 @@ def read_file_chardet(uploaded_file):
         st.error(f"Error reading file {uploaded_file.name}: {str(e)}")
         logger.error(f"File reading error: {str(e)}", exc_info=True)
         return None
+
+def process_uploaded_file(file, category):
+    if file.name not in [f.name for f in st.session_state.files_list]:
+        st.session_state["log"].append({"timestamp": datetime.now(), "action": f"{category} file {file.name} uploaded", "username": "user1"})
+        df = read_file_chardet(file)
+        if df is not None:
+            simplified_dtypes = simplify_dtypes(df)
+            file_instance = File(name=file.name, df=df, category=category, columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
+            # Remove any existing file of the same category
+            st.session_state.files_list = [f for f in st.session_state.files_list if f.category != category]
+            st.session_state.files_list.append(file_instance)
+            st.success(f"{category} file {file.name} uploaded successfully.")
+        else:
+            st.error(f"Failed to read {file.name}.")
+    else:
+        st.warning(f"File {file.name} already uploaded.")
 
 def uploaded_files_list():
     files_list = st.session_state.get("files_list", [])
