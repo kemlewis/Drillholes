@@ -48,20 +48,23 @@ with tab1:
 
             # File upload in an expander
             with st.expander("Upload Collar and Survey Files", expanded=True):
-                collar_file = st.file_uploader("Upload Collar File", type=ALLOWED_EXTENSIONS, key="collar_uploader")
-                survey_file = st.file_uploader("Upload Survey File", type=ALLOWED_EXTENSIONS, key="survey_uploader")
-
-                if collar_file:
-                    process_uploaded_file(collar_file, "Collar")
-
-                if survey_file:
-                    process_uploaded_file(survey_file, "Survey")
+                uploaded_file = st.file_uploader("Upload File", type=ALLOWED_EXTENSIONS, key="file_uploader")
+                
+                if uploaded_file:
+                    # Allow user to select file type
+                    file_type = st.selectbox("Select file type", ["Collar", "Survey"])
+                    
+                    if st.button("Process File"):
+                        process_uploaded_file(uploaded_file, file_type)
 
             # Display currently uploaded files
             st.subheader("Uploaded Files")
             for file in st.session_state.files_list:
                 if file.category in ["Collar", "Survey"]:
                     st.write(f"{file.category}: {file.name}")
+
+            # Categorize files
+            categorise_files_form()
 
             # Guess and identify columns for each file after upload
             for file in st.session_state.files_list:
