@@ -106,8 +106,6 @@ with tab1:
                     st.success("Drill traces generated successfully. Switch to the '3D Visualization' tab to view the plot.")
 
 with tab2:
-    st.header("Data Viewer")
-    
     # Create two columns
     col1, col2 = st.columns([1, 3])
     
