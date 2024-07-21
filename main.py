@@ -46,27 +46,57 @@ with tab1:
         with dh_tabs[0]:  # DH Survey/Collar tab
             st.header("DH Survey/Collar Data Input")
 
-            # File upload in an expander
-            with st.expander("Upload Files", expanded=True):
-                uploaded_files = st.file_uploader("", type=ALLOWED_EXTENSIONS, accept_multiple_files=True)
+            col1, col2 = st.columns(2)
 
-                if uploaded_files:
-                    for file in uploaded_files:
-                        if file.name not in [f.name for f in st.session_state.files_list]:
-                            st.session_state["log"].append({"timestamp": datetime.now(), "action": f"File {file.name} uploaded", "username": "user1"})
-                            df = read_file_chardet(file)
+            with col1:
+                # Collar file upload
+                with st.expander("Upload Collar File", expanded=True):
+                    collar_file = st.file_uploader("Upload Collar File", type=ALLOWED_EXTENSIONS, key="collar_uploader")
+                    if collar_file:
+                        if collar_file.name not in [f.name for f in st.session_state.files_list]:
+                            st.session_state["log"].append({"timestamp": datetime.now(), "action": f"Collar file {collar_file.name} uploaded", "username": "user1"})
+                            df = read_file_chardet(collar_file)
                             if df is not None:
                                 simplified_dtypes = simplify_dtypes(df)
-                                file_instance = File(name=file.name, df=df, category=None, columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
+                                file_instance = File(name=collar_file.name, df=df, category="Collar", columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
+                                # Remove any existing Collar file
+                                st.session_state.files_list = [f for f in st.session_state.files_list if f.category != "Collar"]
                                 st.session_state.files_list.append(file_instance)
+                                st.success(f"Collar file {collar_file.name} uploaded successfully.")
+                            else:
+                                st.error(f"Failed to read {collar_file.name}.")
+                        else:
+                            st.warning(f"File {collar_file.name} already uploaded.")
 
-            # Categorize files in an expander
-            with st.expander("Categorize Files", expanded=True):
-                categorise_files_form()
+            with col2:
+                # Survey file upload
+                with st.expander("Upload Survey File", expanded=True):
+                    survey_file = st.file_uploader("Upload Survey File", type=ALLOWED_EXTENSIONS, key="survey_uploader")
+                    if survey_file:
+                        if survey_file.name not in [f.name for f in st.session_state.files_list]:
+                            st.session_state["log"].append({"timestamp": datetime.now(), "action": f"Survey file {survey_file.name} uploaded", "username": "user1"})
+                            df = read_file_chardet(survey_file)
+                            if df is not None:
+                                simplified_dtypes = simplify_dtypes(df)
+                                file_instance = File(name=survey_file.name, df=df, category="Survey", columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
+                                # Remove any existing Survey file
+                                st.session_state.files_list = [f for f in st.session_state.files_list if f.category != "Survey"]
+                                st.session_state.files_list.append(file_instance)
+                                st.success(f"Survey file {survey_file.name} uploaded successfully.")
+                            else:
+                                st.error(f"Failed to read {survey_file.name}.")
+                        else:
+                            st.warning(f"File {survey_file.name} already uploaded.")
 
-            # Guess and identify columns for each file after categorization
+            # Display currently uploaded files
+            st.subheader("Uploaded Files")
             for file in st.session_state.files_list:
-                if file.category is not None:  # Ensure the file has been categorized
+                if file.category in ["Collar", "Survey"]:
+                    st.write(f"{file.category}: {file.name}")
+
+            # Guess and identify columns for each file after upload
+            for file in st.session_state.files_list:
+                if file.category in ["Collar", "Survey"]:
                     identify_columns_form(file)
 
             # Generate drill traces
@@ -74,29 +104,6 @@ with tab1:
                 generate_drilltraces()
                 if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
                     st.success("Drill traces generated successfully. Switch to the '3D Visualization' tab to view the plot.")
-
-        with dh_tabs[1]:  # DH Points tab
-            st.header("DH Points Data Input")
-            st.info("DH Points data input functionality to be implemented.")
-
-        with dh_tabs[2]:  # DH Intervals tab
-            st.header("DH Intervals Data Input")
-            st.info("DH Intervals data input functionality to be implemented.")
-
-    with data_tabs[1]:  # Points tab
-        st.header("Points Data Input")
-        st.info("Points data input functionality to be implemented.")
-
-    with data_tabs[2]:  # Lines tab
-        st.header("Lines Data Input")
-        st.info("Lines data input functionality to be implemented.")
-
-    with data_tabs[3]:  # Surfaces tab
-        st.header("Surfaces Data Input")
-        st.info("Surfaces data input functionality to be implemented.")
-
-import streamlit as st
-import pandas as pd
 
 with tab2:
     st.header("Data Viewer")
