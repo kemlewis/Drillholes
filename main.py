@@ -130,7 +130,7 @@ with tab2:
         df_available_data = pd.DataFrame(data_list)
         
         # Column filter
-        with st.expander("Column Filter"):
+        with st.container():
             columns = df_available_data.columns.tolist()
             selected_columns = st.multiselect("Select columns to display", columns, default=columns)
         
