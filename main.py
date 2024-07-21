@@ -57,12 +57,6 @@ with tab1:
                 if survey_file:
                     process_uploaded_file(survey_file, "Survey")
 
-            # Display currently uploaded files
-            st.subheader("Uploaded Files")
-            for file in st.session_state.files_list:
-                if file.category in ["Collar", "Survey"]:
-                    st.write(f"{file.category}: {file.name}")
-
             # Guess and identify columns for each file after upload
             for file in st.session_state.files_list:
                 if file.category in ["Collar", "Survey"]:
@@ -93,7 +87,7 @@ with tab1:
     with data_tabs[3]:  # Surfaces tab
         st.header("Surfaces Data Input")
         st.info("Surfaces data input functionality to be implemented.")
-        
+
 with tab2:
     st.header("Data Viewer")
     
