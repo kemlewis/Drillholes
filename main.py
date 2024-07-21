@@ -181,3 +181,21 @@ with tab2:
             st.write(f"Source: {st.session_state['selected_data']['source']}")
         else:
             st.write("No data selected")
+
+# 3D Visualization tab
+with tab3:
+    st.header("3D Visualization")
+    if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
+        plot3d_dhtraces(st.session_state["df_drilltraces"])
+    else:
+        st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
+
+# Log tab
+with tab4:
+    st.header("Application Log")
+    # Create a container for the log entries
+    log_container = st.container()
+    
+    # Display log entries in reverse chronological order
+    for log_entry in reversed(st.session_state["log"]):
+        log_container.write(f"{log_entry['timestamp']} - {log_entry['action']} (User: {log_entry['username']})")
