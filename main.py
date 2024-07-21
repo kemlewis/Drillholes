@@ -95,6 +95,12 @@ with tab1:
         st.header("Surfaces Data Input")
         st.info("Surfaces data input functionality to be implemented.")
 
+import streamlit as st
+import pandas as pd
+
+def on_select(index):
+    st.session_state.selected_index = index
+
 with tab2:
     st.header("Data Viewer")
     
@@ -126,33 +132,47 @@ with tab2:
         # Create a DataFrame from the data list
         df_available_data = pd.DataFrame(data_list)
         
+        # Initialize selected index if not exist
+        if 'selected_index' not in st.session_state:
+            st.session_state.selected_index = -1
+
+        # Add a select column with buttons
+        def create_button(idx):
+            return f'<button onclick="Streamlit.setComponentValue({idx})">Select</button>'
+
+        df_available_data.insert(0, 'Select', range(len(df_available_data)))
+        df_available_data['Select'] = df_available_data['Select'].apply(create_button)
+
         # Column filter
         with st.expander("Column Filter"):
-            columns = df_available_data.columns.tolist()
+            columns = ['Select'] + df_available_data.columns[1:].tolist()
             selected_columns = st.multiselect("Select columns to display", columns, default=columns)
         
-        # Display the table with selected columns and clickable index
-        st.write("Click on a row to select a dataset:")
+        # Display the table with selected columns and buttons
+        st.dataframe(
+            df_available_data[selected_columns],
+            column_config={
+                "Select": st.column_config.Column(
+                    "Select",
+                    width="small",
+                    help="Click to select",
+                )
+            },
+            hide_index=True,
+            use_container_width=True
+        )
         
-        # Use a placeholder to update the dataframe
-        placeholder = st.empty()
-        
-        # Display the dataframe
-        placeholder.dataframe(df_available_data[selected_columns], use_container_width=True)
-        
-        # Capture clicks on the dataframe
-        selected_index = st.session_state.get("selected_index", -1)
+        # Handle button clicks
         if st.session_state.get("dataframe_clicked"):
-            selected_index = st.session_state.dataframe_clicked["row"]
-            st.session_state.selected_index = selected_index
-        
-        # Highlight the selected row
-        if selected_index != -1:
-            df_highlighted = df_available_data[selected_columns].copy()
-            df_highlighted = df_highlighted.style.apply(lambda x: ['background: yellow' if i == selected_index else '' for i in range(len(x))], axis=0)
-            placeholder.dataframe(df_highlighted, use_container_width=True)
-            
-            selected_df = df_available_data.iloc[selected_index]['Name']
+            clicked_row = st.session_state.dataframe_clicked["row"]
+            clicked_column = st.session_state.dataframe_clicked["column"]
+            if clicked_column == "Select":
+                on_select(clicked_row)
+                st.experimental_rerun()
+
+        # Get the selected dataframe
+        if st.session_state.selected_index != -1:
+            selected_df = df_available_data.iloc[st.session_state.selected_index]['Name']
         else:
             selected_df = None
     
