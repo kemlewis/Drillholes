@@ -98,9 +98,6 @@ with tab1:
 import streamlit as st
 import pandas as pd
 
-def on_select(index):
-    st.session_state.selected_index = index
-
 with tab2:
     st.header("Data Viewer")
     
@@ -132,47 +129,28 @@ with tab2:
         # Create a DataFrame from the data list
         df_available_data = pd.DataFrame(data_list)
         
-        # Initialize selected index if not exist
-        if 'selected_index' not in st.session_state:
-            st.session_state.selected_index = -1
-
-        # Add a select column with buttons
-        def create_button(idx):
-            return f'<button onclick="Streamlit.setComponentValue({idx})">Select</button>'
-
-        df_available_data.insert(0, 'Select', range(len(df_available_data)))
-        df_available_data['Select'] = df_available_data['Select'].apply(create_button)
-
         # Column filter
         with st.expander("Column Filter"):
-            columns = ['Select'] + df_available_data.columns[1:].tolist()
+            columns = df_available_data.columns.tolist()
             selected_columns = st.multiselect("Select columns to display", columns, default=columns)
         
-        # Display the table with selected columns and buttons
-        st.dataframe(
+        # Display the table with checkboxes and handle selection
+        event = st.dataframe(
             df_available_data[selected_columns],
-            column_config={
-                "Select": st.column_config.Column(
-                    "Select",
-                    width="small",
-                    help="Click to select",
-                )
-            },
             hide_index=True,
-            use_container_width=True
+            use_container_width=True,
+            on_select='rerun',
+            selection_mode='single-row'
         )
-        
-        # Handle button clicks
-        if st.session_state.get("dataframe_clicked"):
-            clicked_row = st.session_state.dataframe_clicked["row"]
-            clicked_column = st.session_state.dataframe_clicked["column"]
-            if clicked_column == "Select":
-                on_select(clicked_row)
-                st.experimental_rerun()
 
-        # Get the selected dataframe
-        if st.session_state.selected_index != -1:
-            selected_df = df_available_data.iloc[st.session_state.selected_index]['Name']
+        if len(event.selection['rows']):
+            selected_row = event.selection['rows'][0]
+            selected_df = df_available_data.iloc[selected_row]['Name']
+            st.session_state['selected_data'] = {
+                'name': selected_df,
+                'type': df_available_data.iloc[selected_row]['Type'],
+                'source': df_available_data.iloc[selected_row]['Source']
+            }
         else:
             selected_df = None
     
@@ -189,5 +167,10 @@ with tab2:
                     st.dataframe(selected_file.df)
                 else:
                     st.write("No data available for the selected option.")
+            
+            # Display additional information about the selected dataset
+            st.write(f"Selected Dataset: {st.session_state['selected_data']['name']}")
+            st.write(f"Type: {st.session_state['selected_data']['type']}")
+            st.write(f"Source: {st.session_state['selected_data']['source']}")
         else:
             st.write("No data selected")
