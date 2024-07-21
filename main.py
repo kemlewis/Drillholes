@@ -5,7 +5,7 @@ import logging
 
 # Import functions from other modules
 from file_handling import read_file_chardet, process_uploaded_file
-from data_processing import categorise_files_form, identify_columns_form, process_file_categories, change_dtypes
+from data_processing import identify_columns_form, process_file_categories, change_dtypes
 from drill_traces import generate_drilltraces, plot3d_dhtraces
 from utils import File, simplify_dtypes, required_cols
 from config import APP_TITLE, APP_ICON, ALLOWED_EXTENSIONS
@@ -48,23 +48,20 @@ with tab1:
 
             # File upload in an expander
             with st.expander("Upload Collar and Survey Files", expanded=True):
-                uploaded_file = st.file_uploader("Upload File", type=ALLOWED_EXTENSIONS, key="file_uploader")
-                
-                if uploaded_file:
-                    # Allow user to select file type
-                    file_type = st.selectbox("Select file type", ["Collar", "Survey"])
-                    
-                    if st.button("Process File"):
-                        process_uploaded_file(uploaded_file, file_type)
+                collar_file = st.file_uploader("Upload Collar File", type=ALLOWED_EXTENSIONS, key="collar_uploader")
+                survey_file = st.file_uploader("Upload Survey File", type=ALLOWED_EXTENSIONS, key="survey_uploader")
+
+                if collar_file:
+                    process_uploaded_file(collar_file, "Collar")
+
+                if survey_file:
+                    process_uploaded_file(survey_file, "Survey")
 
             # Display currently uploaded files
             st.subheader("Uploaded Files")
             for file in st.session_state.files_list:
                 if file.category in ["Collar", "Survey"]:
                     st.write(f"{file.category}: {file.name}")
-
-            # Categorize files
-            categorise_files_form()
 
             # Guess and identify columns for each file after upload
             for file in st.session_state.files_list:
@@ -96,7 +93,7 @@ with tab1:
     with data_tabs[3]:  # Surfaces tab
         st.header("Surfaces Data Input")
         st.info("Surfaces data input functionality to be implemented.")
-
+        
 with tab2:
     st.header("Data Viewer")
     
