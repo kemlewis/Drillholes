@@ -9,6 +9,7 @@ from data_processing import identify_columns_form, process_file_categories, chan
 from drill_traces import generate_drilltraces, plot3d_dhtraces
 from utils import File, simplify_dtypes, required_cols
 from config import APP_TITLE, APP_ICON, ALLOWED_EXTENSIONS
+import datatype_guesser
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -60,7 +61,43 @@ with tab1:
             # Guess and identify columns for each file after upload
             for file in st.session_state.files_list:
                 if file.category in ["Collar", "Survey"]:
-                    identify_columns_form(file)
+                    with st.expander(f"Identify columns for {file.name}", expanded=True):
+                        st.write(f"Select column data types for the {file.category} file: {file.name}")
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.dataframe(file.df)
+                        with col2:
+                            auto_guess = st.button("Auto Guess", key=f"{file.name}_auto_guess")
+
+                            if auto_guess:
+                                # Initialize a set to keep track of assigned mandatory fields
+                                assigned_mandatory_fields = set()
+                                column_assignments = {}
+
+                                # First, assign best guesses for mandatory fields
+                                for column in file.df.columns:
+                                    guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
+                                    if guessed_datatype in file.required_cols and guessed_datatype not in assigned_mandatory_fields:
+                                        column_assignments[column] = guessed_datatype
+                                        assigned_mandatory_fields.add(guessed_datatype)
+
+                                # Second, assign data types for remaining columns
+                                for column in file.df.columns:
+                                    if column not in column_assignments:
+                                        guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
+                                        # Ensure remaining columns don't get assigned already assigned mandatory fields
+                                        while guessed_datatype in assigned_mandatory_fields:
+                                            guessed_datatype = 'Text'
+                                        column_assignments[column] = guessed_datatype
+
+                                file.user_defined_dtypes.update(column_assignments)
+                                st.success(f"Auto guessed data types for {file.name}")
+
+                            # Display and allow editing of column assignments
+                            st.write("Current column assignments:")
+                            for column, dtype in file.user_defined_dtypes.items():
+                                new_dtype = st.selectbox(f"Column: {column}", options=list(file.required_cols.keys()) + datatype_guesser.COLUMN_DATATYPES, index=(list(file.required_cols.keys()) + datatype_guesser.COLUMN_DATATYPES).index(dtype), key=f"{file.name}_{column}_dtype")
+                                file.user_defined_dtypes[column] = new_dtype
 
             # Generate drill traces
             if st.button("Generate Drill Traces"):

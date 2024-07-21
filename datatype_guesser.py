@@ -1,3 +1,5 @@
+# datatype_guesser.py
+
 from fuzzywuzzy import process
 import pandas as pd
 import re
