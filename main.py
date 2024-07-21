@@ -131,14 +131,29 @@ with tab2:
             columns = df_available_data.columns.tolist()
             selected_columns = st.multiselect("Select columns to display", columns, default=columns)
         
-        # Display the table with selected columns
-        st.dataframe(df_available_data[selected_columns])
+        # Display the table with selected columns and clickable index
+        st.write("Click on a row to select a dataset:")
         
-        # Radio button for selecting the dataframe to view
-        if not df_available_data.empty:
-            selected_df = st.radio("Select data to view:", df_available_data['Name'].tolist())
+        # Use a placeholder to update the dataframe
+        placeholder = st.empty()
+        
+        # Display the dataframe
+        placeholder.dataframe(df_available_data[selected_columns], use_container_width=True)
+        
+        # Capture clicks on the dataframe
+        selected_index = st.session_state.get("selected_index", -1)
+        if st.session_state.get("dataframe_clicked"):
+            selected_index = st.session_state.dataframe_clicked["row"]
+            st.session_state.selected_index = selected_index
+        
+        # Highlight the selected row
+        if selected_index != -1:
+            df_highlighted = df_available_data[selected_columns].copy()
+            df_highlighted = df_highlighted.style.apply(lambda x: ['background: yellow' if i == selected_index else '' for i in range(len(x))], axis=0)
+            placeholder.dataframe(df_highlighted, use_container_width=True)
+            
+            selected_df = df_available_data.iloc[selected_index]['Name']
         else:
-            st.write("No data available")
             selected_df = None
     
     with col2:
