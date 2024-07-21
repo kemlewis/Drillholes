@@ -115,14 +115,7 @@ with tab2:
         # Create a list of available dataframes
         data_list = []
         
-        # Add uploaded files
-        for file in st.session_state.files_list:
-            data_list.append({
-                "Type": file.category,
-                "Name": file.name,
-                "Source": "Uploaded"
-            })
-        
+      
         # Add generated drill traces if available
         if not st.session_state["df_drilltraces"].empty:
             data_list.append({
