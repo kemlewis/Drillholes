@@ -1,16 +1,16 @@
 import pandas as pd
 
 class File:
-    def __init__(self, name, df, category, columns=[], columns_dtypes=[], required_cols={}, simplified_dtypes={}, user_defined_dtypes={}, df_reassigned_dtypes={}):
+    def __init__(self, name, df, category=None, columns=None, columns_dtypes=None, required_cols=None, simplified_dtypes=None, user_defined_dtypes=None, df_reassigned_dtypes=None):
         self.name = name
         self.df = df
         self.category = category
-        self.columns = columns
-        self.columns_dtypes = columns_dtypes
-        self.required_cols = required_cols
-        self.simplified_dtypes = simplified_dtypes
-        self.user_defined_dtypes = user_defined_dtypes
-        self.df_reassigned_dtypes = df_reassigned_dtypes
+        self.columns = columns or df.columns.tolist()
+        self.columns_dtypes = columns_dtypes or df.dtypes.to_dict()
+        self.required_cols = required_cols or {}
+        self.simplified_dtypes = simplified_dtypes or {}
+        self.user_defined_dtypes = user_defined_dtypes or {}
+        self.df_reassigned_dtypes = df_reassigned_dtypes or {}
 
 def required_cols(file):
     required_cols_dict = {

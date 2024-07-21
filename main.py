@@ -104,45 +104,55 @@ with tab2:
     with col1:
         st.subheader("Available Data")
         
-        # Create an interactive list of dataframes
-        dataframe_options = []
+        # Create a list of available dataframes
+        data_list = []
         
         # Add uploaded files
         for file in st.session_state.files_list:
-            dataframe_options.append(f"{file.category}: {file.name}")
+            data_list.append({
+                "Type": file.category,
+                "Name": file.name,
+                "Source": "Uploaded"
+            })
         
         # Add generated drill traces if available
         if not st.session_state["df_drilltraces"].empty:
-            dataframe_options.append("Generated: Drill Traces")
+            data_list.append({
+                "Type": "Drill Traces",
+                "Name": "Generated Drill Traces",
+                "Source": "Generated"
+            })
         
-        # Create a radio button for selecting the dataframe to view
-        selected_df = st.radio("Select data to view:", dataframe_options)
+        # Create a DataFrame from the data list
+        df_available_data = pd.DataFrame(data_list)
+        
+        # Column filter
+        with st.expander("Column Filter"):
+            columns = df_available_data.columns.tolist()
+            selected_columns = st.multiselect("Select columns to display", columns, default=columns)
+        
+        # Display the table with selected columns
+        st.dataframe(df_available_data[selected_columns])
+        
+        # Radio button for selecting the dataframe to view
+        if not df_available_data.empty:
+            selected_df = st.radio("Select data to view:", df_available_data['Name'].tolist())
+        else:
+            st.write("No data available")
+            selected_df = None
     
     with col2:
         st.subheader("Data Preview")
         
         # Display the selected dataframe
-        if selected_df.startswith("Generated: Drill Traces"):
-            st.dataframe(st.session_state["df_drilltraces"])
-        else:
-            category, name = selected_df.split(": ", 1)
-            selected_file = next((file for file in st.session_state.files_list if file.name == name), None)
-            if selected_file:
-                st.dataframe(selected_file.df)
+        if selected_df is not None:
+            if selected_df == "Generated Drill Traces":
+                st.dataframe(st.session_state["df_drilltraces"])
             else:
-                st.write("No data available for the selected option.")
-
-with tab3:
-    if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
-        plot3d_dhtraces(st.session_state["df_drilltraces"])
-    else:
-        st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
-
-with tab4:
-    st.header("Application Log")
-    # Create a container for the log entries
-    log_container = st.container()
-    
-    # Display log entries in reverse chronological order
-    for log_entry in reversed(st.session_state["log"]):
-        log_container.write(f"{log_entry['timestamp']} - {log_entry['action']} (User: {log_entry['username']})")
+                selected_file = next((file for file in st.session_state.files_list if file.name == selected_df), None)
+                if selected_file:
+                    st.dataframe(selected_file.df)
+                else:
+                    st.write("No data available for the selected option.")
+        else:
+            st.write("No data selected")
