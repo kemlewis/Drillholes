@@ -48,7 +48,7 @@ with tab1:
 
             # File upload in an expander
             with st.expander("Upload Files", expanded=True):
-                uploaded_files = st.file_uploader(type=ALLOWED_EXTENSIONS, accept_multiple_files=True)
+                uploaded_files = st.file_uploader("", type=ALLOWED_EXTENSIONS, accept_multiple_files=True)
 
                 if uploaded_files:
                     for file in uploaded_files:
