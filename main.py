@@ -93,11 +93,21 @@ with tab1:
                                 file.user_defined_dtypes.update(column_assignments)
                                 st.success(f"Auto guessed data types for {file.name}")
 
-                            # Display and allow editing of column assignments
                             st.write("Current column assignments:")
-                            for column, dtype in file.user_defined_dtypes.items():
-                                new_dtype = st.selectbox(f"Column: {column}", options=list(file.required_cols.keys()) + datatype_guesser.COLUMN_DATATYPES, index=(list(file.required_cols.keys()) + datatype_guesser.COLUMN_DATATYPES).index(dtype), key=f"{file.name}_{column}_dtype")
+                            for column in file.df.columns:
+                                current_dtype = file.user_defined_dtypes.get(column, "Text")
+                                options = list(file.required_cols.keys()) + datatype_guesser.COLUMN_DATATYPES
+                                new_dtype = st.selectbox(
+                                    f"Column: {column}",
+                                    options=options,
+                                    index=options.index(current_dtype) if current_dtype in options else 0,
+                                    key=f"{file.name}_{column}_dtype"
+                                )
                                 file.user_defined_dtypes[column] = new_dtype
+
+                            if st.button("Apply Column Types", key=f"{file.name}_apply_types"):
+                                file.df = change_dtypes(file.df, file.user_defined_dtypes)
+                                st.success(f"Applied column types for {file.name}")
 
             # Generate drill traces
             if st.button("Generate Drill Traces"):
