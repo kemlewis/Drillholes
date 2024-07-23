@@ -216,7 +216,11 @@ with tab2:
 with tab3:
     st.header("3D Visualization")
     if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
-        plot3d_dhtraces(st.session_state["df_drilltraces"])
+        collar_file = next((file for file in st.session_state.files_list if file.category == "Collar"), None)
+        if collar_file:
+            plot3d_dhtraces(st.session_state["df_drilltraces"], collar_file.df)
+        else:
+            plot3d_dhtraces(st.session_state["df_drilltraces"])
     else:
         st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
 

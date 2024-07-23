@@ -1,3 +1,5 @@
+# drill_traces.py
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -98,15 +100,14 @@ def generate_drilltraces():
     else:
         st.error("Both Collar and Survey files are required to generate drill traces")
 
-def plot3d_dhtraces(df_dh_traces):
+def plot3d_dhtraces(df_dh_traces, df_collar=None):
     try:
-        # Create a list to store traces for each hole
-        traces = []
+        fig = go.Figure()
 
         # Create a trace for each hole
         for hole_id in df_dh_traces['HoleID'].unique():
             hole_data = df_dh_traces[df_dh_traces['HoleID'] == hole_id]
-            trace = go.Scatter3d(
+            fig.add_trace(go.Scatter3d(
                 x=hole_data['DH_X'],
                 y=hole_data['DH_Y'],
                 z=hole_data['DH_Z'],
@@ -116,8 +117,23 @@ def plot3d_dhtraces(df_dh_traces):
                 hoverinfo='text',
                 text=[f'HoleID: {hole_id}<br>Depth: {depth:.2f}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
                       for depth, x, y, z in zip(hole_data['Depth'], hole_data['DH_X'], hole_data['DH_Y'], hole_data['DH_Z'])]
-            )
-            traces.append(trace)
+            ))
+
+        # Add collar points if available
+        if df_collar is not None:
+            fig.add_trace(go.Scatter3d(
+                x=df_collar['DH_X'],
+                y=df_collar['DH_Y'],
+                z=df_collar['DH_Z'],
+                mode='markers+text',
+                name='Collars',
+                marker=dict(size=5, color='red'),
+                text=df_collar['HoleID'],
+                textposition='top center',
+                hoverinfo='text',
+                hovertext=[f'HoleID: {hole_id}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
+                           for hole_id, x, y, z in zip(df_collar['HoleID'], df_collar['DH_X'], df_collar['DH_Y'], df_collar['DH_Z'])]
+            ))
 
         # Create the layout
         layout = go.Layout(
@@ -127,13 +143,19 @@ def plot3d_dhtraces(df_dh_traces):
                 zaxis_title='Z',
                 aspectmode='data'
             ),
-            title='3D Drill Traces',
+            title='3D Drill Traces with Collars',
             hovermode='closest',
-            height=800  # Increase the height of the plot
+            height=800,  # Increase the height of the plot
+            legend=dict(
+                yanchor="top",
+                y=0.99,
+                xanchor="left",
+                x=0.01
+            )
         )
 
         # Create the figure and plot
-        fig = go.Figure(data=traces, layout=layout)
+        fig.update_layout(layout)
         st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
