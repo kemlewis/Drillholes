@@ -3,6 +3,7 @@
 from fuzzywuzzy import process
 import pandas as pd
 import re
+import numpy as np
 
 # Define the possible categories for files and data columns
 FILE_CATEGORIES = ['Collar', 'Survey', 'Point', 'Interval']
@@ -32,33 +33,21 @@ def normalize_string(s):
     return re.sub(r'\W+', '', s).lower()
 
 def guess_file_type(file_name):
-    """
-    Guess the file type based on the file name.
-    
-    Parameters:
-    file_name (str): The name of the file to guess the type for.
-    
-    Returns:
-    str: The best guess for the file type.
-    """
+    """Guess the file type based on the file name."""
     normalized_name = normalize_string(file_name)
     best_guess, score = process.extractOne(normalized_name, FILE_CATEGORIES, scorer=process.fuzz.partial_ratio)
-    
-    # If the score is too low, default to 'Collar' as it's the most common type
     return best_guess if score > 60 else 'Collar'
 
+def is_numeric(column_data):
+    """Check if a column is numeric."""
+    try:
+        pd.to_numeric(column_data, errors='raise')
+        return True
+    except ValueError:
+        return False
+
 def guess_column_type(file_type, column_name, column_data):
-    """
-    Guess the column type based on the file type, column name, and column data.
-    
-    Parameters:
-    file_type (str): The type of the file.
-    column_name (str): The name of the column to guess the type for.
-    column_data (pd.Series): The data of the column.
-    
-    Returns:
-    str: The best guess for the column type.
-    """
+    """Guess the column type based on the file type, column name, and column data."""
     normalized_name = normalize_string(column_name)
     mandatory_fields = REQUIRED_COLUMNS.get(file_type, [])
     
@@ -67,6 +56,10 @@ def guess_column_type(file_type, column_name, column_data):
         if any(variation in normalized_name for variation in MANDATORY_FIELD_VARIATIONS.get(field, [])):
             return field
 
+    # Check for numeric columns (including those with some non-numeric values)
+    if is_numeric(column_data) or (column_data.dtype == 'object' and column_data.str.isnumeric().mean() > 0.8):
+        return 'Numeric'
+
     # Check for datetime columns
     if 'date' in normalized_name or pd.api.types.is_datetime64_any_dtype(column_data):
         return 'Datetime'
@@ -74,10 +67,6 @@ def guess_column_type(file_type, column_name, column_data):
     # Check for boolean columns
     if set(column_data.dropna().unique()) <= {True, False, 1, 0, 'True', 'False', 'true', 'false', 'TRUE', 'FALSE', 'T', 'F', 'Y', 'N'}:
         return 'Boolean'
-    
-    # Check for numeric columns
-    if pd.api.types.is_numeric_dtype(column_data):
-        return 'Numeric'
     
     # Check for categorical columns
     unique_ratio = column_data.nunique() / len(column_data)
@@ -88,17 +77,7 @@ def guess_column_type(file_type, column_name, column_data):
     return 'Text'
 
 def guess_type(type_name, name, column_data=None):
-    """
-    Guess the type based on the type name and name.
-    
-    Parameters:
-    type_name (str): The type name ("file" or "datacolumn").
-    name (str): The name to guess the type for.
-    column_data (pd.Series, optional): The data of the column if guessing a datacolumn type.
-    
-    Returns:
-    str: The best guess for the type.
-    """
+    """Guess the type based on the type name and name."""
     if type_name.lower() == 'file':
         return guess_file_type(name)
     elif type_name.lower() == 'datacolumn':

@@ -82,14 +82,7 @@ with tab1:
                                     if guessed_datatype in file.required_cols and guessed_datatype not in assigned_mandatory_fields:
                                         column_assignments[column] = guessed_datatype
                                         assigned_mandatory_fields.add(guessed_datatype)
-
-                                # Second, assign data types for remaining columns
-                                for column in file.df.columns:
-                                    if column not in column_assignments:
-                                        guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
-                                        # Ensure remaining columns don't get assigned already assigned mandatory fields
-                                        while guessed_datatype in assigned_mandatory_fields:
-                                            guessed_datatype = 'Text'
+                                    else:
                                         column_assignments[column] = guessed_datatype
 
                                 file.user_defined_dtypes.update(column_assignments)
