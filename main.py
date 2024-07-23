@@ -213,6 +213,8 @@ with tab2:
         else:
             st.write("No data selected")
 
+from streamlit_plotly_events import plotly_events
+
 with tab3:
     st.header("3D Visualization")
     if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
@@ -223,13 +225,19 @@ with tab3:
             fig = plot3d_dhtraces(st.session_state["df_drilltraces"])
 
         if fig:
-            # Use Streamlit's plotly_chart with use_container_width=True
-            selected_points = st.plotly_chart(fig, use_container_width=True)
+            # Use plotly_events to capture click events
+            selected_points = plotly_events(fig, click_event=True)
             
             if selected_points:
-                st.write("Selected points:", selected_points)
+                st.write("Selected point details:")
+                for point in selected_points:
+                    st.write(f"Trace: {point['curveNumber']}")
+                    st.write(f"Point Index: {point['pointIndex']}")
+                    st.write(f"X: {point['x']:.2f}")
+                    st.write(f"Y: {point['y']:.2f}")
+                    st.write(f"Z: {point['z']:.2f}")
             else:
-                st.write("No points selected. Use the selection tools to select points.")
+                st.write("Click on a point in the plot to see its details.")
     else:
         st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
         

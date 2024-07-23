@@ -99,9 +99,6 @@ def generate_drilltraces():
     else:
         st.error("Both Collar and Survey files are required to generate drill traces")
 
-import plotly.graph_objects as go
-import streamlit as st
-
 def plot3d_dhtraces(df_dh_traces, df_collar=None):
     try:
         fig = go.Figure()
@@ -153,35 +150,7 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
                 y=0.99,
                 xanchor="left",
                 x=0.01
-            ),
-            dragmode='select'
-        )
-
-        # Add selection tools
-        fig.update_layout(
-            updatemenus=[
-                dict(
-                    type="buttons",
-                    direction="left",
-                    buttons=[
-                        dict(args=[{"dragmode": "select"}],
-                             label="Select",
-                             method="relayout"),
-                        dict(args=[{"dragmode": "lasso"}],
-                             label="Lasso",
-                             method="relayout"),
-                        dict(args=[{"dragmode": "orbit"}],
-                             label="Orbit",
-                             method="relayout"),
-                    ],
-                    pad={"r": 10, "t": 10},
-                    showactive=True,
-                    x=0.05,
-                    xanchor="left",
-                    y=1.1,
-                    yanchor="top"
-                ),
-            ]
+            )
         )
 
         return fig

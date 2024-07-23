@@ -6,3 +6,4 @@ chardet
 plotly
 fuzzywuzzy
 openpyxl
+streamlit_plotly_events
