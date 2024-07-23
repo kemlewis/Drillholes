@@ -8,12 +8,11 @@ import logging
 # Import functions from other modules
 from file_handling import read_file_chardet, process_uploaded_file
 from data_processing import identify_columns_form, process_file_categories, change_dtypes
-from drill_traces import generate_drilltraces, plot3d_dhtraces
+from drill_traces import generate_all_drilltraces, plot3d_dhtraces
 from utils import File, simplify_dtypes, required_cols
 from config import APP_TITLE, APP_ICON, ALLOWED_EXTENSIONS
 import datatype_guesser
 from datatype_guesser import REQUIRED_COLUMNS, COLUMN_DATATYPES
-from drill_traces import generate_all_drilltraces, plot3d_dhtraces
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -31,6 +30,8 @@ if "log" not in st.session_state:
     st.session_state["log"] = []
 if "df_drilltraces" not in st.session_state:
     st.session_state["df_drilltraces"] = pd.DataFrame()
+if "data_groups" not in st.session_state:
+    st.session_state.data_groups = pd.DataFrame(columns=["Type", "Name", "Dataset", "Source", "Data Group"])
 
 # Log app start
 if len(st.session_state["log"]) == 0:
@@ -50,29 +51,37 @@ with tab1:
         st.header("Drillhole Data Input")
 
         # Add a new dataset
-        if st.button("Add New Dataset"):
-            st.session_state.datasets.append({"collar": None, "survey": None})
+        new_group_name = st.text_input("Enter a name for the new drillhole group:")
+        if st.button("Add New Dataset") and new_group_name:
+            st.session_state.datasets.append({"collar": None, "survey": None, "group_name": new_group_name})
+            st.success(f"New dataset group '{new_group_name}' added.")
 
         # Display file uploaders for each dataset
         for idx, dataset in enumerate(st.session_state.datasets):
-            with st.expander(f"Dataset {idx + 1}", expanded=True):
+            with st.expander(f"Dataset {idx + 1}: {dataset['group_name']}", expanded=True):
                 col1, col2 = st.columns(2)
                 with col1:
-                    dataset["collar"] = st.file_uploader(f"Upload Collar File for Dataset {idx + 1}", type=ALLOWED_EXTENSIONS, key=f"collar_uploader_{idx}")
+                    dataset["collar"] = st.file_uploader(f"Upload Collar File for {dataset['group_name']}", type=ALLOWED_EXTENSIONS, key=f"collar_uploader_{idx}")
                 with col2:
-                    dataset["survey"] = st.file_uploader(f"Upload Survey File for Dataset {idx + 1}", type=ALLOWED_EXTENSIONS, key=f"survey_uploader_{idx}")
+                    dataset["survey"] = st.file_uploader(f"Upload Survey File for {dataset['group_name']}", type=ALLOWED_EXTENSIONS, key=f"survey_uploader_{idx}")
 
         # Process uploaded files
         if st.button("Process Uploaded Files"):
             for idx, dataset in enumerate(st.session_state.datasets):
                 if dataset["collar"] and dataset["survey"]:
-                    dataset_name = f"Dataset_{idx+1}"
-                    collar_file = process_uploaded_file(dataset["collar"], "Collar", dataset_name)
-                    survey_file = process_uploaded_file(dataset["survey"], "Survey", dataset_name)
+                    collar_file = process_uploaded_file(dataset["collar"], "Collar", f"Dataset_{idx+1}", dataset['group_name'])
+                    survey_file = process_uploaded_file(dataset["survey"], "Survey", f"Dataset_{idx+1}", dataset['group_name'])
                     if collar_file and survey_file:
-                        st.success(f"Dataset {idx + 1} processed successfully")
+                        st.success(f"Dataset {idx + 1} ({dataset['group_name']}) processed successfully")
+                        
+                        # Update data_groups DataFrame
+                        new_data = [
+                            {"Type": "Collar", "Name": collar_file.name, "Dataset": f"Dataset_{idx+1}", "Source": "Uploaded", "Data Group": dataset['group_name']},
+                            {"Type": "Survey", "Name": survey_file.name, "Dataset": f"Dataset_{idx+1}", "Source": "Uploaded", "Data Group": dataset['group_name']}
+                        ]
+                        st.session_state.data_groups = pd.concat([st.session_state.data_groups, pd.DataFrame(new_data)], ignore_index=True)
                     else:
-                        st.error(f"Error processing Dataset {idx + 1}")
+                        st.error(f"Error processing Dataset {idx + 1} ({dataset['group_name']})")
             st.experimental_rerun()
 
         # Guess and identify columns for each file after upload
@@ -118,16 +127,20 @@ with tab1:
                             file.df = change_dtypes(file.df, file.user_defined_dtypes)
                             st.success(f"Applied column types for {file.name}")
 
-       # In the main.py file, replace the existing "Generate All Drill Traces" button code with this:
-
         # Generate drill traces
         if st.button("Generate All Drill Traces"):
             df_all_drilltraces = generate_all_drilltraces()
             if df_all_drilltraces is not None:
                 st.session_state["df_drilltraces"] = df_all_drilltraces
                 st.success("All drill traces generated successfully. Switch to the '3D Visualization' tab to view the plot.")
+                
+                # Add generated drill traces to data_groups DataFrame
+                new_data = {"Type": "Drill Traces", "Name": "Generated Drill Traces", "Dataset": "All", "Source": "Generated", "Data Group": "All"}
+                st.session_state.data_groups = pd.concat([st.session_state.data_groups, pd.DataFrame([new_data])], ignore_index=True)
             else:
                 st.error("Failed to generate drill traces. Please check your input files.")
+
+
             
     with data_tabs[1]:  # Points tab
         st.header("Points Data Input")
@@ -149,32 +162,13 @@ with tab2:
     with col1:
         st.subheader("Available Data")
         
-        data_list = []
-        
-        for file in st.session_state.files_list:
-            data_list.append({
-                "Type": file.category,
-                "Name": file.name,
-                "Dataset": file.dataset,
-                "Source": "Uploaded"
-            })
-        
-        if not st.session_state["df_drilltraces"].empty:
-            data_list.append({
-                "Type": "Drill Traces",
-                "Name": "Generated Drill Traces",
-                "Dataset": "All",
-                "Source": "Generated"
-            })
-        
-        df_available_data = pd.DataFrame(data_list)
-        
+        # Use the data_groups DataFrame for selection
         with st.container():
-            columns = df_available_data.columns.tolist()
+            columns = st.session_state.data_groups.columns.tolist()
             selected_columns = st.multiselect("Select columns to display", columns, default=columns)
         
         event = st.dataframe(
-            df_available_data[selected_columns],
+            st.session_state.data_groups[selected_columns],
             hide_index=True,
             use_container_width=True,
             on_select='rerun',
@@ -183,12 +177,13 @@ with tab2:
 
         if len(event.selection['rows']):
             selected_row = event.selection['rows'][0]
-            selected_df = df_available_data.iloc[selected_row]['Name']
+            selected_df = st.session_state.data_groups.iloc[selected_row]['Name']
             st.session_state['selected_data'] = {
                 'name': selected_df,
-                'type': df_available_data.iloc[selected_row]['Type'],
-                'dataset': df_available_data.iloc[selected_row]['Dataset'],
-                'source': df_available_data.iloc[selected_row]['Source']
+                'type': st.session_state.data_groups.iloc[selected_row]['Type'],
+                'dataset': st.session_state.data_groups.iloc[selected_row]['Dataset'],
+                'source': st.session_state.data_groups.iloc[selected_row]['Source'],
+                'group': st.session_state.data_groups.iloc[selected_row]['Data Group']
             }
         else:
             selected_df = None
@@ -210,6 +205,7 @@ with tab2:
             st.write(f"Type: {st.session_state['selected_data']['type']}")
             st.write(f"Dataset: {st.session_state['selected_data']['dataset']}")
             st.write(f"Source: {st.session_state['selected_data']['source']}")
+            st.write(f"Data Group: {st.session_state['selected_data']['group']}")
         else:
             st.write("No data selected")
 
