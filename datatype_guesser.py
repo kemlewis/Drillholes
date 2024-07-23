@@ -83,8 +83,8 @@ def guess_type(type_name, name, column_data=None):
     elif type_name.lower() == 'datacolumn':
         if column_data is None:
             raise ValueError("column_data must be provided for type 'datacolumn'")
-        file_type = name.split('_')[0]
-        return guess_column_type(file_type, name.split('_', 1)[-1], column_data)
+        file_type, column_name = name.split('_', 1)
+        return guess_column_type(file_type, column_name, column_data)
     else:
         raise ValueError("Invalid type name. Use 'file' or 'datacolumn'.")
 

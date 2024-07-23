@@ -5,6 +5,7 @@ import chardet
 import logging
 from datetime import datetime
 from utils import File, simplify_dtypes
+from datatype_guesser import REQUIRED_COLUMNS
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,7 @@ def process_uploaded_file(file, category):
         if df is not None:
             simplified_dtypes = simplify_dtypes(df)
             file_instance = File(name=file.name, df=df, category=category, columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
+            file_instance.required_cols = REQUIRED_COLUMNS[category]  # Now this will work
             # Remove any existing file of the same category
             st.session_state.files_list = [f for f in st.session_state.files_list if f.category != category]
             st.session_state.files_list.append(file_instance)

@@ -83,6 +83,8 @@ with tab1:
                                         column_assignments[column] = guessed_datatype
                                         assigned_mandatory_fields.add(guessed_datatype)
                                     else:
+                                        # If not a required column, guess again without the file category prefix
+                                        guessed_datatype = datatype_guesser.guess_column_type(file.category, column, file.df[column])
                                         column_assignments[column] = guessed_datatype
 
                                 file.user_defined_dtypes.update(column_assignments)
