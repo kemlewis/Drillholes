@@ -1,10 +1,12 @@
+#file_handling.py
+
 import streamlit as st
 import pandas as pd
 import io
 import chardet
+import hashlib
 import logging
 from datetime import datetime
-import hashlib
 from utils import File, simplify_dtypes
 from datatype_guesser import REQUIRED_COLUMNS
 
@@ -34,7 +36,7 @@ def read_file_chardet(uploaded_file):
         return None, None, None, None
 
 def process_uploaded_file(file, category):
-    df, encoding, file_size = read_file_chardet(file)
+    df, encoding, file_size, file_hash = read_file_chardet(file)
     if df is not None:
         simplified_dtypes = simplify_dtypes(df)
         file_instance = File(name=file.name, df=df, category=category, columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
@@ -54,7 +56,8 @@ def process_uploaded_file(file, category):
             "file_size": f"{file_size / 1024:.2f} KB",
             "rows": len(df),
             "columns": len(df.columns),
-            "column_names": df.columns.tolist()
+            "column_names": df.columns.tolist(),
+            "file_hash": file_hash
         }
         st.session_state["log"].append(log_entry)
         
