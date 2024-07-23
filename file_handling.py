@@ -11,45 +11,51 @@ logger = logging.getLogger(__name__)
 
 def read_file_chardet(uploaded_file):
     try:
-        # Read the file content
         file_content = uploaded_file.read()
+        file_size = len(file_content)
         
-        # Check if it's an Excel file
         if uploaded_file.name.endswith(('xlsx', 'xls', 'xlsm')):
-            # Use pandas to read Excel file
             df = pd.read_excel(io.BytesIO(file_content))
+            encoding = "Excel (binary)"
         else:
-            # For CSV and TXT files, use chardet to detect encoding
             result = chardet.detect(file_content)
             encoding = result['encoding']
             confidence = result['confidence']
-            st.write(f"The encoding of {uploaded_file.name} is {encoding} with a confidence of {confidence}")
-            
-            # Decode the content using the detected encoding
             text_content = file_content.decode(encoding)
-            
-            # Use pandas to read CSV
             df = pd.read_csv(io.StringIO(text_content))
         
-        st.success(f"Successfully read {uploaded_file.name}")
-        return df
+        return df, encoding, file_size
     except Exception as e:
-        st.error(f"Error reading file {uploaded_file.name}: {str(e)}")
         logger.error(f"File reading error: {str(e)}", exc_info=True)
-        return None
+        return None, None, None
 
 def process_uploaded_file(file, category):
     if file.name not in [f.name for f in st.session_state.files_list]:
-        st.session_state["log"].append({"timestamp": datetime.now(), "action": f"{category} file {file.name} uploaded", "username": "user1"})
-        df = read_file_chardet(file)
+        df, encoding, file_size = read_file_chardet(file)
         if df is not None:
             simplified_dtypes = simplify_dtypes(df)
             file_instance = File(name=file.name, df=df, category=category, columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
-            file_instance.required_cols = REQUIRED_COLUMNS[category]  # Now this will work
+            file_instance.required_cols = REQUIRED_COLUMNS[category]
+            
             # Remove any existing file of the same category
             st.session_state.files_list = [f for f in st.session_state.files_list if f.category != category]
             st.session_state.files_list.append(file_instance)
-            st.success(f"{category} file {file.name} uploaded successfully.")
+            
+            log_entry = {
+                "timestamp": datetime.now(),
+                "action": f"{category} file uploaded",
+                "username": "user1",
+                "filename": file.name,
+                "category": category,
+                "encoding": encoding,
+                "file_size": f"{file_size / 1024:.2f} KB",
+                "rows": len(df),
+                "columns": len(df.columns),
+                "column_names": df.columns.tolist()
+            }
+            st.session_state["log"].append(log_entry)
+            
+            st.success(f"{category} file '{file.name}' uploaded successfully.")
         else:
             st.error(f"Failed to read {file.name}.")
     else:
