@@ -3,7 +3,7 @@
 import pandas as pd
 
 class File:
-    def __init__(self, name, df, category=None, columns=None, columns_dtypes=None, required_cols=None, simplified_dtypes=None, user_defined_dtypes=None, df_reassigned_dtypes=None):
+    def __init__(self, name, df, category=None, columns=None, columns_dtypes=None, required_cols=None, simplified_dtypes=None, user_defined_dtypes=None, df_reassigned_dtypes=None, dataset=None):
         self.name = name
         self.df = df
         self.category = category
@@ -13,6 +13,7 @@ class File:
         self.simplified_dtypes = simplified_dtypes or {}
         self.user_defined_dtypes = user_defined_dtypes or {}
         self.df_reassigned_dtypes = df_reassigned_dtypes or {}
+        self.dataset = dataset
 
 def required_cols(file):
     required_cols_dict = {

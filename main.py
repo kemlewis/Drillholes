@@ -65,8 +65,9 @@ with tab1:
         if st.button("Process Uploaded Files"):
             for idx, dataset in enumerate(st.session_state.datasets):
                 if dataset["collar"] and dataset["survey"]:
-                    collar_file = process_uploaded_file(dataset["collar"], "Collar", f"Dataset_{idx+1}")
-                    survey_file = process_uploaded_file(dataset["survey"], "Survey", f"Dataset_{idx+1}")
+                    dataset_name = f"Dataset_{idx+1}"
+                    collar_file = process_uploaded_file(dataset["collar"], "Collar", dataset_name)
+                    survey_file = process_uploaded_file(dataset["survey"], "Survey", dataset_name)
                     if collar_file and survey_file:
                         st.success(f"Dataset {idx + 1} processed successfully")
                     else:
