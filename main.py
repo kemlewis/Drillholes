@@ -1,4 +1,4 @@
-#main.py
+# main.py
 
 import streamlit as st
 import pandas as pd
@@ -9,10 +9,9 @@ import logging
 from file_handling import read_file_chardet, process_uploaded_file
 from data_processing import identify_columns_form, process_file_categories, change_dtypes
 from drill_traces import generate_drilltraces, plot3d_dhtraces
-from utils import File, simplify_dtypes, required_cols
+from utils import File, simplify_dtypes, REQUIRED_COLUMNS, COLUMN_DATATYPES
 from config import APP_TITLE, APP_ICON, ALLOWED_EXTENSIONS
 import datatype_guesser
-from datatype_guesser import REQUIRED_COLUMNS, COLUMN_DATATYPES
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -80,7 +79,7 @@ with tab1:
                                 # First, assign best guesses for mandatory fields
                                 for column in file.df.columns:
                                     guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
-                                    if guessed_datatype in file.required_cols and guessed_datatype not in assigned_mandatory_fields:
+                                    if guessed_datatype in REQUIRED_COLUMNS and guessed_datatype not in assigned_mandatory_fields:
                                         column_assignments[column] = guessed_datatype
                                         assigned_mandatory_fields.add(guessed_datatype)
                                     else:
@@ -94,10 +93,7 @@ with tab1:
                             st.write("Current column assignments:")
                             for column in file.df.columns:
                                 current_dtype = file.user_defined_dtypes.get(column, "Text")
-                                
-                                # Use REQUIRED_COLUMNS instead of file.required_cols
                                 options = REQUIRED_COLUMNS.get(file.category, []) + COLUMN_DATATYPES
-                                
                                 new_dtype = st.selectbox(
                                     f"Column: {column}",
                                     options=options,
