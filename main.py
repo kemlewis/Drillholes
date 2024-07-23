@@ -22,14 +22,14 @@ logger = logging.getLogger(__name__)
 st.set_page_config(page_title=APP_TITLE, page_icon=APP_ICON, layout="wide")
 
 # Initialize session state
+if 'datasets' not in st.session_state:
+    st.session_state.datasets = []
 if 'files_list' not in st.session_state:
     st.session_state['files_list'] = []
 if "log" not in st.session_state:
     st.session_state["log"] = []
 if "df_drilltraces" not in st.session_state:
     st.session_state["df_drilltraces"] = pd.DataFrame()
-if "uploaded_files" not in st.session_state:
-    st.session_state.uploaded_files = {"Collar": None, "Survey": None}
 
 # Log app start
 if len(st.session_state["log"]) == 0:
@@ -46,88 +46,93 @@ with tab1:
     data_tabs = st.tabs(["Drillholes", "Points", "Lines", "Surfaces"])
 
     with data_tabs[0]:  # Drillholes tab
-        # Create sub-tabs for drillhole data types
-        dh_tabs = st.tabs(["DH Survey/Collar", "DH Points", "DH Intervals"])
+        st.header("Drillhole Data Input")
 
-        with dh_tabs[0]:  # DH Survey/Collar tab
-            st.header("DH Survey/Collar Data Input")
+        # Add a new dataset
+        if st.button("Add New Dataset"):
+            st.session_state.datasets.append({"collar": None, "survey": None})
 
-            # File upload in an expander
-            with st.expander("Upload Collar and Survey Files", expanded=True):
-                collar_file = st.file_uploader("Upload Collar File", type=ALLOWED_EXTENSIONS, key="collar_uploader")
-                survey_file = st.file_uploader("Upload Survey File", type=ALLOWED_EXTENSIONS, key="survey_uploader")
+        # Display file uploaders for each dataset
+        for idx, dataset in enumerate(st.session_state.datasets):
+            with st.expander(f"Dataset {idx + 1}", expanded=True):
+                col1, col2 = st.columns(2)
+                with col1:
+                    dataset["collar"] = st.file_uploader(f"Upload Collar File for Dataset {idx + 1}", type=ALLOWED_EXTENSIONS, key=f"collar_uploader_{idx}")
+                with col2:
+                    dataset["survey"] = st.file_uploader(f"Upload Survey File for Dataset {idx + 1}", type=ALLOWED_EXTENSIONS, key=f"survey_uploader_{idx}")
 
-                st.session_state.uploaded_files["Collar"] = collar_file
-                st.session_state.uploaded_files["Survey"] = survey_file
+        # Process uploaded files
+        if st.button("Process Uploaded Files"):
+            for idx, dataset in enumerate(st.session_state.datasets):
+                if dataset["collar"] and dataset["survey"]:
+                    collar_file = process_uploaded_file(dataset["collar"], "Collar", f"Dataset_{idx+1}")
+                    survey_file = process_uploaded_file(dataset["survey"], "Survey", f"Dataset_{idx+1}")
+                    if collar_file and survey_file:
+                        st.success(f"Dataset {idx + 1} processed successfully")
+                    else:
+                        st.error(f"Error processing Dataset {idx + 1}")
+            st.experimental_rerun()
 
-                if st.button("Process Uploaded Files"):
-                    for category, file in st.session_state.uploaded_files.items():
-                        if file:
-                            process_uploaded_file(file, category)
-                    st.experimental_rerun()
+        # Guess and identify columns for each file after upload
+        for file in st.session_state.files_list:
+            if file.category in ["Collar", "Survey"]:
+                with st.expander(f"Identify columns for {file.name} ({file.dataset})", expanded=True):
+                    st.write(f"Select column data types for the {file.category} file: {file.name}")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.dataframe(file.df)
+                    with col2:
+                        auto_guess = st.button("Auto Guess", key=f"{file.name}_{file.dataset}_auto_guess")
 
-            # Guess and identify columns for each file after upload
-            for file in st.session_state.files_list:
-                if file.category in ["Collar", "Survey"]:
-                    with st.expander(f"Identify columns for {file.name}", expanded=True):
-                        st.write(f"Select column data types for the {file.category} file: {file.name}")
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            st.dataframe(file.df)
-                        with col2:
-                            auto_guess = st.button("Auto Guess", key=f"{file.name}_auto_guess")
+                        if auto_guess:
+                            assigned_mandatory_fields = set()
+                            column_assignments = {}
 
-                            if auto_guess:
-                                # Initialize a set to keep track of assigned mandatory fields
-                                assigned_mandatory_fields = set()
-                                column_assignments = {}
-
-                                # First, assign best guesses for mandatory fields
-                                for column in file.df.columns:
-                                    guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
-                                    if guessed_datatype in file.required_cols and guessed_datatype not in assigned_mandatory_fields:
-                                        column_assignments[column] = guessed_datatype
-                                        assigned_mandatory_fields.add(guessed_datatype)
-                                    else:
-                                        # If not a required column, guess again without the file category prefix
-                                        guessed_datatype = datatype_guesser.guess_column_type(file.category, column, file.df[column])
-                                        column_assignments[column] = guessed_datatype
-
-                                file.user_defined_dtypes.update(column_assignments)
-                                st.success(f"Auto guessed data types for {file.name}")
-
-                            st.write("Current column assignments:")
                             for column in file.df.columns:
-                                current_dtype = file.user_defined_dtypes.get(column, "Text")
-                                
-                                # Use REQUIRED_COLUMNS instead of file.required_cols
-                                options = REQUIRED_COLUMNS.get(file.category, []) + COLUMN_DATATYPES
-                                
-                                new_dtype = st.selectbox(
-                                    f"Column: {column}",
-                                    options=options,
-                                    index=options.index(current_dtype) if current_dtype in options else 0,
-                                    key=f"{file.name}_{column}_dtype"
-                                )
-                                file.user_defined_dtypes[column] = new_dtype
+                                guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
+                                if guessed_datatype in file.required_cols and guessed_datatype not in assigned_mandatory_fields:
+                                    column_assignments[column] = guessed_datatype
+                                    assigned_mandatory_fields.add(guessed_datatype)
+                                else:
+                                    guessed_datatype = datatype_guesser.guess_column_type(file.category, column, file.df[column])
+                                    column_assignments[column] = guessed_datatype
 
-                            if st.button("Apply Column Types", key=f"{file.name}_apply_types"):
-                                file.df = change_dtypes(file.df, file.user_defined_dtypes)
-                                st.success(f"Applied column types for {file.name}")
+                            file.user_defined_dtypes.update(column_assignments)
+                            st.success(f"Auto guessed data types for {file.name}")
 
-            # Generate drill traces
-            if st.button("Generate Drill Traces"):
-                generate_drilltraces()
-                if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
-                    st.success("Drill traces generated successfully. Switch to the '3D Visualization' tab to view the plot.")
+                        st.write("Current column assignments:")
+                        for column in file.df.columns:
+                            current_dtype = file.user_defined_dtypes.get(column, "Text")
+                            options = REQUIRED_COLUMNS.get(file.category, []) + COLUMN_DATATYPES
+                            new_dtype = st.selectbox(
+                                f"Column: {column}",
+                                options=options,
+                                index=options.index(current_dtype) if current_dtype in options else 0,
+                                key=f"{file.name}_{file.dataset}_{column}_dtype"
+                            )
+                            file.user_defined_dtypes[column] = new_dtype
 
-        with dh_tabs[1]:  # DH Points tab
-            st.header("DH Points Data Input")
-            st.info("DH Points data input functionality to be implemented.")
+                        if st.button("Apply Column Types", key=f"{file.name}_{file.dataset}_apply_types"):
+                            file.df = change_dtypes(file.df, file.user_defined_dtypes)
+                            st.success(f"Applied column types for {file.name}")
 
-        with dh_tabs[2]:  # DH Intervals tab
-            st.header("DH Intervals Data Input")
-            st.info("DH Intervals data input functionality to be implemented.")
+        # Generate drill traces
+        if st.button("Generate All Drill Traces"):
+            all_drilltraces = []
+            for idx, dataset in enumerate(st.session_state.datasets):
+                collar_file = next((file for file in st.session_state.files_list if file.category == "Collar" and file.dataset == f"Dataset_{idx+1}"), None)
+                survey_file = next((file for file in st.session_state.files_list if file.category == "Survey" and file.dataset == f"Dataset_{idx+1}"), None)
+                if collar_file and survey_file:
+                    drilltraces = generate_drilltraces(collar_file.df, survey_file.df)
+                    if drilltraces is not None:
+                        drilltraces['Dataset'] = f"Dataset_{idx+1}"
+                        all_drilltraces.append(drilltraces)
+            
+            if all_drilltraces:
+                st.session_state["df_drilltraces"] = pd.concat(all_drilltraces, ignore_index=True)
+                st.success("All drill traces generated successfully. Switch to the '3D Visualization' tab to view the plot.")
+            else:
+                st.error("Failed to generate drill traces. Please check your input files.")
 
     with data_tabs[1]:  # Points tab
         st.header("Points Data Input")
@@ -144,40 +149,35 @@ with tab1:
 with tab2:
     st.header("Data Viewer")
     
-    # Create two columns
     col1, col2 = st.columns([1, 3])
     
     with col1:
         st.subheader("Available Data")
         
-        # Create a list of available dataframes
         data_list = []
         
-        # Add uploaded files
         for file in st.session_state.files_list:
             data_list.append({
                 "Type": file.category,
                 "Name": file.name,
+                "Dataset": file.dataset,
                 "Source": "Uploaded"
             })
         
-        # Add generated drill traces if available
         if not st.session_state["df_drilltraces"].empty:
             data_list.append({
                 "Type": "Drill Traces",
                 "Name": "Generated Drill Traces",
+                "Dataset": "All",
                 "Source": "Generated"
             })
         
-        # Create a DataFrame from the data list
         df_available_data = pd.DataFrame(data_list)
         
-        # Column filter
         with st.container():
             columns = df_available_data.columns.tolist()
             selected_columns = st.multiselect("Select columns to display", columns, default=columns)
         
-        # Display the table with checkboxes and handle selection
         event = st.dataframe(
             df_available_data[selected_columns],
             hide_index=True,
@@ -192,6 +192,7 @@ with tab2:
             st.session_state['selected_data'] = {
                 'name': selected_df,
                 'type': df_available_data.iloc[selected_row]['Type'],
+                'dataset': df_available_data.iloc[selected_row]['Dataset'],
                 'source': df_available_data.iloc[selected_row]['Source']
             }
         else:
@@ -200,7 +201,6 @@ with tab2:
     with col2:
         st.subheader("Data Preview")
         
-        # Display the selected dataframe
         if selected_df is not None:
             if selected_df == "Generated Drill Traces":
                 st.dataframe(st.session_state["df_drilltraces"])
@@ -211,9 +211,9 @@ with tab2:
                 else:
                     st.write("No data available for the selected option.")
             
-            # Display additional information about the selected dataset
             st.write(f"Selected Dataset: {st.session_state['selected_data']['name']}")
             st.write(f"Type: {st.session_state['selected_data']['type']}")
+            st.write(f"Dataset: {st.session_state['selected_data']['dataset']}")
             st.write(f"Source: {st.session_state['selected_data']['source']}")
         else:
             st.write("No data selected")
@@ -221,11 +221,7 @@ with tab2:
 with tab3:
     st.header("3D Visualization")
     if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
-        collar_file = next((file for file in st.session_state.files_list if file.category == "Collar"), None)
-        if collar_file:
-            plot3d_dhtraces(st.session_state["df_drilltraces"], collar_file.df)
-        else:
-            plot3d_dhtraces(st.session_state["df_drilltraces"])
+        plot3d_dhtraces(st.session_state["df_drilltraces"])
     else:
         st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
 
@@ -238,6 +234,7 @@ with tab4:
             with st.expander(f"{log_entry['timestamp']} - {log_entry['action']} (User: {log_entry['username']})"):
                 st.write(f"Filename: {log_entry.get('filename', 'N/A')}")
                 st.write(f"Category: {log_entry.get('category', 'N/A')}")
+                st.write(f"Dataset: {log_entry.get('dataset', 'N/A')}")
                 st.write(f"Encoding: {log_entry.get('encoding', 'N/A')}")
                 st.write(f"File size: {log_entry.get('file_size', 'N/A')}")
                 st.write(f"Rows: {log_entry.get('rows', 'N/A')}")

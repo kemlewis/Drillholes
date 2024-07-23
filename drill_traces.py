@@ -100,40 +100,26 @@ def generate_drilltraces():
     else:
         st.error("Both Collar and Survey files are required to generate drill traces")
 
-def plot3d_dhtraces(df_dh_traces, df_collar=None):
+def plot3d_dhtraces(df_dh_traces):
     try:
         fig = go.Figure()
 
-        # Create a trace for each hole
-        for hole_id in df_dh_traces['HoleID'].unique():
-            hole_data = df_dh_traces[df_dh_traces['HoleID'] == hole_id]
-            fig.add_trace(go.Scatter3d(
-                x=hole_data['DH_X'],
-                y=hole_data['DH_Y'],
-                z=hole_data['DH_Z'],
-                mode='lines',
-                name=hole_id,
-                line=dict(width=4),
-                hoverinfo='text',
-                text=[f'HoleID: {hole_id}<br>Depth: {depth:.2f}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
-                      for depth, x, y, z in zip(hole_data['Depth'], hole_data['DH_X'], hole_data['DH_Y'], hole_data['DH_Z'])]
-            ))
-
-        # Add collar points if available
-        if df_collar is not None:
-            fig.add_trace(go.Scatter3d(
-                x=df_collar['DH_X'],
-                y=df_collar['DH_Y'],
-                z=df_collar['DH_Z'],
-                mode='markers+text',
-                name='Collars',
-                marker=dict(size=5, color='red'),
-                text=df_collar['HoleID'],
-                textposition='top center',
-                hoverinfo='text',
-                hovertext=[f'HoleID: {hole_id}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
-                           for hole_id, x, y, z in zip(df_collar['HoleID'], df_collar['DH_X'], df_collar['DH_Y'], df_collar['DH_Z'])]
-            ))
+        # Create a trace for each hole in each dataset
+        for dataset in df_dh_traces['Dataset'].unique():
+            dataset_traces = df_dh_traces[df_dh_traces['Dataset'] == dataset]
+            for hole_id in dataset_traces['HoleID'].unique():
+                hole_data = dataset_traces[dataset_traces['HoleID'] == hole_id]
+                fig.add_trace(go.Scatter3d(
+                    x=hole_data['DH_X'],
+                    y=hole_data['DH_Y'],
+                    z=hole_data['DH_Z'],
+                    mode='lines',
+                    name=f"{dataset} - {hole_id}",
+                    line=dict(width=4),
+                    hoverinfo='text',
+                    text=[f'Dataset: {dataset}<br>HoleID: {hole_id}<br>Depth: {depth:.2f}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
+                          for depth, x, y, z in zip(hole_data['Depth'], hole_data['DH_X'], hole_data['DH_Y'], hole_data['DH_Z'])]
+                ))
 
         # Create the layout
         layout = go.Layout(
@@ -143,9 +129,9 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
                 zaxis_title='Z',
                 aspectmode='data'
             ),
-            title='3D Drill Traces with Collars',
+            title='3D Drill Traces for All Datasets',
             hovermode='closest',
-            height=800,  # Increase the height of the plot
+            height=800,
             legend=dict(
                 yanchor="top",
                 y=0.99,

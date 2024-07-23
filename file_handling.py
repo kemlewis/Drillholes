@@ -35,23 +35,25 @@ def read_file_chardet(uploaded_file):
         logger.error(f"File reading error: {str(e)}", exc_info=True)
         return None, None, None, None
 
-def process_uploaded_file(file, category):
+def process_uploaded_file(file, category, dataset_id):
     df, encoding, file_size, file_hash = read_file_chardet(file)
     if df is not None:
         simplified_dtypes = simplify_dtypes(df)
         file_instance = File(name=file.name, df=df, category=category, columns=df.columns.tolist(), columns_dtypes=df.dtypes.to_dict(), simplified_dtypes=simplified_dtypes)
         file_instance.required_cols = REQUIRED_COLUMNS[category]
+        file_instance.dataset = dataset_id
         
-        # Remove any existing file of the same category
-        st.session_state.files_list = [f for f in st.session_state.files_list if f.category != category]
+        # Remove any existing file of the same category and dataset
+        st.session_state.files_list = [f for f in st.session_state.files_list if not (f.category == category and f.dataset == dataset_id)]
         st.session_state.files_list.append(file_instance)
         
         log_entry = {
             "timestamp": datetime.now(),
-            "action": f"{category} file uploaded",
+            "action": f"{category} file uploaded for {dataset_id}",
             "username": "user1",
             "filename": file.name,
             "category": category,
+            "dataset": dataset_id,
             "encoding": encoding,
             "file_size": f"{file_size / 1024:.2f} KB",
             "rows": len(df),
@@ -61,9 +63,10 @@ def process_uploaded_file(file, category):
         }
         st.session_state["log"].append(log_entry)
         
-        st.success(f"{category} file uploaded successfully.")
+        return file_instance
     else:
         st.error(f"Failed to read {file.name}.")
+        return None
 
 def uploaded_files_list():
     files_list = st.session_state.get("files_list", [])
