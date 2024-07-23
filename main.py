@@ -218,9 +218,18 @@ with tab3:
     if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
         collar_file = next((file for file in st.session_state.files_list if file.category == "Collar"), None)
         if collar_file:
-            plot3d_dhtraces(st.session_state["df_drilltraces"], collar_file.df)
+            fig = plot3d_dhtraces(st.session_state["df_drilltraces"], collar_file.df)
         else:
-            plot3d_dhtraces(st.session_state["df_drilltraces"])
+            fig = plot3d_dhtraces(st.session_state["df_drilltraces"])
+
+        # Add a button to get selected points
+        if st.button("Get Selected Points"):
+            selected_points = fig.data[0].selectedpoints
+            if selected_points:
+                st.write("Selected points:", selected_points)
+                # You can add more processing here for the selected points
+            else:
+                st.write("No points selected")
     else:
         st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
 

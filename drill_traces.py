@@ -99,6 +99,9 @@ def generate_drilltraces():
     else:
         st.error("Both Collar and Survey files are required to generate drill traces")
 
+import plotly.graph_objects as go
+import streamlit as st
+
 def plot3d_dhtraces(df_dh_traces, df_collar=None):
     try:
         fig = go.Figure()
@@ -110,9 +113,10 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
                 x=hole_data['DH_X'],
                 y=hole_data['DH_Y'],
                 z=hole_data['DH_Z'],
-                mode='lines',
+                mode='lines+markers',
                 name=hole_id,
                 line=dict(width=4),
+                marker=dict(size=3),
                 hoverinfo='text',
                 text=[f'HoleID: {hole_id}<br>Depth: {depth:.2f}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
                       for depth, x, y, z in zip(hole_data['Depth'], hole_data['DH_X'], hole_data['DH_Y'], hole_data['DH_Z'])]
@@ -135,7 +139,7 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
             ))
 
         # Create the layout
-        layout = go.Layout(
+        fig.update_layout(
             scene=dict(
                 xaxis_title='X',
                 yaxis_title='Y',
@@ -143,7 +147,6 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
                 aspectmode='data'
             ),
             title='3D Drill Traces with Collars',
-            hovermode='closest',
             height=800,
             legend=dict(
                 yanchor="top",
@@ -151,23 +154,40 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
                 xanchor="left",
                 x=0.01
             ),
-            updatemenus=[dict(
-                type="buttons",
-                buttons=[dict(label="Reset Selection",
-                              method="update",
-                              args=[{"selectedpoints": [None]}])]
-            )]
+            dragmode='select'
         )
 
-        # Create the figure and plot
-        fig.update_layout(layout)
-        
-        # Use Streamlit's plotly_events for interactivity
-        selected_points = st.plotly_chart(fig, use_container_width=True, return_events=True)
-        
-        if selected_points:
-            st.write("Selected points:")
-            st.write(selected_points)
+        # Add selection tools
+        fig.update_layout(
+            updatemenus=[
+                dict(
+                    type="buttons",
+                    direction="left",
+                    buttons=[
+                        dict(args=[{"dragmode": "select"}],
+                             label="Select",
+                             method="relayout"),
+                        dict(args=[{"dragmode": "lasso"}],
+                             label="Lasso",
+                             method="relayout"),
+                        dict(args=[{"dragmode": "orbit"}],
+                             label="Orbit",
+                             method="relayout"),
+                    ],
+                    pad={"r": 10, "t": 10},
+                    showactive=True,
+                    x=0.05,
+                    xanchor="left",
+                    y=1.1,
+                    yanchor="top"
+                ),
+            ]
+        )
+
+        # Use Streamlit's plotly_chart
+        st.plotly_chart(fig, use_container_width=True)
+
+        return fig
 
     except Exception as e:
         st.error(f"Failed to plot 3D drill traces: {str(e)}")
