@@ -13,6 +13,7 @@ from utils import File, simplify_dtypes, required_cols
 from config import APP_TITLE, APP_ICON, ALLOWED_EXTENSIONS
 import datatype_guesser
 from datatype_guesser import REQUIRED_COLUMNS, COLUMN_DATATYPES
+from drill_traces import generate_all_drilltraces, plot3d_dhtraces
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -117,24 +118,17 @@ with tab1:
                             file.df = change_dtypes(file.df, file.user_defined_dtypes)
                             st.success(f"Applied column types for {file.name}")
 
+       # In the main.py file, replace the existing "Generate All Drill Traces" button code with this:
+
         # Generate drill traces
         if st.button("Generate All Drill Traces"):
-            all_drilltraces = []
-            for idx, dataset in enumerate(st.session_state.datasets):
-                collar_file = next((file for file in st.session_state.files_list if file.category == "Collar" and file.dataset == f"Dataset_{idx+1}"), None)
-                survey_file = next((file for file in st.session_state.files_list if file.category == "Survey" and file.dataset == f"Dataset_{idx+1}"), None)
-                if collar_file and survey_file:
-                    drilltraces = generate_drilltraces(collar_file.df, survey_file.df)
-                    if drilltraces is not None:
-                        drilltraces['Dataset'] = f"Dataset_{idx+1}"
-                        all_drilltraces.append(drilltraces)
-            
-            if all_drilltraces:
-                st.session_state["df_drilltraces"] = pd.concat(all_drilltraces, ignore_index=True)
+            df_all_drilltraces = generate_all_drilltraces()
+            if df_all_drilltraces is not None:
+                st.session_state["df_drilltraces"] = df_all_drilltraces
                 st.success("All drill traces generated successfully. Switch to the '3D Visualization' tab to view the plot.")
             else:
                 st.error("Failed to generate drill traces. Please check your input files.")
-
+            
     with data_tabs[1]:  # Points tab
         st.header("Points Data Input")
         st.info("Points data input functionality to be implemented.")

@@ -29,7 +29,7 @@ def calculate_xyz(depth_1, dip_1, azi_1, depth_2, dip_2, azi_2):
     else:
         return MD, 1, 0, 0, MD
 
-def generate_drill_traces(df_collar, df_survey):
+def generate_drilltraces(df_collar, df_survey):
     try:
         # Ensure required columns are present
         required_collar_cols = ['HoleID', 'DH_X', 'DH_Y', 'DH_Z']
@@ -85,20 +85,21 @@ def generate_drill_traces(df_collar, df_survey):
         logger.error(f"Error in generate_drill_traces: {str(e)}")
         raise
 
-def generate_drilltraces():
-    collar_file = next((file for file in st.session_state.files_list if file.category == "Collar"), None)
-    survey_file = next((file for file in st.session_state.files_list if file.category == "Survey"), None)
-
-    if collar_file and survey_file:
-        try:
-            df_drilltraces = generate_drill_traces(collar_file.df, survey_file.df)
-            st.session_state["df_drilltraces"] = df_drilltraces
-            st.success("Drill traces generated successfully")
-        except Exception as e:
-            st.error(f"Failed to generate drill traces: {str(e)}")
-            logger.error(f"Drill trace generation error: {str(e)}", exc_info=True)
+def generate_all_drilltraces():
+    all_drilltraces = []
+    for idx, dataset in enumerate(st.session_state.datasets):
+        collar_file = next((file for file in st.session_state.files_list if file.category == "Collar" and file.dataset == f"Dataset_{idx+1}"), None)
+        survey_file = next((file for file in st.session_state.files_list if file.category == "Survey" and file.dataset == f"Dataset_{idx+1}"), None)
+        if collar_file and survey_file:
+            drilltraces = generate_drilltraces(collar_file.df, survey_file.df)
+            if drilltraces is not None:
+                drilltraces['Dataset'] = f"Dataset_{idx+1}"
+                all_drilltraces.append(drilltraces)
+    
+    if all_drilltraces:
+        return pd.concat(all_drilltraces, ignore_index=True)
     else:
-        st.error("Both Collar and Survey files are required to generate drill traces")
+        return None
 
 def plot3d_dhtraces(df_dh_traces):
     try:
