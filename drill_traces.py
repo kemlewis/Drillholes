@@ -93,7 +93,6 @@ def generate_drilltraces():
         try:
             df_drilltraces = generate_drill_traces(collar_file.df, survey_file.df)
             st.session_state["df_drilltraces"] = df_drilltraces
-            st.success("Drill traces generated successfully")
         except Exception as e:
             st.error(f"Failed to generate drill traces: {str(e)}")
             logger.error(f"Drill trace generation error: {str(e)}", exc_info=True)
