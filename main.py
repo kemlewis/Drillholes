@@ -12,6 +12,7 @@ from drill_traces import generate_drilltraces, plot3d_dhtraces
 from utils import File, simplify_dtypes, required_cols
 from config import APP_TITLE, APP_ICON, ALLOWED_EXTENSIONS
 import datatype_guesser
+from datatype_guesser import REQUIRED_COLUMNS, COLUMN_DATATYPES
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -93,7 +94,10 @@ with tab1:
                             st.write("Current column assignments:")
                             for column in file.df.columns:
                                 current_dtype = file.user_defined_dtypes.get(column, "Text")
-                                options = list(file.required_cols.keys()) + datatype_guesser.COLUMN_DATATYPES
+                                
+                                # Use REQUIRED_COLUMNS instead of file.required_cols
+                                options = REQUIRED_COLUMNS.get(file.category, []) + COLUMN_DATATYPES
+                                
                                 new_dtype = st.selectbox(
                                     f"Column: {column}",
                                     options=options,
