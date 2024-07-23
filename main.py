@@ -1,4 +1,4 @@
-# main.py
+#main.py
 
 import streamlit as st
 import pandas as pd
@@ -9,9 +9,10 @@ import logging
 from file_handling import read_file_chardet, process_uploaded_file
 from data_processing import identify_columns_form, process_file_categories, change_dtypes
 from drill_traces import generate_drilltraces, plot3d_dhtraces
-from utils import File, simplify_dtypes, REQUIRED_COLUMNS, COLUMN_DATATYPES
+from utils import File, simplify_dtypes, required_cols
 from config import APP_TITLE, APP_ICON, ALLOWED_EXTENSIONS
 import datatype_guesser
+from datatype_guesser import REQUIRED_COLUMNS, COLUMN_DATATYPES
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -79,7 +80,7 @@ with tab1:
                                 # First, assign best guesses for mandatory fields
                                 for column in file.df.columns:
                                     guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
-                                    if guessed_datatype in REQUIRED_COLUMNS and guessed_datatype not in assigned_mandatory_fields:
+                                    if guessed_datatype in file.required_cols and guessed_datatype not in assigned_mandatory_fields:
                                         column_assignments[column] = guessed_datatype
                                         assigned_mandatory_fields.add(guessed_datatype)
                                     else:
@@ -93,7 +94,10 @@ with tab1:
                             st.write("Current column assignments:")
                             for column in file.df.columns:
                                 current_dtype = file.user_defined_dtypes.get(column, "Text")
+                                
+                                # Use REQUIRED_COLUMNS instead of file.required_cols
                                 options = REQUIRED_COLUMNS.get(file.category, []) + COLUMN_DATATYPES
+                                
                                 new_dtype = st.selectbox(
                                     f"Column: {column}",
                                     options=options,
@@ -209,39 +213,30 @@ with tab2:
         else:
             st.write("No data selected")
 
-from streamlit_plotly_events import plotly_events
-
 with tab3:
     st.header("3D Visualization")
     if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
         collar_file = next((file for file in st.session_state.files_list if file.category == "Collar"), None)
         if collar_file:
-            fig = plot3d_dhtraces(st.session_state["df_drilltraces"], collar_file.df)
+            plot3d_dhtraces(st.session_state["df_drilltraces"], collar_file.df)
         else:
-            fig = plot3d_dhtraces(st.session_state["df_drilltraces"])
-
-        if fig:
-            # Use plotly_events to capture click events
-            selected_points = plotly_events(fig, click_event=True)
-            
-            if selected_points:
-                st.write("Selected point details:")
-                for point in selected_points:
-                    st.write(f"Trace: {point['curveNumber']}")
-                    st.write(f"Point Index: {point['pointIndex']}")
-                    st.write(f"X: {point['x']:.2f}")
-                    st.write(f"Y: {point['y']:.2f}")
-                    st.write(f"Z: {point['z']:.2f}")
-            else:
-                st.write("Click on a point in the plot to see its details.")
+            plot3d_dhtraces(st.session_state["df_drilltraces"])
     else:
         st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
-        
+
 with tab4:
     st.header("Application Log")
-    # Create a container for the log entries
     log_container = st.container()
     
-    # Display log entries in reverse chronological order
-    for log_entry in reversed(st.session_state["log"]):
-        log_container.write(f"{log_entry['timestamp']} - {log_entry['action']} (User: {log_entry['username']})")
+    with log_container:
+        for log_entry in reversed(st.session_state["log"]):
+            with st.expander(f"{log_entry['timestamp']} - {log_entry['action']} (User: {log_entry['username']})"):
+                st.write(f"Filename: {log_entry.get('filename', 'N/A')}")
+                st.write(f"Category: {log_entry.get('category', 'N/A')}")
+                st.write(f"Encoding: {log_entry.get('encoding', 'N/A')}")
+                st.write(f"File size: {log_entry.get('file_size', 'N/A')}")
+                st.write(f"Rows: {log_entry.get('rows', 'N/A')}")
+                st.write(f"Columns: {log_entry.get('columns', 'N/A')}")
+                if 'column_names' in log_entry:
+                    st.write("Column names:")
+                    st.write(", ".join(log_entry['column_names']))

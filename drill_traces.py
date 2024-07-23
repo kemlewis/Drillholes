@@ -93,6 +93,7 @@ def generate_drilltraces():
         try:
             df_drilltraces = generate_drill_traces(collar_file.df, survey_file.df)
             st.session_state["df_drilltraces"] = df_drilltraces
+            st.success("Drill traces generated successfully")
         except Exception as e:
             st.error(f"Failed to generate drill traces: {str(e)}")
             logger.error(f"Drill trace generation error: {str(e)}", exc_info=True)
@@ -110,10 +111,9 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
                 x=hole_data['DH_X'],
                 y=hole_data['DH_Y'],
                 z=hole_data['DH_Z'],
-                mode='lines+markers',
+                mode='lines',
                 name=hole_id,
                 line=dict(width=4),
-                marker=dict(size=3),
                 hoverinfo='text',
                 text=[f'HoleID: {hole_id}<br>Depth: {depth:.2f}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
                       for depth, x, y, z in zip(hole_data['Depth'], hole_data['DH_X'], hole_data['DH_Y'], hole_data['DH_Z'])]
@@ -136,7 +136,7 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
             ))
 
         # Create the layout
-        fig.update_layout(
+        layout = go.Layout(
             scene=dict(
                 xaxis_title='X',
                 yaxis_title='Y',
@@ -144,7 +144,8 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
                 aspectmode='data'
             ),
             title='3D Drill Traces with Collars',
-            height=800,
+            hovermode='closest',
+            height=800,  # Increase the height of the plot
             legend=dict(
                 yanchor="top",
                 y=0.99,
@@ -153,12 +154,13 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
             )
         )
 
-        return fig
+        # Create the figure and plot
+        fig.update_layout(layout)
+        st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
         st.error(f"Failed to plot 3D drill traces: {str(e)}")
         logger.error(f"3D plotting error: {str(e)}", exc_info=True)
-        return None
 
 def validate_drill_traces(df_drilltraces):
     st.write("Validating drill traces")
