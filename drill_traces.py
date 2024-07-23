@@ -1,247 +1,214 @@
-# main.py
+# drill_traces.py
 
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+import numpy as np
+import plotly.express as px
 import logging
+import plotly.graph_objects as go
 
-# Import functions from other modules
-from file_handling import read_file_chardet, process_uploaded_file
-from data_processing import identify_columns_form, process_file_categories, change_dtypes
-from drill_traces import generate_drilltraces, plot3d_dhtraces
-from utils import File, simplify_dtypes, REQUIRED_COLUMNS, COLUMN_DATATYPES
-from config import APP_TITLE, APP_ICON, ALLOWED_EXTENSIONS
-import datatype_guesser
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Streamlit page config
-st.set_page_config(page_title=APP_TITLE, page_icon=APP_ICON, layout="wide")
-
-# Initialize session state
-if 'files_list' not in st.session_state:
-    st.session_state['files_list'] = []
-if "log" not in st.session_state:
-    st.session_state["log"] = []
-if "df_drilltraces" not in st.session_state:
-    st.session_state["df_drilltraces"] = pd.DataFrame()
-
-# Log app start
-if len(st.session_state["log"]) == 0:
-    st.session_state["log"].append({"timestamp": datetime.now(), "action": "App started", "username": "user1"})
-
-# Main app
-st.title(APP_TITLE)
-
-# Create four main tabs
-tab1, tab2, tab3, tab4 = st.tabs(["Data Input", "Data Viewer", "3D Visualization", "Log"])
-
-with tab1:
-    # Create sub-tabs for different data types
-    data_tabs = st.tabs(["Drillholes", "Points", "Lines", "Surfaces"])
-
-    with data_tabs[0]:  # Drillholes tab
-        # Create sub-tabs for drillhole data types
-        dh_tabs = st.tabs(["DH Survey/Collar", "DH Points", "DH Intervals"])
-
-        with dh_tabs[0]:  # DH Survey/Collar tab
-            st.header("DH Survey/Collar Data Input")
-
-            # File upload in an expander
-            with st.expander("Upload Collar and Survey Files", expanded=True):
-                collar_file = st.file_uploader("Upload Collar File", type=ALLOWED_EXTENSIONS, key="collar_uploader")
-                survey_file = st.file_uploader("Upload Survey File", type=ALLOWED_EXTENSIONS, key="survey_uploader")
-
-                if collar_file:
-                    process_uploaded_file(collar_file, "Collar")
-
-                if survey_file:
-                    process_uploaded_file(survey_file, "Survey")
-
-            # Guess and identify columns for each file after upload
-            for file in st.session_state.files_list:
-                if file.category in ["Collar", "Survey"]:
-                    with st.expander(f"Identify columns for {file.name}", expanded=True):
-                        st.write(f"Select column data types for the {file.category} file: {file.name}")
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            st.dataframe(file.df)
-                        with col2:
-                            auto_guess = st.button("Auto Guess", key=f"{file.name}_auto_guess")
-
-                            if auto_guess:
-                                # Initialize a set to keep track of assigned mandatory fields
-                                assigned_mandatory_fields = set()
-                                column_assignments = {}
-
-                                # First, assign best guesses for mandatory fields
-                                for column in file.df.columns:
-                                    guessed_datatype = datatype_guesser.guess_type('datacolumn', f"{file.category}_{column}", file.df[column])
-                                    if guessed_datatype in REQUIRED_COLUMNS and guessed_datatype not in assigned_mandatory_fields:
-                                        column_assignments[column] = guessed_datatype
-                                        assigned_mandatory_fields.add(guessed_datatype)
-                                    else:
-                                        # If not a required column, guess again without the file category prefix
-                                        guessed_datatype = datatype_guesser.guess_column_type(file.category, column, file.df[column])
-                                        column_assignments[column] = guessed_datatype
-
-                                file.user_defined_dtypes.update(column_assignments)
-                                st.success(f"Auto guessed data types for {file.name}")
-
-                            st.write("Current column assignments:")
-                            for column in file.df.columns:
-                                current_dtype = file.user_defined_dtypes.get(column, "Text")
-                                options = REQUIRED_COLUMNS.get(file.category, []) + COLUMN_DATATYPES
-                                new_dtype = st.selectbox(
-                                    f"Column: {column}",
-                                    options=options,
-                                    index=options.index(current_dtype) if current_dtype in options else 0,
-                                    key=f"{file.name}_{column}_dtype"
-                                )
-                                file.user_defined_dtypes[column] = new_dtype
-
-                            if st.button("Apply Column Types", key=f"{file.name}_apply_types"):
-                                file.df = change_dtypes(file.df, file.user_defined_dtypes)
-                                st.success(f"Applied column types for {file.name}")
-
-            # Generate drill traces
-            if st.button("Generate Drill Traces"):
-                generate_drilltraces()
-                if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
-                    st.success("Drill traces generated successfully. Switch to the '3D Visualization' tab to view the plot.")
-
-        with dh_tabs[1]:  # DH Points tab
-            st.header("DH Points Data Input")
-            st.info("DH Points data input functionality to be implemented.")
-
-        with dh_tabs[2]:  # DH Intervals tab
-            st.header("DH Intervals Data Input")
-            st.info("DH Intervals data input functionality to be implemented.")
-
-    with data_tabs[1]:  # Points tab
-        st.header("Points Data Input")
-        st.info("Points data input functionality to be implemented.")
-
-    with data_tabs[2]:  # Lines tab
-        st.header("Lines Data Input")
-        st.info("Lines data input functionality to be implemented.")
-
-    with data_tabs[3]:  # Surfaces tab
-        st.header("Surfaces Data Input")
-        st.info("Surfaces data input functionality to be implemented.")
-
-with tab2:
-    st.header("Data Viewer")
-    
-    # Create two columns
-    col1, col2 = st.columns([1, 3])
-    
-    with col1:
-        st.subheader("Available Data")
+def calculate_xyz(depth_1, dip_1, azi_1, depth_2, dip_2, azi_2):
+    MD = depth_2 - depth_1
+    if abs(dip_1) != 90:
+        dip_1 = np.radians(90 + dip_1)
+        dip_2 = np.radians(90 + dip_2)
+        azi_1 = np.radians(azi_1)
+        azi_2 = np.radians(azi_2)
         
-        # Create a list of available dataframes
-        data_list = []
+        B_rad = np.arccos(np.cos(dip_2 - dip_1) - (np.sin(dip_1) * np.sin(dip_2) * (1 - np.cos(azi_2 - azi_1))))
+        RF = (2 / B_rad) * np.tan(B_rad / 2) if B_rad != 0 else 1
+
+        dDepth = MD / 2
+        dN = dDepth * ((np.sin(dip_1) * np.cos(azi_1)) + (np.sin(dip_2) * np.cos(azi_2))) * RF
+        dE = dDepth * ((np.sin(dip_1) * np.sin(azi_1)) + (np.sin(dip_2) * np.sin(azi_2))) * RF
+        dV = dDepth * (np.cos(dip_1) + np.cos(dip_2)) * RF
+
+        return MD, RF, dN, dE, dV
+    else:
+        return MD, 1, 0, 0, MD
+
+def generate_drill_traces(df_collar, df_survey):
+    try:
+        # Ensure required columns are present
+        required_collar_cols = ['HoleID', 'DH_X', 'DH_Y', 'DH_Z']
+        required_survey_cols = ['HoleID', 'Depth', 'Azimuth', 'Dip']
         
-        # Add uploaded files
-        for file in st.session_state.files_list:
-            data_list.append({
-                "Type": file.category,
-                "Name": file.name,
-                "Source": "Uploaded"
-            })
+        for col in required_collar_cols:
+            if col not in df_collar.columns:
+                raise ValueError(f"Required column '{col}' not found in collar data")
         
-        # Add generated drill traces if available
-        if not st.session_state["df_drilltraces"].empty:
-            data_list.append({
-                "Type": "Drill Traces",
-                "Name": "Generated Drill Traces",
-                "Source": "Generated"
-            })
-        
-        # Create a DataFrame from the data list
-        df_available_data = pd.DataFrame(data_list)
-        
-        # Column filter
-        with st.container():
-            columns = df_available_data.columns.tolist()
-            selected_columns = st.multiselect("Select columns to display", columns, default=columns)
-        
-        # Display the table with checkboxes and handle selection
-        event = st.dataframe(
-            df_available_data[selected_columns],
-            hide_index=True,
-            use_container_width=True,
-            on_select='rerun',
-            selection_mode='single-row'
+        for col in required_survey_cols:
+            if col not in df_survey.columns:
+                raise ValueError(f"Required column '{col}' not found in survey data")
+
+        # Merge collar and survey data
+        df_traces = df_collar[required_collar_cols].merge(df_survey[required_survey_cols], on='HoleID', how='inner')
+
+        # Sort by HoleID and Depth
+        df_traces = df_traces.sort_values(['HoleID', 'Depth'])
+
+        # Initialize columns for calculated values
+        df_traces['DH_dX'] = 0.0
+        df_traces['DH_dY'] = 0.0
+        df_traces['DH_dZ'] = 0.0
+
+        # Group by HoleID and calculate drill traces
+        for hole_id, group in df_traces.groupby('HoleID'):
+            x_prev, y_prev, z_prev = group.iloc[0][['DH_X', 'DH_Y', 'DH_Z']]
+            depth_prev, dip_prev, azi_prev = 0, group.iloc[0]['Dip'], group.iloc[0]['Azimuth']
+
+            for idx, row in group.iterrows():
+                depth, dip, azi = row['Depth'], row['Dip'], row['Azimuth']
+                
+                if depth > 0:
+                    MD, RF, dN, dE, dV = calculate_xyz(depth_prev, dip_prev, azi_prev, depth, dip, azi)
+                    
+                    df_traces.at[idx, 'DH_dX'] = dE
+                    df_traces.at[idx, 'DH_dY'] = dN
+                    df_traces.at[idx, 'DH_dZ'] = dV
+                    
+                    x_prev += dE
+                    y_prev += dN
+                    z_prev -= dV  # Subtract dV because depth increases downwards
+                    
+                    df_traces.at[idx, 'DH_X'] = x_prev
+                    df_traces.at[idx, 'DH_Y'] = y_prev
+                    df_traces.at[idx, 'DH_Z'] = z_prev
+
+                depth_prev, dip_prev, azi_prev = depth, dip, azi
+
+        return df_traces
+
+    except Exception as e:
+        logger.error(f"Error in generate_drill_traces: {str(e)}")
+        raise
+
+def generate_drilltraces():
+    collar_file = next((file for file in st.session_state.files_list if file.category == "Collar"), None)
+    survey_file = next((file for file in st.session_state.files_list if file.category == "Survey"), None)
+
+    if collar_file and survey_file:
+        try:
+            df_drilltraces = generate_drill_traces(collar_file.df, survey_file.df)
+            st.session_state["df_drilltraces"] = df_drilltraces
+        except Exception as e:
+            st.error(f"Failed to generate drill traces: {str(e)}")
+            logger.error(f"Drill trace generation error: {str(e)}", exc_info=True)
+    else:
+        st.error("Both Collar and Survey files are required to generate drill traces")
+
+def plot3d_dhtraces(df_dh_traces, df_collar=None):
+    try:
+        fig = go.Figure()
+
+        # Create a trace for each hole
+        for hole_id in df_dh_traces['HoleID'].unique():
+            hole_data = df_dh_traces[df_dh_traces['HoleID'] == hole_id]
+            fig.add_trace(go.Scatter3d(
+                x=hole_data['DH_X'],
+                y=hole_data['DH_Y'],
+                z=hole_data['DH_Z'],
+                mode='lines+markers',
+                name=hole_id,
+                line=dict(width=4),
+                marker=dict(size=3),
+                hoverinfo='text',
+                text=[f'HoleID: {hole_id}<br>Depth: {depth:.2f}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
+                      for depth, x, y, z in zip(hole_data['Depth'], hole_data['DH_X'], hole_data['DH_Y'], hole_data['DH_Z'])]
+            ))
+
+        # Add collar points if available
+        if df_collar is not None:
+            fig.add_trace(go.Scatter3d(
+                x=df_collar['DH_X'],
+                y=df_collar['DH_Y'],
+                z=df_collar['DH_Z'],
+                mode='markers+text',
+                name='Collars',
+                marker=dict(size=5, color='red'),
+                text=df_collar['HoleID'],
+                textposition='top center',
+                hoverinfo='text',
+                hovertext=[f'HoleID: {hole_id}<br>X: {x:.2f}<br>Y: {y:.2f}<br>Z: {z:.2f}'
+                           for hole_id, x, y, z in zip(df_collar['HoleID'], df_collar['DH_X'], df_collar['DH_Y'], df_collar['DH_Z'])]
+            ))
+
+        # Create the layout
+        fig.update_layout(
+            scene=dict(
+                xaxis_title='X',
+                yaxis_title='Y',
+                zaxis_title='Z',
+                aspectmode='data'
+            ),
+            title='3D Drill Traces with Collars',
+            height=800,
+            legend=dict(
+                yanchor="top",
+                y=0.99,
+                xanchor="left",
+                x=0.01
+            )
         )
 
-        if len(event.selection['rows']):
-            selected_row = event.selection['rows'][0]
-            selected_df = df_available_data.iloc[selected_row]['Name']
-            st.session_state['selected_data'] = {
-                'name': selected_df,
-                'type': df_available_data.iloc[selected_row]['Type'],
-                'source': df_available_data.iloc[selected_row]['Source']
-            }
-        else:
-            selected_df = None
+        return fig
+
+    except Exception as e:
+        st.error(f"Failed to plot 3D drill traces: {str(e)}")
+        logger.error(f"3D plotting error: {str(e)}", exc_info=True)
+        return None
+
+def validate_drill_traces(df_drilltraces):
+    st.write("Validating drill traces")
     
-    with col2:
-        st.subheader("Data Preview")
-        
-        # Display the selected dataframe
-        if selected_df is not None:
-            if selected_df == "Generated Drill Traces":
-                st.dataframe(st.session_state["df_drilltraces"])
-            else:
-                selected_file = next((file for file in st.session_state.files_list if file.name == selected_df), None)
-                if selected_file:
-                    st.dataframe(selected_file.df)
-                else:
-                    st.write("No data available for the selected option.")
-            
-            # Display additional information about the selected dataset
-            st.write(f"Selected Dataset: {st.session_state['selected_data']['name']}")
-            st.write(f"Type: {st.session_state['selected_data']['type']}")
-            st.write(f"Source: {st.session_state['selected_data']['source']}")
-        else:
-            st.write("No data selected")
-
-from streamlit_plotly_events import plotly_events
-
-with tab3:
-    st.header("3D Visualization")
-    if "df_drilltraces" in st.session_state and not st.session_state["df_drilltraces"].empty:
-        collar_file = next((file for file in st.session_state.files_list if file.category == "Collar"), None)
-        if collar_file:
-            fig = plot3d_dhtraces(st.session_state["df_drilltraces"], collar_file.df)
-        else:
-            fig = plot3d_dhtraces(st.session_state["df_drilltraces"])
-
-        if fig:
-            # Use plotly_events to capture click events
-            selected_points = plotly_events(fig, click_event=True)
-            
-            if selected_points:
-                st.write("Selected point details:")
-                for point in selected_points:
-                    st.write(f"Trace: {point['curveNumber']}")
-                    st.write(f"Point Index: {point['pointIndex']}")
-                    st.write(f"X: {point['x']:.2f}")
-                    st.write(f"Y: {point['y']:.2f}")
-                    st.write(f"Z: {point['z']:.2f}")
-            else:
-                st.write("Click on a point in the plot to see its details.")
+    # Check for missing values
+    missing_values = df_drilltraces.isnull().sum()
+    if missing_values.sum() > 0:
+        st.warning("Missing values detected in the following columns:")
+        st.write(missing_values[missing_values > 0])
     else:
-        st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
-        
-with tab4:
-    st.header("Application Log")
-    # Create a container for the log entries
-    log_container = st.container()
-    
-    # Display log entries in reverse chronological order
-    for log_entry in reversed(st.session_state["log"]):
-        log_container.write(f"{log_entry['timestamp']} - {log_entry['action']} (User: {log_entry['username']})")
+        st.success("No missing values detected")
+
+    # Check for negative depths
+    negative_depths = df_drilltraces[df_drilltraces['Depth'] < 0]
+    if not negative_depths.empty:
+        st.warning("Negative depths detected:")
+        st.write(negative_depths)
+    else:
+        st.success("No negative depths detected")
+
+    # Check for duplicate entries
+    duplicates = df_drilltraces[df_drilltraces.duplicated()]
+    if not duplicates.empty:
+        st.warning("Duplicate entries detected:")
+        st.write(duplicates)
+    else:
+        st.success("No duplicate entries detected")
+
+def analyze_drill_traces(df_drilltraces):
+    st.write("Analyzing drill traces")
+
+    # Basic statistics
+    st.write("Basic statistics:")
+    st.write(df_drilltraces.describe())
+
+    # Total length of all drill holes
+    total_length = df_drilltraces.groupby('HoleID')['Depth'].max().sum()
+    st.write(f"Total length of all drill holes: {total_length:.2f} meters")
+
+    # Average depth of drill holes
+    avg_depth = df_drilltraces.groupby('HoleID')['Depth'].max().mean()
+    st.write(f"Average depth of drill holes: {avg_depth:.2f} meters")
+
+    # Deepest drill hole
+    deepest_hole = df_drilltraces.loc[df_drilltraces.groupby('HoleID')['Depth'].idxmax()]
+    st.write("Deepest drill hole:")
+    st.write(deepest_hole)
+
+    # Distribution of dips and azimuths
+    st.write("Distribution of dips:")
+    st.hist_chart(df_drilltraces['Dip'])
+    st.write("Distribution of azimuths:")
+    st.hist_chart(df_drilltraces['Azimuth'])
