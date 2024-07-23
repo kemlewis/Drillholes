@@ -222,17 +222,17 @@ with tab3:
         else:
             fig = plot3d_dhtraces(st.session_state["df_drilltraces"])
 
-        # Add a button to get selected points
-        if st.button("Get Selected Points"):
-            selected_points = fig.data[0].selectedpoints
+        if fig:
+            # Use Streamlit's plotly_chart with use_container_width=True
+            selected_points = st.plotly_chart(fig, use_container_width=True)
+            
             if selected_points:
                 st.write("Selected points:", selected_points)
-                # You can add more processing here for the selected points
             else:
-                st.write("No points selected")
+                st.write("No points selected. Use the selection tools to select points.")
     else:
         st.info("No drill traces data available. Please generate drill traces in the 'Data Input' tab first.")
-
+        
 with tab4:
     st.header("Application Log")
     # Create a container for the log entries

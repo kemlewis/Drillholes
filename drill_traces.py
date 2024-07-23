@@ -184,14 +184,12 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
             ]
         )
 
-        # Use Streamlit's plotly_chart
-        st.plotly_chart(fig, use_container_width=True)
-
         return fig
 
     except Exception as e:
         st.error(f"Failed to plot 3D drill traces: {str(e)}")
         logger.error(f"3D plotting error: {str(e)}", exc_info=True)
+        return None
 
 def validate_drill_traces(df_drilltraces):
     st.write("Validating drill traces")
