@@ -35,7 +35,7 @@ def read_file_chardet(uploaded_file):
         logger.error(f"File reading error: {str(e)}", exc_info=True)
         return None, None, None, None
 
-def process_uploaded_file(file, category, dataset):
+def process_uploaded_file(file, category, dataset, group_name):
     df, encoding, file_size, file_hash = read_file_chardet(file)
     if df is not None:
         simplified_dtypes = simplify_dtypes(df)
@@ -46,7 +46,8 @@ def process_uploaded_file(file, category, dataset):
             columns=df.columns.tolist(),
             columns_dtypes=df.dtypes.to_dict(),
             simplified_dtypes=simplified_dtypes,
-            dataset=dataset
+            dataset=dataset,
+            group_name=group_name
         )
         file_instance.required_cols = REQUIRED_COLUMNS[category]
         
@@ -56,11 +57,12 @@ def process_uploaded_file(file, category, dataset):
         
         log_entry = {
             "timestamp": datetime.now(),
-            "action": f"{category} file uploaded for {dataset}",
+            "action": f"{category} file uploaded for {dataset} in group {group_name}",
             "username": "user1",
             "filename": file.name,
             "category": category,
             "dataset": dataset,
+            "group_name": group_name,
             "encoding": encoding,
             "file_size": f"{file_size / 1024:.2f} KB",
             "rows": len(df),
