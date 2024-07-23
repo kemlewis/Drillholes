@@ -144,18 +144,30 @@ def plot3d_dhtraces(df_dh_traces, df_collar=None):
             ),
             title='3D Drill Traces with Collars',
             hovermode='closest',
-            height=800,  # Increase the height of the plot
+            height=800,
             legend=dict(
                 yanchor="top",
                 y=0.99,
                 xanchor="left",
                 x=0.01
-            )
+            ),
+            updatemenus=[dict(
+                type="buttons",
+                buttons=[dict(label="Reset Selection",
+                              method="update",
+                              args=[{"selectedpoints": [None]}])]
+            )]
         )
 
         # Create the figure and plot
         fig.update_layout(layout)
-        st.plotly_chart(fig, use_container_width=True)
+        
+        # Use Streamlit's plotly_events for interactivity
+        selected_points = st.plotly_chart(fig, use_container_width=True, return_events=True)
+        
+        if selected_points:
+            st.write("Selected points:")
+            st.write(selected_points)
 
     except Exception as e:
         st.error(f"Failed to plot 3D drill traces: {str(e)}")
