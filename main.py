@@ -28,6 +28,8 @@ if "log" not in st.session_state:
     st.session_state["log"] = []
 if "df_drilltraces" not in st.session_state:
     st.session_state["df_drilltraces"] = pd.DataFrame()
+if "uploaded_files" not in st.session_state:
+    st.session_state.uploaded_files = {"Collar": None, "Survey": None}
 
 # Log app start
 if len(st.session_state["log"]) == 0:
@@ -55,11 +57,14 @@ with tab1:
                 collar_file = st.file_uploader("Upload Collar File", type=ALLOWED_EXTENSIONS, key="collar_uploader")
                 survey_file = st.file_uploader("Upload Survey File", type=ALLOWED_EXTENSIONS, key="survey_uploader")
 
-                if collar_file:
-                    process_uploaded_file(collar_file, "Collar")
+                st.session_state.uploaded_files["Collar"] = collar_file
+                st.session_state.uploaded_files["Survey"] = survey_file
 
-                if survey_file:
-                    process_uploaded_file(survey_file, "Survey")
+                if st.button("Process Uploaded Files"):
+                    for category, file in st.session_state.uploaded_files.items():
+                        if file:
+                            process_uploaded_file(file, category)
+                    st.experimental_rerun()
 
             # Guess and identify columns for each file after upload
             for file in st.session_state.files_list:
